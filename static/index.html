@@ -3,231 +3,414 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Supply Chain Intelligence Control Tower | FalkorDB</title>
+  <title>TwinForge | Supply Chain Intelligence Control Tower</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Vis.js Network CDN for Evidence Subgraph -->
   <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            canvas: '#070b14',
+            deep: '#080d19',
+            shell: '#0a1020',
+            surface: '#111a2e',
+            'surface-2': '#16213a',
+            'surface-3': '#1c2a47',
+            line: '#1e2a44',
+            'line-strong': '#2b3b5e',
+            ink: '#e6ebf5',
+            'ink-2': '#a9b4c8',
+            muted: '#6f7d99',
+            accent: '#4c8dff',
+            'accent-soft': '#10224a',
+            agent: '#9085e9',
+            'agent-ink': '#c4bdf7',
+            healthy: '#10b981',
+            warning: '#f59e0b',
+            critical: '#ef4444',
+            'critical-ink': '#ff8a8a',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #080c14;
-      color: #f1f5f9;
+      background-color: #070b14;
+      color: #e6ebf5;
+      font-family: 'Inter', sans-serif;
     }
-    .font-mono {
-      font-family: 'JetBrains Mono', monospace;
+    .twin-card {
+      background: #111a2e;
+      border: 1px solid #1e2a44;
+      border-radius: 12px;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 24px -12px rgba(0, 0, 0, 0.6);
     }
-    .glass-panel {
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .twin-card-interactive:hover {
+      border-color: #2b3b5e;
+      background: #16213a;
     }
-    .glass-card {
-      background: rgba(30, 41, 59, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    /* Custom Scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #0b1120;
+      background: #080d19;
     }
     ::-webkit-scrollbar-thumb {
-      background: #334155;
+      background: #1e2a44;
       border-radius: 4px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
+      background: #2b3b5e;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col antialiased">
 
-  <!-- TOP APP HEADER -->
-  <header class="glass-panel sticky top-0 z-50 border-b border-slate-800 px-6 py-3.5 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+  <!-- TOP ENTERPRISE COCKPIT HEADER (TWIN THEME) -->
+  <header class="bg-shell/90 backdrop-blur-md sticky top-0 z-50 border-b border-line px-6 py-3 flex items-center justify-between">
+    <!-- Brand Mark & Title -->
+    <div class="flex items-center gap-3.5">
+      <div class="h-9 w-9 rounded-xl flex items-center justify-center p-0.5 shadow-md shadow-accent/10">
+        <svg viewBox="0 0 32 32" class="h-8 w-8" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#0f1a33" />
+          <rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="none" stroke="#2b3b5e" />
+          <path d="M8 9.5h16" stroke="#4c8dff" stroke-width="2.6" stroke-linecap="round" />
+          <path d="M16 9.5v10" stroke="#4c8dff" stroke-width="2.6" stroke-linecap="round" />
+          <path d="M16 19.5l-5 4M16 19.5l5 4" stroke="#6f7d99" stroke-width="1.6" stroke-linecap="round" />
+          <circle cx="10.5" cy="24" r="2.4" fill="#10b981" />
+          <circle cx="21.5" cy="24" r="2.4" fill="#9085e9" />
         </svg>
       </div>
+
       <div>
         <div class="flex items-center gap-2">
-          <h1 class="text-lg font-bold text-white tracking-tight">Supply Chain Intelligence Agent</h1>
-          <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-800/60 font-medium">Control Tower</span>
+          <span class="font-bold text-base tracking-tight text-ink">
+            TwinForge<span class="text-accent"> Control Tower</span>
+          </span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-surface-2 border border-line-strong text-accent-ink font-medium">
+            AI Graph Intelligence
+          </span>
         </div>
-        <p class="text-xs text-slate-400">Autonomous Multi-Echelon Graph Reasoning & Prescriptive Mitigation on FalkorDB</p>
+        <p class="text-xs text-muted">Autonomous Multi-Echelon Network Monitoring, Line Starvation Countdown & Prescriptive Mitigation</p>
       </div>
     </div>
 
-    <!-- Live Status & Action Buttons -->
+    <!-- Status & Action Bar -->
     <div class="flex items-center gap-3">
-      <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-800/60 text-xs text-emerald-400">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span class="font-medium">FALKORDB GRAPH CONNECTED</span>
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-surface-2 border border-line text-xs font-mono text-healthy">
+        <span class="w-2 h-2 rounded-full bg-healthy animate-pulse"></span>
+        <span>FALKORDB LIVE: CONNECTED</span>
       </div>
 
-      <button id="btn-reset" onclick="resetGraph()" class="px-3.5 py-2 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-all border border-slate-700">
-        🔄 Reset Baseline
+      <button id="btn-reset" onclick="resetGraph()" class="px-3 py-1.5 text-xs font-medium text-ink-2 hover:text-ink bg-surface hover:bg-surface-2 rounded-lg transition-all border border-line flex items-center gap-1.5">
+        <span>🔄</span> Reset Baseline
       </button>
 
-      <button id="btn-investigate" onclick="startInvestigation()" class="px-5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 rounded-lg shadow-lg shadow-cyan-600/25 transition-all flex items-center gap-2 active:scale-95">
+      <button id="btn-investigate" onclick="startInvestigation()" class="px-4 py-1.5 text-xs font-semibold text-white bg-accent hover:bg-accent-strong rounded-lg shadow-lg shadow-accent/20 transition-all flex items-center gap-2 active:scale-95">
         <span id="btn-icon">⚡</span>
         <span id="btn-text">Run Investigation</span>
       </button>
     </div>
   </header>
 
-  <!-- MAIN COCKPIT VIEW -->
-  <main class="flex-1 p-6 space-y-6 max-w-[1720px] mx-auto w-full">
+  <!-- MAIN COCKPIT CONTAINER -->
+  <main class="flex-1 p-6 space-y-5 max-w-[1720px] mx-auto w-full">
 
-    <!-- KPI METRICS ROW -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="glass-card rounded-xl p-4 relative overflow-hidden">
-        <div class="text-xs font-medium text-slate-400">At-Risk Machines (Drift Alert)</div>
-        <div id="kpi-risk" class="text-2xl font-bold text-amber-400 mt-1">2 Units</div>
-        <div class="text-[11px] text-amber-500/80 mt-1 flex items-center gap-1">
-          <span>⚠️</span> M7 (94% risk) & M12 (88% risk)
+    <!-- INCIDENT BANNER (TWIN WIDGET STYLE) -->
+    <div class="relative overflow-hidden rounded-xl border border-critical/45 p-4 bg-[linear-gradient(90deg,rgba(239,68,68,0.12),rgba(17,26,46,0.7)_60%)]">
+      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-start gap-3.5">
+          <span class="mt-0.5 rounded-lg p-2.5 bg-critical/15 text-critical border border-critical/30">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </span>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="font-mono text-[11px] text-muted">INC-8492-M7</span>
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-critical/20 text-critical border border-critical/40">Critical Imminent Failure</span>
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-surface-2 text-ink-2 border border-line">Line Starvation Threat</span>
+              <span class="text-[11px] text-muted">Detected in Plant Detroit</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-ink">Machine M7 Bearing Degradation Threatens Product P4 Production</p>
+            <p class="mt-0.5 text-xs text-ink-2">
+              M7 failure risk <strong class="text-critical font-mono">94%</strong> (failure in ~5 days) &bull; Sole producer of 3 core turbine components &bull; Projected inventory deficit: <strong class="text-critical font-mono">800 units</strong>.
+            </p>
+          </div>
         </div>
-        <div class="absolute right-3 top-3 opacity-10 text-3xl">⚙️</div>
-      </div>
 
-      <div class="glass-card rounded-xl p-4 relative overflow-hidden">
-        <div class="text-xs font-medium text-slate-400">Active Mitigation Decisions</div>
-        <div id="kpi-decisions" class="text-2xl font-bold text-cyan-400 mt-1">0 Active</div>
-        <div class="text-[11px] text-slate-400 mt-1">Committed (:Decision) nodes in graph</div>
-        <div class="absolute right-3 top-3 opacity-10 text-3xl">🎯</div>
-      </div>
-
-      <div class="glass-card rounded-xl p-4 relative overflow-hidden">
-        <div class="text-xs font-medium text-slate-400">Projected Shortfall Exposure</div>
-        <div id="kpi-shortfall" class="text-2xl font-bold text-rose-400 mt-1">800 Units</div>
-        <div class="text-[11px] text-rose-500/80 mt-1">Product P4 (Demand 1200 vs Stock 400)</div>
-        <div class="absolute right-3 top-3 opacity-10 text-3xl">📉</div>
-      </div>
-
-      <div class="glass-card rounded-xl p-4 relative overflow-hidden">
-        <div class="text-xs font-medium text-slate-400">Enterprise Customers Protected</div>
-        <div id="kpi-cust" class="text-2xl font-bold text-emerald-400 mt-1">40 Accounts</div>
-        <div class="text-[11px] text-emerald-500/80 mt-1">Tier-1 Strategic & Enterprise Accounts</div>
-        <div class="absolute right-3 top-3 opacity-10 text-3xl">🏢</div>
+        <div class="flex shrink-0 gap-2 items-center">
+          <button onclick="switchTab('control-tower'); startInvestigation();" class="px-3.5 py-1.5 text-xs font-medium text-white bg-critical/80 hover:bg-critical rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
+            <span>🧠</span> Analyze Graph Impact
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- SPLIT WORKBENCH: TRACE & SUBGRAPH -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[580px]">
-
-      <!-- LEFT: AGENT LIVE TOOL-CALL TRACE -->
-      <div class="lg:col-span-5 glass-panel rounded-2xl flex flex-col overflow-hidden border border-slate-800">
-        <div class="px-5 py-3.5 border-b border-slate-800/80 flex items-center justify-between bg-slate-900/40">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
-            <span class="text-xs font-semibold text-slate-200 uppercase tracking-wider">Agent Reasoning & Tool Trace</span>
-          </div>
-          <span id="trace-counter" class="text-[11px] text-slate-400 font-mono">0 tool calls</span>
-        </div>
-
-        <div id="trace-container" class="flex-1 p-4 overflow-y-auto space-y-3 font-mono text-xs max-h-[560px]">
-          <div class="text-center py-16 text-slate-500">
-            <div class="text-3xl mb-2">🤖</div>
-            <p class="font-sans font-medium text-slate-400">Ready to investigate</p>
-            <p class="text-[11px] font-sans text-slate-500 mt-1">Click "Run Investigation" to trigger the agent loop</p>
-          </div>
+    <!-- EXECUTIVE KPI SCORECARD (TWIN STYLE) -->
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-3.5">
+      <div class="twin-card p-3.5 relative overflow-hidden">
+        <div class="text-[11px] font-medium text-muted">On-Time Delivery (OTD)</div>
+        <div class="text-xl font-bold text-ink mt-0.5 font-mono">91.4%</div>
+        <div class="text-[10px] text-critical mt-1 flex items-center gap-1">
+          <span>↓</span> -3.6% vs Target 95%
         </div>
       </div>
 
-      <!-- RIGHT: EVIDENCE SUBGRAPH VIEW -->
-      <div class="lg:col-span-7 glass-panel rounded-2xl flex flex-col overflow-hidden border border-slate-800">
-        <div class="px-5 py-3.5 border-b border-slate-800/80 flex items-center justify-between bg-slate-900/40">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
-            <span class="text-xs font-semibold text-slate-200 uppercase tracking-wider">Traceable Decision Evidence Subgraph</span>
-          </div>
-          <div class="flex items-center gap-3 text-[11px]">
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Decision</span>
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Machine</span>
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Part</span>
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-cyan-500"></span> Product</span>
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Warehouse</span>
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Supplier</span>
-          </div>
-        </div>
-
-        <!-- Vis.js container -->
-        <div id="subgraph-canvas" class="flex-1 min-h-[460px] bg-[#090d16] relative">
-          <div id="graph-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 pointer-events-none">
-            <div class="text-3xl mb-2">🕸️</div>
-            <p class="font-sans font-medium text-slate-400">Evidence Graph Idle</p>
-            <p class="text-[11px] font-sans text-slate-500 mt-1">Subgraphs will render here dynamically when actions are committed</p>
-          </div>
-        </div>
-
-        <div class="px-4 py-2 border-t border-slate-800/80 bg-slate-900/60 text-[11px] text-slate-400 flex items-center justify-between">
-          <span>Interactive: Drag, zoom, and click nodes to inspect evidence properties</span>
-          <button onclick="refreshSubgraph()" class="hover:text-cyan-400 transition-colors">🔄 Redraw Graph</button>
+      <div class="twin-card p-3.5 relative overflow-hidden">
+        <div class="text-[11px] font-medium text-muted">Orders at Immediate Risk</div>
+        <div id="kpi-risk-orders" class="text-xl font-bold text-critical mt-0.5 font-mono">12 Orders</div>
+        <div class="text-[10px] text-critical mt-1 flex items-center gap-1">
+          <span>⚠️</span> $385,000 Rev at Risk
         </div>
       </div>
 
+      <div class="twin-card p-3.5 relative overflow-hidden">
+        <div class="text-[11px] font-medium text-muted">Degraded Machinery</div>
+        <div id="kpi-risk-machines" class="text-xl font-bold text-warning mt-0.5 font-mono">2 Units</div>
+        <div class="text-[10px] text-muted mt-1">M7 (Harmful), M12 (Harmless)</div>
+      </div>
+
+      <div class="twin-card p-3.5 relative overflow-hidden">
+        <div class="text-[11px] font-medium text-muted">Critical Demand Shortfall</div>
+        <div id="kpi-shortfall-val" class="text-xl font-bold text-critical mt-0.5 font-mono">800 Units</div>
+        <div class="text-[10px] text-muted mt-1">Product P4 Turbine Module</div>
+      </div>
+
+      <div class="twin-card p-3.5 relative overflow-hidden">
+        <div class="text-[11px] font-medium text-muted">Autonomous Decisions</div>
+        <div id="kpi-decisions-count" class="text-xl font-bold text-accent-ink mt-0.5 font-mono">1 Committed</div>
+        <div class="text-[10px] text-healthy mt-1">FalkorDB [:BASED_ON] edges</div>
+      </div>
+
+      <div class="twin-card p-3.5 relative overflow-hidden">
+        <div class="text-[11px] font-medium text-muted">Enterprise Accounts</div>
+        <div id="kpi-cust-count" class="text-xl font-bold text-healthy mt-0.5 font-mono">40 Protected</div>
+        <div class="text-[10px] text-healthy mt-1">Global Customer Network</div>
+      </div>
     </div>
 
-    <!-- BOTTOM: EXECUTIVE REPORT & MITIGATION AUDIT -->
-    <div class="glass-panel rounded-2xl p-6 border border-slate-800">
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-2">
-          <span class="text-lg">📋</span>
-          <h2 class="text-base font-bold text-white">Executive Mitigation Briefing & Action Audit</h2>
+    <!-- NAVIGATION TABS (TWIN STYLE) -->
+    <div class="flex items-center gap-2 border-b border-line pb-2">
+      <button onclick="switchTab('control-tower')" id="tab-btn-control-tower" class="px-4 py-2 text-xs font-semibold rounded-lg text-white bg-surface-2 border border-line-strong transition-all flex items-center gap-1.5">
+        <span>⏱️</span> Control Tower: Agent & Graph
+      </button>
+      <button onclick="switchTab('telemetry')" id="tab-btn-telemetry" class="px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5">
+        <span>🏭</span> Machine Sensor Telemetry (25)
+      </button>
+      <button onclick="switchTab('inventory')" id="tab-btn-inventory" class="px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5">
+        <span>📦</span> Inventory & Demand Shortfall (20)
+      </button>
+      <button onclick="switchTab('audit')" id="tab-btn-audit" class="px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5">
+        <span>🎯</span> Prescriptive Mitigation Audit
+      </button>
+    </div>
+
+    <!-- TAB 1: CONTROL TOWER (AGENT & SUBGRAPH) -->
+    <div id="tab-content-control-tower" class="space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 min-h-[620px]">
+
+        <!-- LEFT: AGENT LIVE REASONING STREAM -->
+        <div class="lg:col-span-5 twin-card flex flex-col overflow-hidden">
+          <div class="px-4 py-3 border-b border-line flex items-center justify-between bg-surface-2/60">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-accent animate-pulse"></span>
+              <span class="text-xs font-bold text-ink uppercase tracking-wider">Agent Tool-Use & Cypher Trace</span>
+            </div>
+            <span id="trace-counter" class="text-[11px] text-muted font-mono">0 events</span>
+          </div>
+
+          <div id="trace-container" class="flex-1 p-4 overflow-y-auto space-y-3 font-mono text-xs max-h-[580px] bg-canvas/60">
+            <div class="text-center py-20 text-muted">
+              <div class="text-3xl mb-2">🤖</div>
+              <p class="font-sans font-semibold text-ink-2">Agent Ready</p>
+              <p class="text-xs font-sans text-muted mt-1">Click "Run Investigation" to trace downstream graph impact</p>
+            </div>
+          </div>
         </div>
-        <span id="audit-status" class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 font-medium">Pending Execution</span>
+
+        <!-- RIGHT: VIS.JS DECISION EVIDENCE SUBGRAPH -->
+        <div class="lg:col-span-7 twin-card flex flex-col overflow-hidden">
+          <div class="px-4 py-3 border-b border-line flex items-center justify-between bg-surface-2/60">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-agent"></span>
+              <span class="text-xs font-bold text-ink uppercase tracking-wider">Traceable Evidence Subgraph</span>
+            </div>
+
+            <!-- Legend Pills -->
+            <div class="flex flex-wrap items-center gap-2 text-[10px]">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-critical"></span> Decision</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-warning"></span> Machine</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#6366f1]"></span> Part</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-accent"></span> Product</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-healthy"></span> Warehouse</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#8b5cf6]"></span> Supplier</span>
+            </div>
+          </div>
+
+          <!-- Canvas & Interactive Inspector -->
+          <div class="flex-1 relative min-h-[480px] bg-[#050811]">
+            <div id="subgraph-canvas" class="w-full h-full min-h-[480px]"></div>
+            <div id="graph-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-muted pointer-events-none">
+              <div class="text-3xl mb-2">🕸️</div>
+              <p class="font-sans font-medium text-ink-2">Evidence Topology Idle</p>
+              <p class="text-[11px] font-sans text-muted mt-1">Interactive network nodes will render when decisions are recorded</p>
+            </div>
+
+            <!-- Clicked Node Inspector Drawer -->
+            <div id="node-inspector" class="absolute bottom-3 left-3 right-3 twin-card p-3 hidden text-xs transition-all border border-accent/40 bg-surface/95 backdrop-blur-md">
+              <div class="flex items-center justify-between border-b border-line pb-1.5 mb-2">
+                <span id="inspect-title" class="font-bold text-accent">Selected Node Details</span>
+                <button onclick="document.getElementById('node-inspector').classList.add('hidden')" class="text-muted hover:text-white">✕</button>
+              </div>
+              <div id="inspect-body" class="font-mono text-[11px] text-ink-2 space-y-1"></div>
+            </div>
+          </div>
+
+          <div class="px-4 py-2 border-t border-line bg-surface-2/40 text-[11px] text-muted flex items-center justify-between">
+            <span>Graph Interaction: Drag, pinch to zoom, click node to inspect evidence attributes</span>
+            <button onclick="refreshSubgraph()" class="hover:text-accent transition-colors flex items-center gap-1">🔄 Redraw Topology</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 2: MACHINE SENSOR TELEMETRY GRID -->
+    <div id="tab-content-telemetry" class="twin-card p-5 hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-bold text-ink">Global Manufacturing Asset Telemetry</h2>
+          <p class="text-xs text-muted">Real-time vibration, temperature drift z-scores, health metrics, and failure projections across 25 machines</p>
+        </div>
+        <button onclick="loadTelemetry()" class="text-xs text-accent hover:underline flex items-center gap-1">🔄 Refresh Sensors</button>
       </div>
 
-      <div id="report-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="text-muted uppercase text-[10px] border-b border-line bg-surface-2/40">
+            <tr>
+              <th class="py-2.5 px-3">Asset ID</th>
+              <th class="py-2.5 px-3">Asset Name</th>
+              <th class="py-2.5 px-3">Plant Location</th>
+              <th class="py-2.5 px-3">Health Score</th>
+              <th class="py-2.5 px-3">Vibration</th>
+              <th class="py-2.5 px-3">Temperature</th>
+              <th class="py-2.5 px-3">Failure Risk</th>
+              <th class="py-2.5 px-3">Estimated Lifespan</th>
+              <th class="py-2.5 px-3">Status</th>
+            </tr>
+          </thead>
+          <tbody id="telemetry-tbody" class="divide-y divide-line/60 font-mono text-[11px]">
+            <tr><td colspan="9" class="text-center py-8 text-muted">Loading telemetry data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: INVENTORY & DEMAND SHORTFALL -->
+    <div id="tab-content-inventory" class="twin-card p-5 hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-bold text-ink">Finished Goods Demand vs Available Warehouse Stock</h2>
+          <p class="text-xs text-muted">30-day forward demand projections (exponential smoothing) mapped against distributed regional depot stock</p>
+        </div>
+        <button onclick="loadInventory()" class="text-xs text-accent hover:underline flex items-center gap-1">🔄 Refresh Inventory</button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="text-muted uppercase text-[10px] border-b border-line bg-surface-2/40">
+            <tr>
+              <th class="py-2.5 px-3">Product ID</th>
+              <th class="py-2.5 px-3">Product Name</th>
+              <th class="py-2.5 px-3">30d Demand Forecast</th>
+              <th class="py-2.5 px-3">Safety Buffer</th>
+              <th class="py-2.5 px-3">Total Warehouse Stock</th>
+              <th class="py-2.5 px-3">Projected Shortfall</th>
+              <th class="py-2.5 px-3">Supply Balance Status</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-tbody" class="divide-y divide-line/60 font-mono text-[11px]">
+            <tr><td colspan="7" class="text-center py-8 text-muted">Loading inventory data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: PRESCRIPTIVE MITIGATION AUDIT (TWIN STYLE) -->
+    <div id="tab-content-audit" class="twin-card p-6 hidden space-y-5">
+      <div class="flex items-center justify-between border-b border-line pb-3">
+        <div>
+          <h2 class="text-sm font-bold text-ink">Prescriptive Mitigation Audit & Operational Decisions</h2>
+          <p class="text-xs text-muted">Every decision committed into FalkorDB is traceable via [:BASED_ON] graph relationships</p>
+        </div>
+        <span id="audit-badge" class="px-2.5 py-1 text-xs rounded-full bg-surface-2 text-ink-2 font-mono">1 Decision Recorded</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- HARMFUL M7 AUDIT CARD -->
-        <div class="glass-card rounded-xl p-4 border-l-4 border-l-rose-500">
-          <div class="flex items-center justify-between text-xs mb-1.5">
-            <span class="font-bold text-rose-400">HARMFUL ASSET: M7</span>
-            <span class="px-2 py-0.5 rounded bg-rose-950 text-rose-300 text-[10px] font-semibold">SCHEDULED ACTION</span>
+        <div class="twin-card p-4.5 border-l-4 border-l-critical bg-surface-2/40">
+          <div class="flex items-center justify-between text-xs mb-2">
+            <span class="font-bold text-critical flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-critical"></span> HARMFUL: Machine M7
+            </span>
+            <span class="px-2 py-0.5 rounded bg-critical/20 text-critical text-[10px] font-mono font-semibold">ACTION COMMITTED</span>
           </div>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            Machine M7 flagged with 94% failure risk (failure in 5 days). Traced as the sole producer of 3 parts feeding Product P4, which has an 800-unit shortfall. Alternate supplier lead time (12d) exceeds failure window.
+          <p class="text-xs text-ink-2 leading-relaxed">
+            Machine M7 flagged with 94% failure risk (failure in 5 days). Traced as sole producer of 3 parts for Product P4, which has an 800-unit shortfall. Alternate supplier lead time (12d) exceeds failure window.
           </p>
-          <div class="mt-3 pt-2.5 border-t border-slate-700/60 flex items-center justify-between text-[11px]">
-            <span class="text-slate-400">Target: <strong class="text-white">M7</strong></span>
-            <span class="text-emerald-400 font-semibold">Action: schedule_maintenance</span>
+          <div class="mt-4 pt-3 border-t border-line flex items-center justify-between text-[11px]">
+            <span class="text-muted">Target: <strong class="text-ink">M7</strong></span>
+            <span class="text-healthy font-semibold">schedule_maintenance</span>
           </div>
         </div>
 
         <!-- HARMLESS M12 AUDIT CARD -->
-        <div class="glass-card rounded-xl p-4 border-l-4 border-l-emerald-500">
-          <div class="flex items-center justify-between text-xs mb-1.5">
-            <span class="font-bold text-emerald-400">HARMLESS ASSET: M12</span>
-            <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[10px] font-semibold">CLEARED (NO ACTION)</span>
+        <div class="twin-card p-4.5 border-l-4 border-l-healthy bg-surface-2/40">
+          <div class="flex items-center justify-between text-xs mb-2">
+            <span class="font-bold text-healthy flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-healthy"></span> HARMLESS: Machine M12
+            </span>
+            <span class="px-2 py-0.5 rounded bg-healthy/20 text-healthy text-[10px] font-mono font-semibold">EXPLICITLY CLEARED</span>
           </div>
-          <p class="text-xs text-slate-300 leading-relaxed">
+          <p class="text-xs text-ink-2 leading-relaxed">
             Machine M12 has 88% failure risk, but multi-hop traversal proved its parts have redundant backup production on M13, and Product P12 has 2,400 units in stock (ample buffer).
           </p>
-          <div class="mt-3 pt-2.5 border-t border-slate-700/60 flex items-center justify-between text-[11px]">
-            <span class="text-slate-400">Target: <strong class="text-white">M12</strong></span>
-            <span class="text-slate-400 font-semibold">Decision: None (Cost saved)</span>
+          <div class="mt-4 pt-3 border-t border-line flex items-center justify-between text-[11px]">
+            <span class="text-muted">Target: <strong class="text-ink">M12</strong></span>
+            <span class="text-muted font-semibold">No action (Cost Saved)</span>
           </div>
         </div>
 
         <!-- SPOF WARNING CARD -->
-        <div class="glass-card rounded-xl p-4 border-l-4 border-l-amber-500">
-          <div class="flex items-center justify-between text-xs mb-1.5">
-            <span class="font-bold text-amber-400">SINGLE POINT OF FAILURE</span>
-            <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 text-[10px] font-semibold">MONITORING</span>
+        <div class="twin-card p-4.5 border-l-4 border-l-warning bg-surface-2/40">
+          <div class="flex items-center justify-between text-xs mb-2">
+            <span class="font-bold text-warning flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-warning"></span> SINGLE POINT OF FAILURE
+            </span>
+            <span class="px-2 py-0.5 rounded bg-warning/20 text-warning text-[10px] font-mono font-semibold">BOTTLENECK DETECTED</span>
           </div>
-          <p class="text-xs text-slate-300 leading-relaxed">
+          <p class="text-xs text-ink-2 leading-relaxed">
             Graph traversal detected PART_SPOF_ALLOY with only 1 supplier (SUPPLIER_SOLO_SPOF in East Asia) and 0 internal manufacturing machines. Long-term qualification recommended.
           </p>
-          <div class="mt-3 pt-2.5 border-t border-slate-700/60 flex items-center justify-between text-[11px]">
-            <span class="text-slate-400">Part: <strong class="text-white">PART_SPOF_ALLOY</strong></span>
-            <span class="text-amber-400 font-semibold">Suppliers: 1 | Producers: 0</span>
+          <div class="mt-4 pt-3 border-t border-line flex items-center justify-between text-[11px]">
+            <span class="text-muted">Part: <strong class="text-ink">PART_SPOF_ALLOY</strong></span>
+            <span class="text-warning font-semibold">Suppliers: 1 | Producers: 0</span>
           </div>
         </div>
       </div>
@@ -235,40 +418,128 @@
 
   </main>
 
-  <footer class="mt-auto py-3 px-6 border-t border-slate-800 text-center text-xs text-slate-500 glass-panel">
+  <!-- FOOTER -->
+  <footer class="mt-auto py-3 px-6 border-t border-line text-center text-xs text-muted bg-shell">
     Built for <strong>Graph Hacks (WeMakeDevs x FalkorDB)</strong> &bull; Track: <em>Agents That Act on Connected Data</em> &bull; Python 3.14 & FalkorDB
   </footer>
 
   <script>
     let network = null;
     let toolCallCount = 0;
+    let allNodesData = [];
+
+    function switchTab(tabName) {
+      ['control-tower', 'telemetry', 'inventory', 'audit'].forEach(t => {
+        document.getElementById(`tab-content-${t}`).classList.add('hidden');
+        const btn = document.getElementById(`tab-btn-${t}`);
+        btn.className = 'px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5';
+      });
+
+      document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+      activeBtn.className = 'px-4 py-2 text-xs font-semibold rounded-lg text-white bg-surface-2 border border-line-strong transition-all flex items-center gap-1.5';
+
+      if (tabName === 'telemetry') loadTelemetry();
+      if (tabName === 'inventory') loadInventory();
+      if (tabName === 'control-tower') refreshSubgraph();
+    }
 
     async function loadKpis() {
       try {
         const res = await fetch('/api/kpis');
         const data = await res.json();
         if (data.status === 'online') {
-          document.getElementById('kpi-risk').innerText = `${data.at_risk_machines} Units`;
-          document.getElementById('kpi-decisions').innerText = `${data.decisions_active} Active`;
-          document.getElementById('kpi-cust').innerText = `${data.customers_protected} Accounts`;
+          document.getElementById('kpi-risk-machines').innerText = `${data.at_risk_machines} Units`;
+          document.getElementById('kpi-decisions-count').innerText = `${data.decisions_active} Committed`;
+          document.getElementById('kpi-cust-count').innerText = `${data.customers_protected} Protected`;
+          document.getElementById('audit-badge').innerText = `${data.decisions_active} Decisions in Graph`;
         }
       } catch (e) {
         console.error('KPI error:', e);
       }
     }
 
+    async function loadTelemetry() {
+      const tbody = document.getElementById('telemetry-tbody');
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center py-6 text-muted">Refreshing sensor streams...</td></tr>';
+      try {
+        const res = await fetch('/api/telemetry');
+        const data = await res.json();
+        tbody.innerHTML = '';
+        data.machines.forEach(m => {
+          const isCrit = m.status === 'CRITICAL';
+          const isWarn = m.status === 'WARNING';
+          const badgeClass = isCrit ? 'bg-critical/20 text-critical border border-critical/30' : (isWarn ? 'bg-warning/20 text-warning border border-warning/30' : 'bg-healthy/20 text-healthy border border-healthy/30');
+
+          const tr = document.createElement('tr');
+          tr.className = isCrit ? 'bg-critical/10 hover:bg-critical/15' : 'hover:bg-surface-2/40';
+          tr.innerHTML = `
+            <td class="py-2.5 px-3 font-bold ${isCrit ? 'text-critical' : 'text-ink'}">${m.id}</td>
+            <td class="py-2.5 px-3 text-ink-2 font-sans">${m.name}</td>
+            <td class="py-2.5 px-3 text-muted font-sans">${m.plant_name}</td>
+            <td class="py-2.5 px-3">
+              <div class="flex items-center gap-2">
+                <div class="w-16 bg-surface-3 rounded-full h-1.5 overflow-hidden">
+                  <div class="h-full ${isCrit ? 'bg-critical' : (isWarn ? 'bg-warning' : 'bg-healthy')}" style="width: ${m.health_score}%"></div>
+                </div>
+                <span>${m.health_score}%</span>
+              </div>
+            </td>
+            <td class="py-2.5 px-3 ${m.vibration > 1.7 ? 'text-critical font-bold' : 'text-muted'}">${m.vibration} mm/s</td>
+            <td class="py-2.5 px-3 ${m.temperature > 70 ? 'text-critical font-bold' : 'text-muted'}">${m.temperature} °C</td>
+            <td class="py-2.5 px-3 ${isCrit ? 'text-critical font-bold' : 'text-muted'}">${(m.failure_risk * 100).toFixed(0)}%</td>
+            <td class="py-2.5 px-3 text-muted">${m.predicted_failure_days} days</td>
+            <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold ${badgeClass}">${m.status}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center py-6 text-critical">Failed to load telemetry.</td></tr>';
+      }
+    }
+
+    async function loadInventory() {
+      const tbody = document.getElementById('inventory-tbody');
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-muted">Calculating inventory buffers...</td></tr>';
+      try {
+        const res = await fetch('/api/inventory');
+        const data = await res.json();
+        tbody.innerHTML = '';
+        data.products.forEach(p => {
+          const isShort = p.shortfall > 0;
+          const tr = document.createElement('tr');
+          tr.className = isShort ? 'bg-critical/10 hover:bg-critical/15' : 'hover:bg-surface-2/40';
+          tr.innerHTML = `
+            <td class="py-2.5 px-3 font-bold ${isShort ? 'text-critical' : 'text-ink'}">${p.id}</td>
+            <td class="py-2.5 px-3 text-ink-2 font-sans">${p.name}</td>
+            <td class="py-2.5 px-3 text-ink font-bold">${p.forecast_30d.toLocaleString()} u</td>
+            <td class="py-2.5 px-3 text-muted">${p.safety_stock.toLocaleString()} u</td>
+            <td class="py-2.5 px-3 text-ink-2">${p.total_stock.toLocaleString()} u</td>
+            <td class="py-2.5 px-3 ${isShort ? 'text-critical font-bold' : 'text-muted'}">${p.shortfall > 0 ? '-' + p.shortfall.toLocaleString() + ' u' : '0 u'}</td>
+            <td class="py-2.5 px-3">
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${isShort ? 'bg-critical/20 text-critical border border-critical/30' : 'bg-healthy/20 text-healthy border border-healthy/30'}">
+                ${isShort ? 'DEFICIT SHORTFALL' : 'BALANCED'}
+              </span>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-critical">Failed to load inventory.</td></tr>';
+      }
+    }
+
     async function resetGraph() {
       const btn = document.getElementById('btn-reset');
-      btn.innerText = 'Resetting...';
+      btn.innerHTML = 'Resetting...';
       try {
         const res = await fetch('/api/reset', { method: 'POST' });
-        const data = await res.json();
-        btn.innerText = '✅ Reset Done!';
-        setTimeout(() => { btn.innerText = '🔄 Reset Baseline'; }, 2000);
+        btn.innerHTML = '✅ Baseline Restored!';
+        setTimeout(() => { btn.innerHTML = '<span>🔄</span> Reset Baseline'; }, 2000);
         loadKpis();
         refreshSubgraph();
       } catch (e) {
-        btn.innerText = '❌ Error';
+        btn.innerHTML = '❌ Error';
       }
     }
 
@@ -281,40 +552,40 @@
       document.getElementById('trace-counter').innerText = `${toolCallCount} events`;
 
       const card = document.createElement('div');
-      card.className = 'glass-card rounded-lg p-2.5 border border-slate-700/70 text-xs transition-all animate-fadeIn';
+      card.className = 'twin-card p-3 text-xs transition-all border border-line bg-surface/80';
 
       if (evt.event === 'tool_call') {
         const { tool, input, purpose } = evt.data;
         card.innerHTML = `
-          <div class="flex items-center justify-between text-cyan-400 mb-1">
-            <span class="font-bold flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-              CALL: ${tool}
+          <div class="flex items-center justify-between text-accent mb-1.5">
+            <span class="font-bold flex items-center gap-1.5 font-mono">
+              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+              MCP TOOL: ${tool}
             </span>
-            <span class="text-[10px] text-slate-400">STEP ${toolCallCount}</span>
+            <span class="text-[10px] text-muted font-mono">#${toolCallCount}</span>
           </div>
-          <div class="text-[11px] text-slate-300 mb-1">${purpose || ''}</div>
-          <pre class="bg-black/40 p-1.5 rounded text-[10px] text-slate-400 overflow-x-auto">${JSON.stringify(input)}</pre>
+          <div class="text-[11px] text-ink-2 mb-1.5 font-sans">${purpose || ''}</div>
+          <pre class="bg-deep p-2 rounded border border-line text-[10px] text-muted overflow-x-auto">${JSON.stringify(input, null, 2)}</pre>
         `;
       } else if (evt.event === 'tool_result') {
         const { tool, result } = evt.data;
         const isAction = tool === 'schedule_action';
-        card.className += isAction ? ' border-rose-500/80 bg-rose-950/20' : '';
+        card.className += isAction ? ' border-critical/80 bg-critical/10' : '';
         card.innerHTML = `
-          <div class="flex items-center justify-between ${isAction ? 'text-rose-400 font-bold' : 'text-emerald-400'} mb-1">
-            <span>↳ RESULT: ${tool}</span>
-            <span class="text-[10px] text-slate-400">OK</span>
+          <div class="flex items-center justify-between ${isAction ? 'text-critical font-bold' : 'text-healthy'} mb-1.5">
+            <span class="font-mono">↳ RESULT: ${tool}</span>
+            <span class="text-[10px] text-muted font-mono">OK</span>
           </div>
-          <pre class="bg-black/40 p-1.5 rounded text-[10px] text-slate-300 overflow-x-auto max-h-28">${JSON.stringify(result, null, 2)}</pre>
+          <pre class="bg-deep p-2 rounded border border-line text-[10px] text-ink-2 overflow-x-auto max-h-36">${JSON.stringify(result, null, 2)}</pre>
         `;
       } else if (evt.event === 'agent_report') {
-        card.className = 'glass-card rounded-lg p-3 border-2 border-indigo-500/80 bg-indigo-950/30 text-xs';
+        card.className = 'twin-card p-3.5 border-2 border-agent bg-agent/10 text-xs';
         card.innerHTML = `
-          <div class="font-bold text-indigo-300 mb-1">🎯 INVESTIGATION REPORT COMPLETE</div>
-          <p class="text-slate-200 text-[11px] leading-relaxed">${evt.data.summary}</p>
+          <div class="font-bold text-agent-ink mb-1 flex items-center gap-1.5">
+            <span>🎯</span> INVESTIGATION AUDIT REPORT COMPLETE
+          </div>
+          <p class="text-ink text-xs leading-relaxed font-sans">${evt.data.summary}</p>
         `;
-        document.getElementById('audit-status').innerText = '✅ Investigation Complete';
-        document.getElementById('audit-status').className = 'text-xs px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 font-medium border border-emerald-800';
       }
 
       container.appendChild(card);
@@ -325,6 +596,7 @@
       try {
         const res = await fetch('/api/subgraph');
         const data = await res.json();
+        allNodesData = data.nodes || [];
 
         const container = document.getElementById('subgraph-canvas');
         const placeholder = document.getElementById('graph-placeholder');
@@ -341,18 +613,36 @@
             physics: {
               solver: 'forceAtlas2Based',
               forceAtlas2Based: {
-                gravitationalConstant: -40,
-                centralGravity: 0.008,
-                springLength: 90,
-                springConstant: 0.18
+                gravitationalConstant: -50,
+                centralGravity: 0.01,
+                springLength: 100,
+                springConstant: 0.16
               },
-              stabilization: { iterations: 120 }
+              stabilization: { iterations: 140 }
             },
             interaction: { hover: true, tooltipDelay: 100 }
           };
 
           if (network) network.destroy();
           network = new vis.Network(container, graphData, options);
+
+          // Click on node opens Twin Inspector Drawer
+          network.on('click', function(params) {
+            if (params.nodes.length > 0) {
+              const nodeId = params.nodes[0];
+              const nodeObj = allNodesData.find(n => n.id === nodeId);
+              if (nodeObj) {
+                const drawer = document.getElementById('node-inspector');
+                document.getElementById('inspect-title').innerText = `${nodeObj.group || 'Node'}: ${nodeObj.id}`;
+                document.getElementById('inspect-body').innerHTML = `
+                  <div><strong>Label:</strong> ${nodeObj.label.replace('\\n', ' ')}</div>
+                  <div><strong>Type:</strong> ${nodeObj.group}</div>
+                  <div><strong>Description:</strong> ${nodeObj.title || 'Connected evidence entity'}</div>
+                `;
+                drawer.classList.remove('hidden');
+              }
+            }
+          });
         } else {
           if (placeholder) placeholder.style.display = 'flex';
         }
@@ -362,6 +652,7 @@
     }
 
     function startInvestigation() {
+      switchTab('control-tower');
       const btn = document.getElementById('btn-investigate');
       const icon = document.getElementById('btn-icon');
       const text = document.getElementById('btn-text');
@@ -372,8 +663,6 @@
       btn.disabled = true;
       icon.innerText = '⏳';
       text.innerText = 'Investigating...';
-      document.getElementById('audit-status').innerText = '⚡ Agent Active';
-      document.getElementById('audit-status').className = 'text-xs px-2.5 py-1 rounded-full bg-cyan-950 text-cyan-300 font-medium border border-cyan-800';
 
       const evtSource = new EventSource('/api/investigate');
 

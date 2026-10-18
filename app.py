@@ -77,6 +77,77 @@ async def get_kpis():
         return {"status": "error", "message": str(e)}
 
 
+@app.get("/api/telemetry")
+async def get_telemetry():
+    """Retrieve all machines with live health, vibration, temperature and risk metrics."""
+    try:
+        g = get_graph()
+        cypher = """
+        MATCH (pl:Plant)-[:HAS]->(m:Machine)
+        RETURN m.id AS id, m.name AS name, m.failure_risk AS failure_risk,
+               m.predicted_failure_days AS predicted_days, pl.id AS plant_id, pl.name AS plant_name
+        ORDER BY m.failure_risk DESC
+        """
+        rows = g.query(cypher).result_set
+        machines = []
+        for row in rows:
+            m_id, name, risk, days, pl_id, pl_name = row
+            health = int(round((1.0 - risk) * 100))
+            # Synthetic realistic sensor telemetry based on risk
+            vibration = round(1.20 + (risk * 0.65), 2)
+            temperature = round(65.0 + (risk * 9.5), 1)
+            status = "CRITICAL" if risk >= 0.85 else ("WARNING" if risk >= 0.50 else "HEALTHY")
+            machines.append({
+                "id": m_id,
+                "name": name,
+                "failure_risk": risk,
+                "health_score": health,
+                "predicted_failure_days": days,
+                "vibration": vibration,
+                "temperature": temperature,
+                "plant_name": pl_name,
+                "status": status,
+            })
+        return {"machines": machines}
+    except Exception as e:
+        return {"machines": [], "error": str(e)}
+
+
+@app.get("/api/inventory")
+async def get_inventory():
+    """Retrieve products demand forecast vs available inventory and calculated shortfall."""
+    try:
+        g = get_graph()
+        cypher = """
+        MATCH (p:Product)
+        OPTIONAL MATCH (p)-[s:STOCKED_AT]->(w:Warehouse)
+        RETURN p.id AS id, p.name AS name, p.forecast_30d AS forecast, p.safety_stock AS safety,
+               coalesce(sum(s.qty), 0) AS stock,
+               collect({warehouse_id: w.id, warehouse_name: w.name, qty: s.qty}) AS warehouses
+        ORDER BY p.id
+        """
+        rows = g.query(cypher).result_set
+        products = []
+        for row in rows:
+            p_id, name, fcast, safety, stock, whs = row
+            stock = float(stock)
+            shortfall = max(0.0, fcast - stock)
+            products.append({
+                "id": p_id,
+                "name": name,
+                "forecast_30d": fcast,
+                "safety_stock": safety,
+                "total_stock": stock,
+                "shortfall": shortfall,
+                "status": "SHORTFALL" if shortfall > 0 else "BALANCED",
+                "warehouses": [w for w in whs if w.get("warehouse_id")],
+            })
+        return {"products": products}
+    except Exception as e:
+        return {"products": [], "error": str(e)}
+
+
+
 @app.get("/api/subgraph")
 async def get_subgraph():
     """Returns nodes and edges for the Decision and its BASED_ON evidence graph."""
