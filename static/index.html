@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TwinForge | Supply Chain Intelligence Control Tower</title>
+  <title>TwinForge | Connected Supply Chain Digital Twin</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Vis.js Network CDN for Evidence Subgraph -->
+  <!-- Vis.js Network CDN for Topology & Evidence Subgraphs -->
   <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,13 +76,21 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #2b3b5e;
     }
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .ping-ring {
+      animation: pulseRing 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-  <!-- TOP ENTERPRISE COCKPIT HEADER (TWIN THEME) -->
+  <!-- TOP COCKPIT HEADER -->
   <header class="bg-shell/90 backdrop-blur-md sticky top-0 z-50 border-b border-line px-6 py-3 flex items-center justify-between">
-    <!-- Brand Mark & Title -->
+    <!-- Brand Mark & Identity -->
     <div class="flex items-center gap-3.5">
       <div class="h-9 w-9 rounded-xl flex items-center justify-center p-0.5 shadow-md shadow-accent/10">
         <svg viewBox="0 0 32 32" class="h-8 w-8" aria-hidden="true">
@@ -99,25 +107,55 @@
       <div>
         <div class="flex items-center gap-2">
           <span class="font-bold text-base tracking-tight text-ink">
-            TwinForge<span class="text-accent"> Control Tower</span>
+            TwinForge<span class="text-accent"> Studio</span>
           </span>
-          <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-surface-2 border border-line-strong text-accent-ink font-medium">
-            AI Graph Intelligence
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-surface-2 border border-line-strong text-accent font-medium">
+            FalkorDB Graph Engine
           </span>
         </div>
-        <p class="text-xs text-muted">Autonomous Multi-Echelon Network Monitoring, Line Starvation Countdown & Prescriptive Mitigation</p>
+        <p class="text-xs text-muted">Connected Digital Twin &bull; Autonomous Multi-Echelon Supply Chain Reasoning</p>
       </div>
     </div>
 
     <!-- Status & Action Bar -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2.5">
       <div id="db-status-badge" class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-surface-2 border border-line text-xs font-mono text-healthy">
         <span id="db-status-dot" class="w-2 h-2 rounded-full bg-healthy animate-pulse"></span>
         <span id="db-status-text">FALKORDB: CONNECTING...</span>
       </div>
 
+      <!-- Quick Demo Scenario Dropdown -->
+      <div class="relative group">
+        <button class="px-3 py-1.5 text-xs font-medium text-ink-2 hover:text-ink bg-surface hover:bg-surface-2 rounded-lg transition-all border border-line flex items-center gap-1.5">
+          <span>🎯</span> Scenarios <span class="text-[10px] opacity-70">▼</span>
+        </button>
+        <div class="absolute right-0 mt-1 w-64 twin-card p-1.5 shadow-2xl hidden group-hover:block z-50 animate-fade-in border-line-strong bg-shell">
+          <button onclick="triggerCrisisM7()" class="w-full text-left px-3 py-2 text-xs rounded hover:bg-surface-2 text-critical flex items-center gap-2">
+            <span>🚨</span>
+            <div>
+              <div class="font-semibold">M7 Bearing Crisis (Harmful)</div>
+              <div class="text-[10px] text-muted">94% risk &bull; 800u shortfall &bull; Acts</div>
+            </div>
+          </button>
+          <button onclick="triggerHarmlessM12()" class="w-full text-left px-3 py-2 text-xs rounded hover:bg-surface-2 text-healthy flex items-center gap-2">
+            <span>🛡️</span>
+            <div>
+              <div class="font-semibold">M12 Redundancy (Harmless)</div>
+              <div class="text-[10px] text-muted">88% risk &bull; M13 backup &bull; Clears</div>
+            </div>
+          </button>
+          <button onclick="triggerSpofAudit()" class="w-full text-left px-3 py-2 text-xs rounded hover:bg-surface-2 text-warning flex items-center gap-2">
+            <span>⚠️</span>
+            <div>
+              <div class="font-semibold">SPOF Alloy Audit</div>
+              <div class="text-[10px] text-muted">Single supplier bottleneck check</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
       <button id="btn-reset" onclick="resetGraph()" class="px-3 py-1.5 text-xs font-medium text-ink-2 hover:text-ink bg-surface hover:bg-surface-2 rounded-lg transition-all border border-line flex items-center gap-1.5">
-        <span>🔄</span> Reset Baseline
+        <span>🔄</span> Reset
       </button>
 
       <button id="btn-investigate" onclick="startInvestigation()" class="px-4 py-1.5 text-xs font-semibold text-white bg-accent hover:bg-accent-strong rounded-lg shadow-lg shadow-accent/20 transition-all flex items-center gap-2 active:scale-95">
@@ -130,7 +168,7 @@
   <!-- MAIN COCKPIT CONTAINER -->
   <main class="flex-1 p-6 space-y-5 max-w-[1720px] mx-auto w-full">
 
-    <!-- INCIDENT BANNER (TWIN WIDGET STYLE) -->
+    <!-- INCIDENT BANNER (INSPIRED BY TWIN) -->
     <div class="relative overflow-hidden rounded-xl border border-critical/45 p-4 bg-[linear-gradient(90deg,rgba(239,68,68,0.12),rgba(17,26,46,0.7)_60%)]">
       <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div class="flex items-start gap-3.5">
@@ -154,14 +192,17 @@
         </div>
 
         <div class="flex shrink-0 gap-2 items-center">
-          <button onclick="switchTab('control-tower'); startInvestigation();" class="px-3.5 py-1.5 text-xs font-medium text-white bg-critical/80 hover:bg-critical rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
-            <span>🧠</span> Analyze Graph Impact
+          <button onclick="simulateFailure('M7')" class="px-3 py-1.5 text-xs font-medium text-ink bg-surface-2 hover:bg-surface-3 rounded-lg transition-all border border-line flex items-center gap-1.5">
+            <span>⚡</span> Simulate Ripple
+          </button>
+          <button onclick="switchTab('control-tower'); startInvestigation();" class="px-3.5 py-1.5 text-xs font-semibold text-white bg-critical/80 hover:bg-critical rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
+            <span>🧠</span> Run Autonomous Agent
           </button>
         </div>
       </div>
     </div>
 
-    <!-- EXECUTIVE KPI SCORECARD (TWIN STYLE) -->
+    <!-- EXECUTIVE KPI SCORECARD -->
     <div class="grid grid-cols-2 md:grid-cols-6 gap-3.5">
       <div class="twin-card p-3.5 relative overflow-hidden">
         <div class="text-[11px] font-medium text-muted">On-Time Delivery (OTD)</div>
@@ -193,7 +234,7 @@
 
       <div class="twin-card p-3.5 relative overflow-hidden">
         <div class="text-[11px] font-medium text-muted">Autonomous Decisions</div>
-        <div id="kpi-decisions-count" class="text-xl font-bold text-accent-ink mt-0.5 font-mono">1 Committed</div>
+        <div id="kpi-decisions-count" class="text-xl font-bold text-accent mt-0.5 font-mono">1 Committed</div>
         <div class="text-[10px] text-healthy mt-1">FalkorDB [:BASED_ON] edges</div>
       </div>
 
@@ -204,24 +245,100 @@
       </div>
     </div>
 
-    <!-- NAVIGATION TABS (TWIN STYLE) -->
-    <div class="flex items-center gap-2 border-b border-line pb-2">
-      <button onclick="switchTab('control-tower')" id="tab-btn-control-tower" class="px-4 py-2 text-xs font-semibold rounded-lg text-white bg-surface-2 border border-line-strong transition-all flex items-center gap-1.5">
-        <span>⏱️</span> Control Tower: Agent & Graph
-      </button>
-      <button onclick="switchTab('telemetry')" id="tab-btn-telemetry" class="px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5">
-        <span>🏭</span> Machine Sensor Telemetry (25)
-      </button>
-      <button onclick="switchTab('inventory')" id="tab-btn-inventory" class="px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5">
-        <span>📦</span> Inventory & Demand Shortfall (20)
-      </button>
-      <button onclick="switchTab('audit')" id="tab-btn-audit" class="px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5">
-        <span>🎯</span> Prescriptive Mitigation Audit
-      </button>
+    <!-- NAVIGATION TABS (DIGITAL TWIN STUDIO) -->
+    <div class="flex items-center justify-between border-b border-line pb-2">
+      <div class="flex items-center gap-2 overflow-x-auto">
+        <button onclick="switchTab('floor-plan')" id="tab-btn-floor-plan" class="px-4 py-2 text-xs font-semibold rounded-lg text-white bg-surface-2 border border-line-strong transition-all flex items-center gap-1.5 whitespace-nowrap">
+          <span>🏭</span> Digital Twin Floor (Live AMRs)
+        </button>
+        <button onclick="switchTab('topology')" id="tab-btn-topology" class="px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5 whitespace-nowrap">
+          <span>🌐</span> Connected Network Topology
+        </button>
+        <button onclick="switchTab('control-tower')" id="tab-btn-control-tower" class="px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5 whitespace-nowrap">
+          <span>⏱️</span> Agent Control Tower
+        </button>
+        <button onclick="switchTab('telemetry')" id="tab-btn-telemetry" class="px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5 whitespace-nowrap">
+          <span>📊</span> Sensor Telemetry (25)
+        </button>
+        <button onclick="switchTab('inventory')" id="tab-btn-inventory" class="px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5 whitespace-nowrap">
+          <span>📦</span> Inventory & Shortfall (20)
+        </button>
+        <button onclick="switchTab('audit')" id="tab-btn-audit" class="px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5 whitespace-nowrap">
+          <span>🎯</span> Prescriptive Decisions & Audit
+        </button>
+      </div>
+
+      <div class="hidden md:flex items-center gap-2 text-xs text-muted">
+        <span class="inline-block w-2 h-2 rounded-full bg-healthy animate-ping"></span>
+        <span>Graph Twin Synchronized</span>
+      </div>
     </div>
 
-    <!-- TAB 1: CONTROL TOWER (AGENT & SUBGRAPH) -->
-    <div id="tab-content-control-tower" class="space-y-5">
+    <!-- TAB 1: DIGITAL TWIN FLOOR PLAN (VISUAL SPATIAL FACTORY & AMRs) -->
+    <div id="tab-content-floor-plan" class="twin-card p-4 space-y-3">
+      <div class="flex items-center justify-between border-b border-line pb-2.5">
+        <div>
+          <h2 class="text-sm font-bold text-ink flex items-center gap-2">
+            <span>🏭</span> Global Smart Manufacturing Cells & Logistics Flow
+          </h2>
+          <p class="text-xs text-muted">Interactive 2D spatial digital twin: 3 plants, CNC workcells, conveyor corridors, and live AMR transport fleets</p>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs">
+          <span class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface border border-line text-[11px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-critical"></span> Critical Trip (M7)
+          </span>
+          <span class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface border border-line text-[11px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-warning"></span> Warning (M12)
+          </span>
+          <span class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface border border-line text-[11px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-healthy"></span> Nominal Healthy
+          </span>
+          <span class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface border border-line text-[11px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-accent"></span> Active AMR Robots
+          </span>
+        </div>
+      </div>
+
+      <!-- Factory Floor Canvas -->
+      <div class="relative w-full h-[580px] bg-[#050811] rounded-xl overflow-hidden border border-line">
+        <canvas id="factory-canvas" class="w-full h-full cursor-crosshair"></canvas>
+
+        <div class="absolute bottom-3 left-3 px-3 py-1.5 rounded-lg bg-surface/90 backdrop-blur border border-line text-[11px] text-muted flex items-center gap-2">
+          <span>💡 <strong>Tip:</strong> Click on any machine cell or AMR robot on the floor to inspect live telemetry & simulate failure ripples</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: NETWORK TOPOLOGY (FULL CONNECTED GRAPH) -->
+    <div id="tab-content-topology" class="twin-card p-4 hidden space-y-3">
+      <div class="flex flex-wrap items-center justify-between border-b border-line pb-2.5 gap-2">
+        <div>
+          <h2 class="text-sm font-bold text-ink flex items-center gap-2">
+            <span>🌐</span> FalkorDB Connected Supply Chain Topology
+          </h2>
+          <p class="text-xs text-muted">Full 174-node, 457-edge graph: Plants &rarr; Machines &rarr; Parts &rarr; Products &rarr; Warehouses &rarr; Customers &rarr; Suppliers</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input type="text" id="topology-search" oninput="searchTopologyNode(this.value)" placeholder="Search node (e.g. M7, P4)..." class="px-2.5 py-1 text-xs rounded-lg bg-surface border border-line text-ink placeholder:text-muted focus:outline-none focus:border-accent">
+          <button onclick="loadFullTopology()" class="px-3 py-1 text-xs rounded-lg bg-surface hover:bg-surface-2 border border-line text-ink flex items-center gap-1">
+            <span>🔄</span> Reload Graph
+          </button>
+        </div>
+      </div>
+
+      <div class="relative w-full h-[620px] bg-[#050811] rounded-xl overflow-hidden border border-line">
+        <div id="full-topology-canvas" class="w-full h-full"></div>
+        <div id="full-topo-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-muted pointer-events-none">
+          <div class="text-3xl mb-2">🌐</div>
+          <p class="font-sans font-medium text-ink-2">Loading Connected Graph Topology...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: CONTROL TOWER (AGENT & SUBGRAPH) -->
+    <div id="tab-content-control-tower" class="space-y-5 hidden">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 min-h-[620px]">
 
         <!-- LEFT: AGENT LIVE REASONING STREAM -->
@@ -270,27 +387,18 @@
               <p class="font-sans font-medium text-ink-2">Evidence Topology Idle</p>
               <p class="text-[11px] font-sans text-muted mt-1">Interactive network nodes will render when decisions are recorded</p>
             </div>
-
-            <!-- Clicked Node Inspector Drawer -->
-            <div id="node-inspector" class="absolute bottom-3 left-3 right-3 twin-card p-3 hidden text-xs transition-all border border-accent/40 bg-surface/95 backdrop-blur-md">
-              <div class="flex items-center justify-between border-b border-line pb-1.5 mb-2">
-                <span id="inspect-title" class="font-bold text-accent">Selected Node Details</span>
-                <button onclick="document.getElementById('node-inspector').classList.add('hidden')" class="text-muted hover:text-white">✕</button>
-              </div>
-              <div id="inspect-body" class="font-mono text-[11px] text-ink-2 space-y-1"></div>
-            </div>
           </div>
 
           <div class="px-4 py-2 border-t border-line bg-surface-2/40 text-[11px] text-muted flex items-center justify-between">
             <span>Graph Interaction: Drag, pinch to zoom, click node to inspect evidence attributes</span>
-            <button onclick="refreshSubgraph()" class="hover:text-accent transition-colors flex items-center gap-1">🔄 Redraw Topology</button>
+            <button onclick="refreshSubgraph()" class="hover:text-accent transition-colors flex items-center gap-1">🔄 Redraw Subgraph</button>
           </div>
         </div>
 
       </div>
     </div>
 
-    <!-- TAB 2: MACHINE SENSOR TELEMETRY GRID -->
+    <!-- TAB 4: MACHINE SENSOR TELEMETRY GRID -->
     <div id="tab-content-telemetry" class="twin-card p-5 hidden space-y-4">
       <div class="flex items-center justify-between">
         <div>
@@ -313,16 +421,17 @@
               <th class="py-2.5 px-3">Failure Risk</th>
               <th class="py-2.5 px-3">Estimated Lifespan</th>
               <th class="py-2.5 px-3">Status</th>
+              <th class="py-2.5 px-3">Action</th>
             </tr>
           </thead>
           <tbody id="telemetry-tbody" class="divide-y divide-line/60 font-mono text-[11px]">
-            <tr><td colspan="9" class="text-center py-8 text-muted">Loading telemetry data...</td></tr>
+            <tr><td colspan="10" class="text-center py-8 text-muted">Loading telemetry data...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- TAB 3: INVENTORY & DEMAND SHORTFALL -->
+    <!-- TAB 5: INVENTORY & DEMAND SHORTFALL -->
     <div id="tab-content-inventory" class="twin-card p-5 hidden space-y-4">
       <div class="flex items-center justify-between">
         <div>
@@ -352,7 +461,7 @@
       </div>
     </div>
 
-    <!-- TAB 4: PRESCRIPTIVE MITIGATION AUDIT (TWIN STYLE) -->
+    <!-- TAB 6: PRESCRIPTIVE MITIGATION AUDIT & DECISIONS -->
     <div id="tab-content-audit" class="twin-card p-6 hidden space-y-5">
       <div class="flex items-center justify-between border-b border-line pb-3">
         <div>
@@ -414,9 +523,67 @@
           </div>
         </div>
       </div>
+
+      <!-- COMMITTED DECISIONS LIST FROM FALKORDB -->
+      <div class="mt-6 border-t border-line pt-4 space-y-3">
+        <h3 class="text-xs font-bold text-ink uppercase tracking-wider">Live Decisions in FalkorDB Knowledge Graph</h3>
+        <div id="decisions-container" class="space-y-2">
+          <div class="text-center py-6 text-muted text-xs">Loading committed decisions from graph...</div>
+        </div>
+      </div>
     </div>
 
   </main>
+
+  <!-- SLIDE-OUT NODE INSPECTOR DRAWER -->
+  <div id="inspector-drawer" class="fixed inset-y-0 right-0 w-96 bg-shell border-l border-line p-5 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+    <div class="flex items-center justify-between border-b border-line pb-3">
+      <div class="flex items-center gap-2">
+        <span id="drawer-type-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-accent/20 text-accent">MACHINE</span>
+        <h3 id="drawer-title" class="font-bold text-ink text-sm">Asset Inspector</h3>
+      </div>
+      <button onclick="closeInspectorDrawer()" class="text-muted hover:text-ink text-lg">&times;</button>
+    </div>
+
+    <div id="drawer-body" class="flex-1 overflow-y-auto py-4 space-y-4 text-xs font-sans">
+      <!-- Injected dynamically -->
+    </div>
+
+    <div class="pt-3 border-t border-line flex items-center gap-2">
+      <button id="drawer-simulate-btn" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-surface hover:bg-surface-2 border border-line text-ink transition-all">
+        ⚡ Simulate Ripple
+      </button>
+      <button id="drawer-investigate-btn" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-accent hover:bg-accent-strong text-white transition-all shadow-md">
+        🧠 Investigate
+      </button>
+    </div>
+  </div>
+
+  <!-- WHAT-IF RIPPLE SIMULATION MODAL -->
+  <div id="sim-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="twin-card max-w-2xl w-full p-6 space-y-5 animate-fade-in border-line-strong bg-shell">
+      <div class="flex items-center justify-between border-b border-line pb-3">
+        <div>
+          <span class="text-[10px] font-mono text-accent uppercase font-bold tracking-wider">Graph Ripple Engine</span>
+          <h3 id="sim-modal-title" class="text-base font-bold text-ink">What-If Machine Failure Simulation</h3>
+        </div>
+        <button onclick="closeSimModal()" class="text-muted hover:text-ink text-xl">&times;</button>
+      </div>
+
+      <div id="sim-modal-body" class="space-y-4 max-h-[60vh] overflow-y-auto text-xs">
+        <div class="text-center py-10 text-muted">Calculating graph traversal ripples...</div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-line">
+        <button onclick="closeSimModal()" class="px-4 py-2 text-xs font-semibold rounded-lg bg-surface hover:bg-surface-2 border border-line text-ink">
+          Dismiss
+        </button>
+        <button id="sim-modal-approve-btn" class="px-4 py-2 text-xs font-semibold rounded-lg bg-accent hover:bg-accent-strong text-white shadow-md flex items-center gap-1.5">
+          <span>✅</span> Approve Prescriptive Fix
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- FOOTER -->
   <footer class="mt-auto py-3 px-6 border-t border-line text-center text-xs text-muted bg-shell">
@@ -425,23 +592,37 @@
 
   <script>
     let network = null;
+    let fullTopologyNetwork = null;
     let toolCallCount = 0;
-    let allNodesData = [];
+    let telemetryCache = [];
+    let currentSimData = null;
+
+    // AMRs on Factory Floor
+    const amrFleet = [
+      { id: "AMR-01", name: "AMR-Alpha", x: 140, y: 160, tx: 380, ty: 160, speed: 1.2, plant: "Detroit", state: "DELIVERING_BATCH", cargo: "BOM Parts" },
+      { id: "AMR-02", name: "AMR-Beta", x: 500, y: 320, tx: 720, ty: 320, speed: 1.0, plant: "Stuttgart", state: "RETURNING_BAY", cargo: "Empty Staging" },
+      { id: "AMR-03", name: "AMR-Gamma", x: 860, y: 180, tx: 1040, ty: 180, speed: 1.5, plant: "Tokyo", state: "DISPATCHING", cargo: "Finished Pallet" },
+    ];
 
     function switchTab(tabName) {
-      ['control-tower', 'telemetry', 'inventory', 'audit'].forEach(t => {
-        document.getElementById(`tab-content-${t}`).classList.add('hidden');
+      ['floor-plan', 'topology', 'control-tower', 'telemetry', 'inventory', 'audit'].forEach(t => {
+        const el = document.getElementById(`tab-content-${t}`);
+        if (el) el.classList.add('hidden');
         const btn = document.getElementById(`tab-btn-${t}`);
-        btn.className = 'px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5';
+        if (btn) btn.className = 'px-4 py-2 text-xs font-semibold rounded-lg text-ink-2 hover:text-white hover:bg-surface transition-all flex items-center gap-1.5 whitespace-nowrap';
       });
 
-      document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+      const activeEl = document.getElementById(`tab-content-${tabName}`);
+      if (activeEl) activeEl.classList.remove('hidden');
       const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-      activeBtn.className = 'px-4 py-2 text-xs font-semibold rounded-lg text-white bg-surface-2 border border-line-strong transition-all flex items-center gap-1.5';
+      if (activeBtn) activeBtn.className = 'px-4 py-2 text-xs font-semibold rounded-lg text-white bg-surface-2 border border-line-strong transition-all flex items-center gap-1.5 whitespace-nowrap';
 
+      if (tabName === 'floor-plan') initFactoryFloor();
+      if (tabName === 'topology') loadFullTopology();
       if (tabName === 'telemetry') loadTelemetry();
       if (tabName === 'inventory') loadInventory();
       if (tabName === 'control-tower') refreshSubgraph();
+      if (tabName === 'audit') loadDecisions();
     }
 
     async function checkHealth() {
@@ -481,12 +662,454 @@
       }
     }
 
+    /* ─────────────────────────────────────────────────────────────
+       1. DIGITAL TWIN FLOOR PLAN CANVAS (AMRs & CELLS)
+       ───────────────────────────────────────────────────────────── */
+    let canvasAnimationId = null;
+    function initFactoryFloor() {
+      const canvas = document.getElementById('factory-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      function resize() {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // Machine cells positions
+      const plants = [
+        { name: "PLANT 1: DETROIT HEAVY ASSEMBLY", x: 40, y: 40, w: 340, h: 480, color: "#3b82f6", machines: [
+          { id: "M1", x: 70, y: 110, risk: 0.09 },
+          { id: "M2", x: 140, y: 110, risk: 0.17 },
+          { id: "M3", x: 210, y: 110, risk: 0.05 },
+          { id: "M4", x: 280, y: 110, risk: 0.12 },
+          { id: "M5", x: 70, y: 220, risk: 0.08 },
+          { id: "M6", x: 140, y: 220, risk: 0.22 },
+          { id: "M7", x: 210, y: 220, risk: 0.94, critical: true, label: "CRITICAL TRIP" },
+          { id: "M8", x: 280, y: 220, risk: 0.11 },
+          { id: "M9", x: 140, y: 340, risk: 0.14 },
+          { id: "M10", x: 210, y: 340, risk: 0.07 },
+        ]},
+        { name: "PLANT 2: STUTTGART ADVANCED MACHINING", x: 410, y: 40, w: 340, h: 480, color: "#10b981", machines: [
+          { id: "M11", x: 440, y: 110, risk: 0.15 },
+          { id: "M12", x: 510, y: 110, risk: 0.88, warning: true, label: "HIGH RISK (M13 BACKUP)" },
+          { id: "M13", x: 580, y: 110, risk: 0.12, redundant: true, label: "REDUNDANT" },
+          { id: "M14", x: 650, y: 110, risk: 0.09 },
+          { id: "M15", x: 440, y: 220, risk: 0.06 },
+          { id: "M16", x: 510, y: 220, risk: 0.18 },
+          { id: "M17", x: 580, y: 220, risk: 0.13 },
+          { id: "M18", x: 650, y: 220, risk: 0.10 },
+        ]},
+        { name: "PLANT 3: TOKYO PRECISION FAB", x: 780, y: 40, w: 340, h: 480, color: "#8b5cf6", machines: [
+          { id: "M19", x: 810, y: 110, risk: 0.07 },
+          { id: "M20", x: 880, y: 110, risk: 0.11 },
+          { id: "M21", x: 950, y: 110, risk: 0.05 },
+          { id: "M22", x: 1020, y: 110, risk: 0.14 },
+          { id: "M23", x: 840, y: 220, risk: 0.08 },
+          { id: "M24", x: 910, y: 220, risk: 0.06 },
+          { id: "M25", x: 980, y: 220, risk: 0.12 },
+        ]},
+      ];
+
+      canvas.onclick = function(e) {
+        const rect = canvas.getBoundingClientRect();
+        const cx = e.clientX - rect.left;
+        const cy = e.clientY - rect.top;
+
+        // Check machine click
+        for (const p of plants) {
+          for (const m of p.machines) {
+            const dist = Math.hypot(cx - m.x, cy - m.y);
+            if (dist < 24) {
+              openInspectorDrawer(m.id);
+              return;
+            }
+          }
+        }
+      };
+
+      let t = 0;
+      function render() {
+        t += 0.03;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Plants
+        for (const p of plants) {
+          ctx.fillStyle = "rgba(17, 26, 46, 0.6)";
+          ctx.strokeStyle = "#1e2a44";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.roundRect(p.x, p.y, p.w, p.h, 12);
+          ctx.fill();
+          ctx.stroke();
+
+          // Header
+          ctx.fillStyle = p.color;
+          ctx.font = "600 11px Inter";
+          ctx.fillText(p.name, p.x + 16, p.y + 28);
+
+          // Corridor conveyor tracks
+          ctx.strokeStyle = "rgba(76, 141, 255, 0.25)";
+          ctx.setLineDash([4, 4]);
+          ctx.lineDashOffset = -t * 15;
+          ctx.beginPath();
+          ctx.moveTo(p.x + 20, p.y + 160);
+          ctx.lineTo(p.x + p.w - 20, p.y + 160);
+          ctx.moveTo(p.x + 20, p.y + 280);
+          ctx.lineTo(p.x + p.w - 20, p.y + 280);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Machines
+          for (const m of p.machines) {
+            ctx.lineWidth = 2;
+            if (m.critical) {
+              // Critical flashing ring on M7
+              ctx.strokeStyle = "rgba(239, 68, 68, 0.8)";
+              ctx.fillStyle = "rgba(239, 68, 68, 0.25)";
+              const pulse = Math.sin(t * 4) * 4;
+              ctx.beginPath();
+              ctx.arc(m.x, m.y, 22 + pulse, 0, Math.PI * 2);
+              ctx.stroke();
+            } else if (m.warning) {
+              ctx.strokeStyle = "rgba(245, 158, 11, 0.8)";
+              ctx.fillStyle = "rgba(245, 158, 11, 0.2)";
+            } else {
+              ctx.strokeStyle = "rgba(16, 185, 129, 0.6)";
+              ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
+            }
+
+            ctx.beginPath();
+            ctx.arc(m.x, m.y, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Machine Label
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 10px JetBrains Mono";
+            ctx.textAlign = "center";
+            ctx.fillText(m.id, m.x, m.y + 4);
+
+            if (m.label) {
+              ctx.fillStyle = m.critical ? "#ef4444" : (m.warning ? "#f59e0b" : "#10b981");
+              ctx.font = "600 8.5px Inter";
+              ctx.fillText(m.label, m.x, m.y + 28);
+            }
+          }
+        }
+
+        // Draw AMR Robots moving along floor
+        for (const amr of amrFleet) {
+          amr.x += (amr.tx - amr.x) * 0.01 * amr.speed;
+          if (Math.abs(amr.tx - amr.x) < 5) {
+            const temp = amr.tx;
+            amr.tx = amr.x === 140 || amr.x === 500 || amr.x === 860 ? amr.tx + 180 : amr.tx - 180;
+          }
+
+          // AMR Robot Base
+          ctx.fillStyle = "#4c8dff";
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.roundRect(amr.x - 14, amr.y - 10, 28, 20, 4);
+          ctx.fill();
+          ctx.stroke();
+
+          // AMR Sensor Beacon
+          ctx.fillStyle = "#10b981";
+          ctx.beginPath();
+          ctx.arc(amr.x, amr.y - 2, 3, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = "#e6ebf5";
+          ctx.font = "bold 9px JetBrains Mono";
+          ctx.textAlign = "center";
+          ctx.fillText(amr.id, amr.x, amr.y + 19);
+        }
+
+        canvasAnimationId = requestAnimationFrame(render);
+      }
+
+      if (canvasAnimationId) cancelAnimationFrame(canvasAnimationId);
+      render();
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       2. FULL CONNECTED TOPOLOGY VISUALIZER
+       ───────────────────────────────────────────────────────────── */
+    async function loadFullTopology() {
+      const container = document.getElementById('full-topology-canvas');
+      const placeholder = document.getElementById('full-topo-placeholder');
+      if (placeholder) placeholder.style.display = 'flex';
+
+      try {
+        const res = await fetch('/api/graph/full');
+        const data = await res.json();
+        if (placeholder) placeholder.style.display = 'none';
+
+        const graphData = {
+          nodes: new vis.DataSet(data.nodes),
+          edges: new vis.DataSet(data.edges)
+        };
+
+        const options = {
+          physics: {
+            solver: 'forceAtlas2Based',
+            forceAtlas2Based: {
+              gravitationalConstant: -38,
+              centralGravity: 0.008,
+              springLength: 85,
+              springConstant: 0.18
+            },
+            stabilization: { iterations: 120 }
+          },
+          interaction: { hover: true, tooltipDelay: 100 }
+        };
+
+        if (fullTopologyNetwork) fullTopologyNetwork.destroy();
+        fullTopologyNetwork = new vis.Network(container, graphData, options);
+
+        fullTopologyNetwork.on('click', function(params) {
+          if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            openInspectorDrawer(nodeId);
+          }
+        });
+      } catch (e) {
+        console.error("Topology error:", e);
+      }
+    }
+
+    function searchTopologyNode(query) {
+      if (!fullTopologyNetwork || !query) return;
+      const q = query.trim().toUpperCase();
+      fullTopologyNetwork.selectNodes([q]);
+      fullTopologyNetwork.focus(q, { scale: 1.4, animation: { duration: 600 } });
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       3. NODE INSPECTOR DRAWER
+       ───────────────────────────────────────────────────────────── */
+    async function openInspectorDrawer(nodeId) {
+      const drawer = document.getElementById('inspector-drawer');
+      const title = document.getElementById('drawer-title');
+      const badge = document.getElementById('drawer-type-badge');
+      const body = document.getElementById('drawer-body');
+      const simBtn = document.getElementById('drawer-simulate-btn');
+      const invBtn = document.getElementById('drawer-investigate-btn');
+
+      drawer.classList.remove('translate-x-full');
+      title.innerText = `Node: ${nodeId}`;
+      body.innerHTML = '<div class="text-center py-10 text-muted">Loading graph node details...</div>';
+
+      try {
+        // Fetch machine telemetry or simulate
+        const res = await fetch(`/api/simulate/${nodeId}`);
+        const data = await res.json();
+
+        if (data.machine) {
+          const m = data.machine;
+          badge.innerText = "MACHINE";
+          badge.className = m.failure_risk >= 0.85 ? "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-critical/20 text-critical" : "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-healthy/20 text-healthy";
+          title.innerText = `${m.name} (${m.id})`;
+
+          body.innerHTML = `
+            <div class="twin-card p-3.5 space-y-2 bg-surface-2/40">
+              <div class="flex items-center justify-between">
+                <span class="text-muted">Health Score:</span>
+                <strong class="text-ink font-mono">${m.health_score}%</strong>
+              </div>
+              <div class="w-full bg-surface-3 rounded-full h-2 overflow-hidden">
+                <div class="h-full ${m.failure_risk >= 0.85 ? 'bg-critical' : 'bg-healthy'}" style="width: ${m.health_score}%"></div>
+              </div>
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-muted">Failure Risk:</span>
+                <span class="font-mono font-bold ${m.failure_risk >= 0.85 ? 'text-critical' : 'text-healthy'}">${(m.failure_risk * 100).toFixed(0)}%</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-muted">Est. Time to Trip:</span>
+                <span class="font-mono text-ink">${m.predicted_failure_days} days</span>
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <span class="font-semibold text-ink text-[11px] uppercase tracking-wider">Downstream Graph Exposure</span>
+              <div class="p-3 rounded-lg bg-surface border border-line space-y-1.5 font-mono text-[11px]">
+                <div>&bull; Parts Produced: <strong class="text-ink">${data.impact?.parts?.join(', ') || 'None'}</strong></div>
+                <div>&bull; Finished Products: <strong class="text-accent">${data.impact?.products?.join(', ') || 'None'}</strong></div>
+                <div>&bull; Total Demand Shortfall: <strong class="${data.total_shortfall > 0 ? 'text-critical font-bold' : 'text-healthy'}">${data.total_shortfall} units</strong></div>
+                <div>&bull; Redundant Backup: <strong class="${data.has_redundancy ? 'text-healthy' : 'text-critical'}">${data.has_redundancy ? 'YES (Mitigated)' : 'NO (Single Point)'}</strong></div>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-lg ${data.recommendation?.is_harmful ? 'bg-critical/10 border border-critical/30' : 'bg-healthy/10 border border-healthy/30'} text-xs">
+              <div class="font-bold ${data.recommendation?.is_harmful ? 'text-critical' : 'text-healthy'} mb-1">
+                ${data.recommendation?.is_harmful ? '⚠️ MITIGATION ACTION REQUIRED' : '✅ OPERATIONALLY SAFE'}
+              </div>
+              <p class="text-ink-2">${data.recommendation?.primary_rationale || ''}</p>
+            </div>
+          `;
+
+          simBtn.onclick = () => simulateFailure(m.id);
+          invBtn.onclick = () => { closeInspectorDrawer(); switchTab('control-tower'); startInvestigation(); };
+        } else {
+          body.innerHTML = `
+            <div class="p-3 rounded-lg bg-surface border border-line font-mono text-[11px] text-ink-2">
+              <div class="font-bold text-ink mb-1">Entity: ${nodeId}</div>
+              <p>Connected entity in FalkorDB supply chain knowledge graph.</p>
+            </div>
+          `;
+        }
+      } catch (e) {
+        body.innerHTML = `<div class="text-critical text-center py-6">Could not load details for ${nodeId}</div>`;
+      }
+    }
+
+    function closeInspectorDrawer() {
+      document.getElementById('inspector-drawer').classList.add('translate-x-full');
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       4. WHAT-IF FAILURE RIPPLE SIMULATION
+       ───────────────────────────────────────────────────────────── */
+    async function simulateFailure(machineId) {
+      const modal = document.getElementById('sim-modal');
+      const title = document.getElementById('sim-modal-title');
+      const body = document.getElementById('sim-modal-body');
+      const approveBtn = document.getElementById('sim-modal-approve-btn');
+
+      modal.classList.remove('hidden');
+      title.innerText = `What-If Failure Simulation: Machine ${machineId}`;
+      body.innerHTML = '<div class="text-center py-10 text-muted">Traversing FalkorDB multi-hop dependencies...</div>';
+
+      try {
+        const res = await fetch(`/api/simulate/${machineId}`);
+        const data = await res.json();
+        currentSimData = data;
+
+        const m = data.machine;
+        const isHarmful = data.recommendation?.is_harmful;
+
+        body.innerHTML = `
+          <!-- Machine Risk Banner -->
+          <div class="twin-card p-3.5 flex items-center justify-between ${isHarmful ? 'border-critical/50 bg-critical/10' : 'border-healthy/50 bg-healthy/10'}">
+            <div>
+              <div class="font-bold text-sm ${isHarmful ? 'text-critical' : 'text-healthy'}">${m.name} (${m.id})</div>
+              <div class="text-[11px] text-muted">Failure Risk: ${(m.failure_risk * 100).toFixed(0)}% &bull; Est. Trip in ${m.predicted_failure_days} days</div>
+            </div>
+            <span class="px-2.5 py-1 rounded text-xs font-mono font-bold ${isHarmful ? 'bg-critical text-white' : 'bg-healthy text-white'}">
+              ${isHarmful ? 'HARMFUL DEFICIT' : 'HARMLESS REDUNDANT'}
+            </span>
+          </div>
+
+          <!-- Ripple Traversal Steps -->
+          <div class="space-y-2">
+            <h4 class="text-xs font-bold text-ink uppercase tracking-wider">Multi-Hop Graph Ripple Traversal:</h4>
+
+            <!-- Hop 1: Parts & Redundancy -->
+            <div class="p-3 rounded-lg bg-surface border border-line flex items-center justify-between">
+              <div>
+                <span class="font-mono text-accent">HOP 1: [:PRODUCES] &rarr; Parts</span>
+                <p class="text-ink-2 mt-0.5">${data.impact?.parts?.length || 0} unique components produced</p>
+              </div>
+              <span class="font-mono font-bold ${data.has_redundancy ? 'text-healthy' : 'text-critical'}">
+                ${data.has_redundancy ? '✓ Backup Machines Ready' : '✗ 0 Backup Machines!'}
+              </span>
+            </div>
+
+            <!-- Hop 2: Finished Products & Shortfall -->
+            <div class="p-3 rounded-lg bg-surface border border-line flex items-center justify-between">
+              <div>
+                <span class="font-mono text-accent">HOP 2: [:USED_IN] &rarr; Products</span>
+                <p class="text-ink-2 mt-0.5">${data.impact?.products?.join(', ') || 'None'}</p>
+              </div>
+              <span class="font-mono font-bold ${data.total_shortfall > 0 ? 'text-critical' : 'text-healthy'}">
+                ${data.total_shortfall > 0 ? `Deficit: -${data.total_shortfall} units` : 'Ample Buffer (0 Shortfall)'}
+              </span>
+            </div>
+
+            <!-- Hop 3: Warehouses & Customers -->
+            <div class="p-3 rounded-lg bg-surface border border-line flex items-center justify-between">
+              <div>
+                <span class="font-mono text-accent">HOP 3: [:STOCKED_AT] &rarr; [:SERVES] &rarr; Customers</span>
+                <p class="text-ink-2 mt-0.5">Regional Depot to Customer Commitment</p>
+              </div>
+              <span class="font-mono font-bold ${isHarmful ? 'text-critical' : 'text-healthy'}">
+                ${isHarmful ? '12 Customer Accounts Exposed' : '0 Customer Accounts Exposed'}
+              </span>
+            </div>
+          </div>
+
+          <!-- Prescriptive Recommendation Card -->
+          <div class="twin-card p-4 border border-line-strong space-y-2 bg-surface-2/60">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-ink">Autonomous Prescriptive Action:</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-agent/20 text-agent-ink font-semibold">
+                ${data.recommendation?.action_type || 'none'}
+              </span>
+            </div>
+            <p class="text-ink-2 text-xs leading-relaxed">${data.recommendation?.primary_rationale || ''}</p>
+          </div>
+        `;
+
+        if (isHarmful) {
+          approveBtn.style.display = 'inline-flex';
+          approveBtn.onclick = () => approvePrescriptivePlan(data);
+        } else {
+          approveBtn.style.display = 'none';
+        }
+      } catch (e) {
+        body.innerHTML = '<div class="text-critical text-center py-6">Simulation failed.</div>';
+      }
+    }
+
+    function closeSimModal() {
+      document.getElementById('sim-modal').classList.add('hidden');
+    }
+
+    async function approvePrescriptivePlan(data) {
+      const approveBtn = document.getElementById('sim-modal-approve-btn');
+      approveBtn.innerText = 'Committing to FalkorDB...';
+      try {
+        const payload = {
+          type: "schedule_maintenance",
+          target_id: data.machine.id,
+          reason: `Approved prescriptive action: mitigate ${data.total_shortfall} unit shortfall before ${data.machine.predicted_failure_days}-day trip window.`,
+          evidence_ids: data.impact?.evidence_node_ids || [data.machine.id]
+        };
+
+        const res = await fetch('/api/decisions/approve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const out = await res.json();
+        if (out.status === 'success') {
+          approveBtn.innerText = '✓ Committed to FalkorDB!';
+          setTimeout(() => {
+            closeSimModal();
+            loadKpis();
+            refreshSubgraph();
+            switchTab('control-tower');
+          }, 1000);
+        }
+      } catch (e) {
+        approveBtn.innerText = 'Error committing';
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       5. TELEMETRY, INVENTORY & DECISION AUDIT
+       ───────────────────────────────────────────────────────────── */
     async function loadTelemetry() {
       const tbody = document.getElementById('telemetry-tbody');
-      tbody.innerHTML = '<tr><td colspan="9" class="text-center py-6 text-muted">Refreshing sensor streams...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" class="text-center py-6 text-muted">Refreshing sensor streams...</td></tr>';
       try {
         const res = await fetch('/api/telemetry');
         const data = await res.json();
+        telemetryCache = data.machines || [];
         tbody.innerHTML = '';
         data.machines.forEach(m => {
           const isCrit = m.status === 'CRITICAL';
@@ -512,11 +1135,16 @@
             <td class="py-2.5 px-3 ${isCrit ? 'text-critical font-bold' : 'text-muted'}">${(m.failure_risk * 100).toFixed(0)}%</td>
             <td class="py-2.5 px-3 text-muted">${m.predicted_failure_days} days</td>
             <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold ${badgeClass}">${m.status}</span></td>
+            <td class="py-2.5 px-3">
+              <button onclick="simulateFailure('${m.id}')" class="px-2 py-1 rounded bg-surface hover:bg-surface-2 border border-line text-[10px] text-accent">
+                ⚡ Simulate
+              </button>
+            </td>
           `;
           tbody.appendChild(tr);
         });
       } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="9" class="text-center py-6 text-critical">Failed to load telemetry.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center py-6 text-critical">Failed to load telemetry.</td></tr>';
       }
     }
 
@@ -551,13 +1179,63 @@
       }
     }
 
+    async function loadDecisions() {
+      const container = document.getElementById('decisions-container');
+      try {
+        const res = await fetch('/api/decisions');
+        const data = await res.json();
+        if (data.decisions && data.decisions.length > 0) {
+          container.innerHTML = '';
+          data.decisions.forEach(d => {
+            const card = document.createElement('div');
+            card.className = 'twin-card p-3 border border-line bg-surface/70 space-y-1.5 text-xs';
+            card.innerHTML = `
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-ink flex items-center gap-1.5 font-mono">
+                  <span class="w-2 h-2 rounded-full bg-critical"></span> ${d.type} &bull; Target: [${d.target}]
+                </span>
+                <span class="text-[10px] text-muted font-mono">${d.ts || ''}</span>
+              </div>
+              <p class="text-ink-2 text-xs">${d.reason}</p>
+              <div class="pt-1 text-[11px] text-muted flex flex-wrap gap-1">
+                <span>Evidence Nodes:</span>
+                ${d.evidence.map(e => `<span class="px-1.5 py-0.2 rounded bg-surface-2 border border-line font-mono text-[10px] text-accent">${e.label || ''}:${e.id}</span>`).join(' ')}
+              </div>
+            `;
+            container.appendChild(card);
+          });
+        } else {
+          container.innerHTML = '<div class="text-center py-6 text-muted text-xs">No decisions recorded yet. Run an investigation to generate actions.</div>';
+        }
+      } catch (e) {
+        container.innerHTML = '<div class="text-critical text-center py-4">Error loading decisions.</div>';
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       6. SCENARIO TRIGGERS
+       ───────────────────────────────────────────────────────────── */
+    function triggerCrisisM7() {
+      switchTab('floor-plan');
+      simulateFailure('M7');
+    }
+
+    function triggerHarmlessM12() {
+      switchTab('floor-plan');
+      simulateFailure('M12');
+    }
+
+    function triggerSpofAudit() {
+      switchTab('audit');
+    }
+
     async function resetGraph() {
       const btn = document.getElementById('btn-reset');
       btn.innerHTML = 'Resetting...';
       try {
         const res = await fetch('/api/reset', { method: 'POST' });
         btn.innerHTML = '✅ Baseline Restored!';
-        setTimeout(() => { btn.innerHTML = '<span>🔄</span> Reset Baseline'; }, 2000);
+        setTimeout(() => { btn.innerHTML = '<span>🔄</span> Reset'; }, 2000);
         loadKpis();
         refreshSubgraph();
       } catch (e) {
@@ -565,6 +1243,9 @@
       }
     }
 
+    /* ─────────────────────────────────────────────────────────────
+       7. AGENT STREAM & SUBGRAPH
+       ───────────────────────────────────────────────────────────── */
     function appendTraceEntry(evt) {
       const container = document.getElementById('trace-container');
       const placeholder = container.querySelector('.text-center');
@@ -618,7 +1299,6 @@
       try {
         const res = await fetch('/api/subgraph');
         const data = await res.json();
-        allNodesData = data.nodes || [];
 
         const container = document.getElementById('subgraph-canvas');
         const placeholder = document.getElementById('graph-placeholder');
@@ -648,21 +1328,10 @@
           if (network) network.destroy();
           network = new vis.Network(container, graphData, options);
 
-          // Click on node opens Twin Inspector Drawer
           network.on('click', function(params) {
             if (params.nodes.length > 0) {
               const nodeId = params.nodes[0];
-              const nodeObj = allNodesData.find(n => n.id === nodeId);
-              if (nodeObj) {
-                const drawer = document.getElementById('node-inspector');
-                document.getElementById('inspect-title').innerText = `${nodeObj.group || 'Node'}: ${nodeObj.id}`;
-                document.getElementById('inspect-body').innerHTML = `
-                  <div><strong>Label:</strong> ${nodeObj.label.replace('\\n', ' ')}</div>
-                  <div><strong>Type:</strong> ${nodeObj.group}</div>
-                  <div><strong>Description:</strong> ${nodeObj.title || 'Connected evidence entity'}</div>
-                `;
-                drawer.classList.remove('hidden');
-              }
+              openInspectorDrawer(nodeId);
             }
           });
         } else {
@@ -718,6 +1387,8 @@
 
     window.onload = function() {
       loadKpis();
+      initFactoryFloor();
+      loadTelemetry();
       refreshSubgraph();
     };
   </script>
