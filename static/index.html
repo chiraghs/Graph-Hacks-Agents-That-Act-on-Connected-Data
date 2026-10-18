@@ -111,9 +111,9 @@
 
     <!-- Status & Action Bar -->
     <div class="flex items-center gap-3">
-      <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-surface-2 border border-line text-xs font-mono text-healthy">
-        <span class="w-2 h-2 rounded-full bg-healthy animate-pulse"></span>
-        <span>FALKORDB LIVE: CONNECTED</span>
+      <div id="db-status-badge" class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-surface-2 border border-line text-xs font-mono text-healthy">
+        <span id="db-status-dot" class="w-2 h-2 rounded-full bg-healthy animate-pulse"></span>
+        <span id="db-status-text">FALKORDB: CONNECTING...</span>
       </div>
 
       <button id="btn-reset" onclick="resetGraph()" class="px-3 py-1.5 text-xs font-medium text-ink-2 hover:text-ink bg-surface hover:bg-surface-2 rounded-lg transition-all border border-line flex items-center gap-1.5">
@@ -444,7 +444,29 @@
       if (tabName === 'control-tower') refreshSubgraph();
     }
 
+    async function checkHealth() {
+      try {
+        const res = await fetch('/health');
+        const data = await res.json();
+        const textEl = document.getElementById('db-status-text');
+        const dotEl = document.getElementById('db-status-dot');
+        if (data.status === 'healthy') {
+          const mode = data.environment === 'Cloud' ? 'CLOUD' : 'LOCAL';
+          textEl.innerText = `FALKORDB ${mode}: ${data.target_host} [${data.graph}]`;
+          textEl.className = 'text-healthy';
+          dotEl.className = 'w-2 h-2 rounded-full bg-healthy animate-pulse';
+        } else {
+          textEl.innerText = `FALKORDB: DISCONNECTED`;
+          textEl.className = 'text-critical';
+          dotEl.className = 'w-2 h-2 rounded-full bg-critical';
+        }
+      } catch (e) {
+        document.getElementById('db-status-text').innerText = 'FALKORDB: UNREACHABLE';
+      }
+    }
+
     async function loadKpis() {
+      checkHealth();
       try {
         const res = await fetch('/api/kpis');
         const data = await res.json();

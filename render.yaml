@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: supply-chain-agent
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: FALKORDB_HOST
+        sync: false
+      - key: FALKORDB_PORT
+        sync: false
+      - key: FALKORDB_USERNAME
+        sync: false
+      - key: FALKORDB_PASSWORD
+        sync: false
+      - key: FALKORDB_SSL
+        value: "true"
+      - key: FALKORDB_GRAPH
+        value: "supply_chain"
+      - key: ANTHROPIC_API_KEY
+        sync: false

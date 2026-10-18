@@ -19,7 +19,7 @@ from pathlib import Path
 
 from agent import stream_investigation
 from seed import seed_database
-from mcp_server import get_graph
+from db import get_graph, get_connection_config
 
 app = FastAPI(title="Supply Chain Intelligence Control Tower")
 
@@ -33,6 +33,30 @@ app.add_middleware(
 
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+
+@app.get("/health")
+async def health_check():
+    """Confirms FalkorDB connection and reveals target environment (host only, never credentials)."""
+    cfg = get_connection_config()
+    try:
+        g = get_graph()
+        g.query("RETURN 1").result_set
+        return {
+            "status": "healthy",
+            "database": "FalkorDB",
+            "target_host": f"{cfg['host']}:{cfg['port']}",
+            "graph": cfg["graph_name"],
+            "environment": "Cloud" if cfg["is_cloud"] else "Local",
+            "tls_enabled": cfg["ssl"],
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "target_host": f"{cfg['host']}:{cfg['port']}",
+            "environment": "Cloud" if cfg["is_cloud"] else "Local",
+            "error": str(e),
+        }
 
 
 @app.get("/", response_class=HTMLResponse)

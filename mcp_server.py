@@ -16,7 +16,7 @@ import sys
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 import uuid
-from falkordb import FalkorDB
+from db import get_graph
 
 # Try importing MCPServer from mcp 2.x
 try:
@@ -24,14 +24,6 @@ try:
     mcp_app = MCPServer("supply-chain-intelligence")
 except Exception:
     mcp_app = None
-
-GRAPH_NAME = "SupplyChain"
-
-
-def get_graph():
-    """Returns connected FalkorDB graph instance."""
-    db = FalkorDB(host="localhost", port=6379)
-    return db.select_graph(GRAPH_NAME)
 
 
 # ==============================================================================

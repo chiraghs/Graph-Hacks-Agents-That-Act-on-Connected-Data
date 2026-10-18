@@ -18,12 +18,13 @@ import json
 import asyncio
 from typing import AsyncGenerator, Dict, Any, List
 import anthropic
+import time
 from dotenv import load_dotenv
 
+from db import get_graph
 from mcp_server import (
     TOOL_DISPATCH,
     CLAUDE_TOOLS,
-    get_graph,
     at_risk_machines,
     downstream_impact,
     shortfall_check,
@@ -70,6 +71,13 @@ async def run_autonomous_investigation() -> AsyncGenerator[Dict[str, Any], None]
         "edges": [],
     }
 
+    # Helper to measure latency
+    def timed_call(fn, **kwargs):
+        t0 = time.perf_counter()
+        res = fn(**kwargs)
+        lat = round((time.perf_counter() - t0) * 1000, 1)
+        return res, lat
+
     # Step 1: at_risk_machines
     yield {
         "event": "tool_call",
@@ -79,12 +87,13 @@ async def run_autonomous_investigation() -> AsyncGenerator[Dict[str, Any], None]
             "purpose": "Scan FalkorDB for machines with predictive failure risk >= 0.70",
         },
     }
-    machines_res = at_risk_machines(threshold=0.70)
+    machines_res, lat_m = timed_call(at_risk_machines, threshold=0.70)
     yield {
         "event": "tool_result",
         "data": {
             "tool": "at_risk_machines",
             "result": machines_res,
+            "latency_ms": lat_m,
         },
     }
 
@@ -108,12 +117,13 @@ async def run_autonomous_investigation() -> AsyncGenerator[Dict[str, Any], None]
                 "purpose": f"Traverse graph to trace downstream parts, products, warehouses, and customers for {m_id}",
             },
         }
-        impact_res = downstream_impact(machine_id=m_id)
+        impact_res, lat_imp = timed_call(downstream_impact, machine_id=m_id)
         yield {
             "event": "tool_result",
             "data": {
                 "tool": "downstream_impact",
                 "result": impact_res,
+                "latency_ms": lat_imp,
             },
         }
 
@@ -135,12 +145,13 @@ async def run_autonomous_investigation() -> AsyncGenerator[Dict[str, Any], None]
                     "purpose": f"Check 30-day forecast demand vs warehouse stock for {prod_id}",
                 },
             }
-            shortfall_res = shortfall_check(product_id=prod_id)
+            shortfall_res, lat_short = timed_call(shortfall_check, product_id=prod_id)
             yield {
                 "event": "tool_result",
                 "data": {
                     "tool": "shortfall_check",
                     "result": shortfall_res,
+                    "latency_ms": lat_short,
                 },
             }
 
@@ -160,12 +171,13 @@ async def run_autonomous_investigation() -> AsyncGenerator[Dict[str, Any], None]
                     "purpose": f"Search for substitute suppliers or redundant machines for {part_id}",
                 },
             }
-            alt_res = alternate_sources(part_id=part_id)
+            alt_res, lat_alt = timed_call(alternate_sources, part_id=part_id)
             yield {
                 "event": "tool_result",
                 "data": {
                     "tool": "alternate_sources",
                     "result": alt_res,
+                    "latency_ms": lat_alt,
                 },
             }
 
@@ -179,12 +191,13 @@ async def run_autonomous_investigation() -> AsyncGenerator[Dict[str, Any], None]
                     "purpose": f"Trace causal dependency path from machine {m_id} to customer {sample_customer}",
                 },
             }
-            path_res = shortest_path(a_id=m_id, b_id=sample_customer)
+            path_res, lat_path = timed_call(shortest_path, a_id=m_id, b_id=sample_customer)
             yield {
                 "event": "tool_result",
                 "data": {
                     "tool": "shortest_path",
                     "result": path_res,
+                    "latency_ms": lat_path,
                 },
             }
 
@@ -221,7 +234,8 @@ async def run_autonomous_investigation() -> AsyncGenerator[Dict[str, Any], None]
                     "purpose": f"Record operational decision for {m_id} into FalkorDB with BASED_ON edges",
                 },
             }
-            action_res = schedule_action(
+            action_res, lat_act = timed_call(
+                schedule_action,
                 type="schedule_maintenance",
                 target_id=m_id,
                 reason=reason,
@@ -232,6 +246,7 @@ async def run_autonomous_investigation() -> AsyncGenerator[Dict[str, Any], None]
                 "data": {
                     "tool": "schedule_action",
                     "result": action_res,
+                    "latency_ms": lat_act,
                 },
             }
 
@@ -268,12 +283,13 @@ async def run_autonomous_investigation() -> AsyncGenerator[Dict[str, Any], None]
             "purpose": "Scan entire graph for single-source parts with zero redundancy",
         },
     }
-    spof_res = single_points_of_failure()
+    spof_res, lat_spof = timed_call(single_points_of_failure)
     yield {
         "event": "tool_result",
         "data": {
             "tool": "single_points_of_failure",
             "result": spof_res,
+            "latency_ms": lat_spof,
         },
     }
 
@@ -454,8 +470,9 @@ if __name__ == "__main__":
             elif evt_type == "tool_result":
                 tool = evt_data["tool"]
                 res = evt_data["result"]
+                lat = evt_data.get("latency_ms", "N/A")
                 summary = str(res)[:120] + "..." if len(str(res)) > 120 else str(res)
-                print(f"[TOOL RESULT] <- {tool}: {summary}")
+                print(f"[TOOL RESULT] <- {tool} ({lat}ms): {summary}")
             elif evt_type == "agent_report":
                 print("\n" + "=" * 60)
                 print("FINAL AGENT REPORT:")

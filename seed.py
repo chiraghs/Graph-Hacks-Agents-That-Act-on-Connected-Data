@@ -1,37 +1,24 @@
-"""seed.py - Deterministic synthetic data generator for FalkorDB Supply Chain Graph.
+"""seed.py - High-speed, idempotent synthetic data generator for FalkorDB Supply Chain Graph.
 
-Generates:
-- 3 Plants
-- 25 Machines (including planted M7 HARMFUL and M12 HARMLESS)
-- 60 Parts (including single points of failure)
-- 20 Products
-- 15 Suppliers
-- 6 Warehouses
-- 40 Customers
-- 5 Regions
-
-Uses scoring.py to compute sensor-drift machine failure risks and exponential-smoothing demand forecasts.
+Optimized for FalkorDB Cloud & Local Docker:
+- Uses unified db.py connection helper
+- Fully idempotent: purges existing graph before repopulating
+- High-speed UNWIND query batching (minimizes network round-trips for Cloud latency)
+- Plants all 4 benchmark hackathon scenarios (HARMFUL M7, HARMLESS M12, SPOF part, Benign noise)
 """
 
+import sys
 import random
-from typing import Dict, Any
-from falkordb import FalkorDB
+from typing import Dict, Any, List
+from db import get_graph, get_connection_config
 from scoring import (
     compute_machine_risk,
     compute_demand_forecast,
     compute_safety_stock,
 )
 
-# Set deterministic seed
 SEED = 42
 random.seed(SEED)
-
-GRAPH_NAME = "SupplyChain"
-
-
-def get_falkordb_connection(host: str = "localhost", port: int = 6379) -> FalkorDB:
-    """Connect to FalkorDB instance."""
-    return FalkorDB(host=host, port=port)
 
 
 def build_synthetic_dataset() -> Dict[str, Any]:
@@ -65,7 +52,6 @@ def build_synthetic_dataset() -> Dict[str, Any]:
     ]
 
     # 4. Customers (40 customers)
-    tiers = ["Strategic", "Enterprise", "Standard"]
     customers = []
     for i in range(1, 41):
         c_id = f"CUST_{i:03d}"
@@ -91,20 +77,17 @@ def build_synthetic_dataset() -> Dict[str, Any]:
         {"id": "SUPPLIER_11", "name": "Kyoto Actuator Tech", "rating": 4.7, "region": "REG_EAST_ASIA"},
         {"id": "SUPPLIER_12", "name": "Texas Silicon Foundry", "rating": 4.5, "region": "REG_NA"},
         {"id": "SUPPLIER_13", "name": "Shenzhen Opto-Sensors", "rating": 4.3, "region": "REG_EAST_ASIA"},
-        # Planted alternate supplier for M7 parts with 12-day lead time
         {"id": "SUPPLIER_ALT_M7", "name": "Express Emergency Foundry", "rating": 4.0, "region": "REG_NA"},
-        # Planted single point of failure sole supplier
         {"id": "SUPPLIER_SOLO_SPOF", "name": "Monopoly Rare Alloys", "rating": 3.9, "region": "REG_EAST_ASIA"},
     ]
 
-    # Supplier alternate relations
     alternate_suppliers = [
-        ("SUPPLIER_01", "SUPPLIER_03"),
-        ("SUPPLIER_02", "SUPPLIER_08"),
-        ("SUPPLIER_04", "SUPPLIER_13"),
-        ("SUPPLIER_06", "SUPPLIER_07"),
-        ("SUPPLIER_10", "SUPPLIER_07"),
-        ("SUPPLIER_01", "SUPPLIER_ALT_M7"),
+        {"s1": "SUPPLIER_01", "s2": "SUPPLIER_03"},
+        {"s1": "SUPPLIER_02", "s2": "SUPPLIER_08"},
+        {"s1": "SUPPLIER_04", "s2": "SUPPLIER_13"},
+        {"s1": "SUPPLIER_06", "s2": "SUPPLIER_07"},
+        {"s1": "SUPPLIER_10", "s2": "SUPPLIER_07"},
+        {"s1": "SUPPLIER_01", "s2": "SUPPLIER_ALT_M7"},
     ]
 
     # 6. Machines (25 machines: M1 to M25)
@@ -119,27 +102,12 @@ def build_synthetic_dataset() -> Dict[str, Any]:
         plant_id = plants[(i - 1) % len(plants)]["id"]
 
         if m_id == "M7":
-            # Planted HARMFUL machine M7: severe drift (vibration z=3.8, temp z=3.1)
-            recent_readings = [
-                {"temperature": 72.8, "vibration": 1.77},
-                {"temperature": 73.5, "vibration": 1.82},
-                {"temperature": 74.0, "vibration": 1.85},
-            ]
-            risk, failure_days = compute_machine_risk(recent_readings, baseline_stats)
-            # Ensure high risk and 5 days
             risk = 0.94
             failure_days = 5
         elif m_id == "M12":
-            # Planted HARMLESS machine M12: severe drift as well, but redundant & ample stock
-            recent_readings = [
-                {"temperature": 71.5, "vibration": 1.72},
-                {"temperature": 72.0, "vibration": 1.75},
-            ]
-            risk, failure_days = compute_machine_risk(recent_readings, baseline_stats)
             risk = 0.88
             failure_days = 4
         else:
-            # Benign low-risk machines
             noise_temp = 65.0 + rng.uniform(-1.5, 1.5)
             noise_vibe = 1.20 + rng.uniform(-0.1, 0.1)
             recent_readings = [{"temperature": noise_temp, "vibration": noise_vibe}]
@@ -157,7 +125,6 @@ def build_synthetic_dataset() -> Dict[str, Any]:
 
     # 7. Parts (~60 parts)
     parts = []
-    # Planted M7 critical parts: only M7 produces them!
     m7_parts = [
         {"id": "PART_M7_ROTOR", "name": "Precision High-RPM Rotor", "cost": 420.0},
         {"id": "PART_M7_STATOR", "name": "Electromagnetic Stator Assembly", "cost": 310.0},
@@ -165,18 +132,15 @@ def build_synthetic_dataset() -> Dict[str, Any]:
     ]
     parts.extend(m7_parts)
 
-    # Planted M12 harmless parts: produced by M12 AND M13 (redundant)
     m12_parts = [
         {"id": "PART_M12_VALVE", "name": "Cryogenic Metering Valve", "cost": 140.0},
         {"id": "PART_M12_NOZZLE", "name": "Ceramic Spray Nozzle", "cost": 95.0},
     ]
     parts.extend(m12_parts)
 
-    # Planted SPOF part: only 1 supplier (SUPPLIER_SOLO_SPOF), no machines produce it
     spof_part = {"id": "PART_SPOF_ALLOY", "name": "Monopoly Ultra-Purity Alloy Core", "cost": 850.0}
     parts.append(spof_part)
 
-    # Other parts to reach 60
     for i in range(1, 55):
         p_id = f"PART_{i:02d}"
         parts.append({
@@ -185,24 +149,17 @@ def build_synthetic_dataset() -> Dict[str, Any]:
             "cost": round(rng.uniform(25.0, 350.0), 2),
         })
 
-    # 8. Products (20 products: P1 to P20)
+    # 8. Products (20 products)
     products = []
     for i in range(1, 21):
         p_id = f"P{i}"
         name = f"Industrial System {p_id}"
         if p_id == "P4":
             name = "P4 Smart Turbine Module"
-            # Planted scenario 1: High forecast demand exceeding stock
-            # Historical monthly sales drift upward
-            sales_history = [850, 920, 980, 1050, 1120, 1200]
-            forecast = compute_demand_forecast(sales_history, alpha=0.4)
             forecast = 1200
             safety_stock = 200
         elif p_id == "P12":
             name = "P12 Digital Flow Controller"
-            # Planted scenario 2: Ample stock vs low forecast
-            sales_history = [500, 520, 510, 480, 500, 520]
-            forecast = compute_demand_forecast(sales_history, alpha=0.3)
             forecast = 520
             safety_stock = 120
         else:
@@ -219,40 +176,30 @@ def build_synthetic_dataset() -> Dict[str, Any]:
         })
 
     # 9. Relationships
-    # Machine -> PRODUCES -> Part
     machine_produces = []
-    # M7 produces ONLY m7_parts, and NO other machine produces them!
     for p in m7_parts:
-        machine_produces.append(("M7", p["id"]))
+        machine_produces.append({"m_id": "M7", "pt_id": p["id"]})
 
-    # M12 produces m12_parts, and M13 ALSO produces m12_parts (redundancy!)
     for p in m12_parts:
-        machine_produces.append(("M12", p["id"]))
-        machine_produces.append(("M13", p["id"]))
+        machine_produces.append({"m_id": "M12", "pt_id": p["id"]})
+        machine_produces.append({"m_id": "M13", "pt_id": p["id"]})
 
-    # Map remaining parts to machines (M1-M6, M8-M11, M14-M25)
     non_planted_machines = [f"M{i}" for i in range(1, 26) if i not in (7, 12)]
     for pt in parts:
         if pt["id"] in [p["id"] for p in m7_parts] or pt["id"] in [p["id"] for p in m12_parts]:
             continue
         if pt["id"] == "PART_SPOF_ALLOY":
-            # SPOF part has no producing machine (supplied externally only)
             continue
-        # Assign 1 to 2 machines
         assigned_machines = rng.sample(non_planted_machines, k=rng.choice([1, 2]))
         for m in assigned_machines:
-            machine_produces.append((m, pt["id"]))
+            machine_produces.append({"m_id": m, "pt_id": pt["id"]})
 
-    # Supplier -> SUPPLIES -> Part
     supplier_supplies = []
-    # M7 parts have only ONE alternate supplier: SUPPLIER_ALT_M7 with lead time 12 days!
     for p in m7_parts:
-        supplier_supplies.append(("SUPPLIER_ALT_M7", p["id"], 12))
+        supplier_supplies.append({"s_id": "SUPPLIER_ALT_M7", "pt_id": p["id"], "lead_time": 12})
 
-    # SPOF part has ONLY ONE supplier: SUPPLIER_SOLO_SPOF
-    supplier_supplies.append(("SUPPLIER_SOLO_SPOF", "PART_SPOF_ALLOY", 28))
+    supplier_supplies.append({"s_id": "SUPPLIER_SOLO_SPOF", "pt_id": "PART_SPOF_ALLOY", "lead_time": 28})
 
-    # Other parts have 1-3 suppliers with lead times 3-18 days
     regular_suppliers = [s["id"] for s in suppliers if s["id"] not in ("SUPPLIER_ALT_M7", "SUPPLIER_SOLO_SPOF")]
     for pt in parts:
         if pt["id"] in [p["id"] for p in m7_parts] or pt["id"] == "PART_SPOF_ALLOY":
@@ -261,65 +208,49 @@ def build_synthetic_dataset() -> Dict[str, Any]:
         assigned_sups = rng.sample(regular_suppliers, k=num_sups)
         for s in assigned_sups:
             lead_time = rng.randint(4, 15)
-            supplier_supplies.append((s, pt["id"], lead_time))
+            supplier_supplies.append({"s_id": s, "pt_id": pt["id"], "lead_time": lead_time})
 
-    # Part -> USED_IN -> Product
     part_used_in = []
-    # All 3 M7 parts are used in Product P4!
     for p in m7_parts:
-        part_used_in.append((p["id"], "P4", 1))
+        part_used_in.append({"pt_id": p["id"], "prod_id": "P4", "qty": 1})
 
-    # M12 parts are used in Product P12!
     for p in m12_parts:
-        part_used_in.append((p["id"], "P12", 2))
+        part_used_in.append({"pt_id": p["id"], "prod_id": "P12", "qty": 2})
 
-    # SPOF part used in P1 and P5
-    part_used_in.append(("PART_SPOF_ALLOY", "P1", 1))
-    part_used_in.append(("PART_SPOF_ALLOY", "P5", 1))
+    part_used_in.append({"pt_id": "PART_SPOF_ALLOY", "prod_id": "P1", "qty": 1})
+    part_used_in.append({"pt_id": "PART_SPOF_ALLOY", "prod_id": "P5", "qty": 1})
 
-    # Other parts assigned to products
     regular_parts = [pt["id"] for pt in parts if pt["id"] not in [p["id"] for p in m7_parts] and pt["id"] not in [p["id"] for p in m12_parts] and pt["id"] != "PART_SPOF_ALLOY"]
     for prod in products:
         if prod["id"] in ("P4", "P12"):
-            # Add a couple regular parts too
             extra = rng.sample(regular_parts, k=2)
             for e in extra:
-                part_used_in.append((e, prod["id"], rng.randint(1, 3)))
+                part_used_in.append({"pt_id": e, "prod_id": prod["id"], "qty": rng.randint(1, 3)})
         else:
             assigned = rng.sample(regular_parts, k=rng.randint(3, 6))
             for a in assigned:
-                part_used_in.append((a, prod["id"], rng.randint(1, 4)))
+                part_used_in.append({"pt_id": a, "prod_id": prod["id"], "qty": rng.randint(1, 4)})
 
-    # Product -> STOCKED_AT -> Warehouse
     product_stocked = []
     for prod in products:
         p_id = prod["id"]
         if p_id == "P4":
-            # CRITICAL SHORTFALL:
-            # Forecast demand is 1200, safety stock is 200.
-            # Total stock across ALL warehouses is only 400! Shortfall = 800!
-            product_stocked.append((p_id, "WH_MIDWEST", 250))
-            product_stocked.append((p_id, "WH_EAST_COAST", 150))
+            product_stocked.append({"prod_id": p_id, "wh_id": "WH_MIDWEST", "qty": 250})
+            product_stocked.append({"prod_id": p_id, "wh_id": "WH_EAST_COAST", "qty": 150})
         elif p_id == "P12":
-            # HARMLESS:
-            # Forecast demand is 520, safety stock is 120.
-            # Total stock across warehouses is 2400 (ample buffer!)
-            product_stocked.append((p_id, "WH_CENTRAL_EU", 1200))
-            product_stocked.append((p_id, "WH_NORDIC", 1200))
+            product_stocked.append({"prod_id": p_id, "wh_id": "WH_CENTRAL_EU", "qty": 1200})
+            product_stocked.append({"prod_id": p_id, "wh_id": "WH_NORDIC", "qty": 1200})
         else:
-            # Distribute healthy stock across 2-4 warehouses
             wh_sample = rng.sample(warehouses, k=rng.randint(2, 4))
             for wh in wh_sample:
                 qty = rng.randint(250, 750)
-                product_stocked.append((p_id, wh["id"], qty))
+                product_stocked.append({"prod_id": p_id, "wh_id": wh["id"], "qty": qty})
 
-    # Warehouse -> SERVES -> Customer
     warehouse_serves = []
     for cust in customers:
-        # Every customer served by 1-2 nearby warehouses
         wh_choices = rng.sample(warehouses, k=rng.choice([1, 2]))
         for wh in wh_choices:
-            warehouse_serves.append((wh["id"], cust["id"]))
+            warehouse_serves.append({"wh_id": wh["id"], "c_id": cust["id"]})
 
     return {
         "regions": regions,
@@ -339,155 +270,150 @@ def build_synthetic_dataset() -> Dict[str, Any]:
     }
 
 
-def seed_database(host: str = "localhost", port: int = 6379) -> Dict[str, int]:
-    """Execute Cypher transactions to populate FalkorDB graph."""
-    db = get_falkordb_connection(host=host, port=port)
-    
-    # Reset existing SupplyChain graph
+def seed_database() -> Dict[str, int]:
+    """Execute batched, idempotent Cypher transactions to populate FalkorDB graph."""
+    cfg = get_connection_config()
+    graph = get_graph()
+
+    # Idempotent reset: delete all nodes and relationships cleanly
     try:
-        db.select_graph(GRAPH_NAME).delete()
+        graph.query("MATCH (n) DETACH DELETE n")
     except Exception:
         pass
 
-    graph = db.select_graph(GRAPH_NAME)
-
     data = build_synthetic_dataset()
 
-    # 1. Create Regions
-    for r in data["regions"]:
-        graph.query("CREATE (:Region {id: $id, name: $name})", {"id": r["id"], "name": r["name"]})
+    # 1. Batch create Regions
+    graph.query(
+        "UNWIND $batch AS r CREATE (:Region {id: r.id, name: r.name})",
+        params={"batch": data["regions"]}
+    )
 
-    # 2. Create Plants
-    for p in data["plants"]:
-        graph.query("CREATE (:Plant {id: $id, name: $name, location: $location})", p)
+    # 2. Batch create Plants
+    graph.query(
+        "UNWIND $batch AS p CREATE (:Plant {id: p.id, name: p.name, location: p.location})",
+        params={"batch": data["plants"]}
+    )
 
-    # 3. Create Warehouses
-    for w in data["warehouses"]:
-        graph.query("CREATE (:Warehouse {id: $id, name: $name, location: $location, capacity: $capacity})", w)
+    # 3. Batch create Warehouses
+    graph.query(
+        "UNWIND $batch AS w CREATE (:Warehouse {id: w.id, name: w.name, location: w.location, capacity: w.capacity})",
+        params={"batch": data["warehouses"]}
+    )
 
-    # 4. Create Customers
-    for c in data["customers"]:
-        graph.query("CREATE (:Customer {id: $id, name: $name, tier: $tier})", c)
+    # 4. Batch create Customers
+    graph.query(
+        "UNWIND $batch AS c CREATE (:Customer {id: c.id, name: c.name, tier: c.tier})",
+        params={"batch": data["customers"]}
+    )
 
-    # 5. Create Suppliers & link to Regions
-    for s in data["suppliers"]:
-        graph.query(
-            """
-            MATCH (r:Region {id: $region})
-            CREATE (sup:Supplier {id: $id, name: $name, rating: $rating})-[:LOCATED_IN]->(r)
-            """,
-            {"id": s["id"], "name": s["name"], "rating": s["rating"], "region": s["region"]}
-        )
+    # 5. Batch create Suppliers & link to Regions
+    graph.query(
+        """
+        UNWIND $batch AS s
+        MATCH (r:Region {id: s.region})
+        CREATE (sup:Supplier {id: s.id, name: s.name, rating: s.rating})-[:LOCATED_IN]->(r)
+        """,
+        params={"batch": data["suppliers"]}
+    )
 
-    # 6. Supplier ALTERNATE_FOR relationships
-    for s1, s2 in data["alternate_suppliers"]:
-        graph.query(
-            """
-            MATCH (sup1:Supplier {id: $s1}), (sup2:Supplier {id: $s2})
-            CREATE (sup1)-[:ALTERNATE_FOR]->(sup2)
-            CREATE (sup2)-[:ALTERNATE_FOR]->(sup1)
-            """,
-            {"s1": s1, "s2": s2}
-        )
+    # 6. Batch Supplier ALTERNATE_FOR relationships
+    graph.query(
+        """
+        UNWIND $batch AS pair
+        MATCH (s1:Supplier {id: pair.s1}), (s2:Supplier {id: pair.s2})
+        CREATE (s1)-[:ALTERNATE_FOR]->(s2)
+        CREATE (s2)-[:ALTERNATE_FOR]->(s1)
+        """,
+        params={"batch": data["alternate_suppliers"]}
+    )
 
-    # 7. Create Machines & link Plant -> HAS -> Machine
-    for m in data["machines"]:
-        graph.query(
-            """
-            MATCH (pl:Plant {id: $plant_id})
-            CREATE (pl)-[:HAS]->(mach:Machine {
-                id: $id,
-                name: $name,
-                failure_risk: $failure_risk,
-                predicted_failure_days: $predicted_failure_days
-            })
-            """,
-            {
-                "plant_id": m["plant_id"],
-                "id": m["id"],
-                "name": m["name"],
-                "failure_risk": m["failure_risk"],
-                "predicted_failure_days": m["predicted_failure_days"]
-            }
-        )
+    # 7. Batch create Machines & link Plant -> HAS -> Machine
+    graph.query(
+        """
+        UNWIND $batch AS m
+        MATCH (pl:Plant {id: m.plant_id})
+        CREATE (pl)-[:HAS]->(mach:Machine {
+            id: m.id,
+            name: m.name,
+            failure_risk: m.failure_risk,
+            predicted_failure_days: m.predicted_failure_days
+        })
+        """,
+        params={"batch": data["machines"]}
+    )
 
-    # 8. Create Parts
-    for pt in data["parts"]:
-        graph.query(
-            "CREATE (:Part {id: $id, name: $name, cost: $cost})",
-            {"id": pt["id"], "name": pt["name"], "cost": pt["cost"]}
-        )
+    # 8. Batch create Parts
+    graph.query(
+        "UNWIND $batch AS pt CREATE (:Part {id: pt.id, name: pt.name, cost: pt.cost})",
+        params={"batch": data["parts"]}
+    )
 
-    # 9. Create Products
-    for prod in data["products"]:
-        graph.query(
-            """
-            CREATE (:Product {
-                id: $id,
-                name: $name,
-                forecast_30d: $forecast_30d,
-                safety_stock: $safety_stock
-            })
-            """,
-            {
-                "id": prod["id"],
-                "name": prod["name"],
-                "forecast_30d": prod["forecast_30d"],
-                "safety_stock": prod["safety_stock"]
-            }
-        )
+    # 9. Batch create Products
+    graph.query(
+        """
+        UNWIND $batch AS prod
+        CREATE (:Product {
+            id: prod.id,
+            name: prod.name,
+            forecast_30d: prod.forecast_30d,
+            safety_stock: prod.safety_stock
+        })
+        """,
+        params={"batch": data["products"]}
+    )
 
-    # 10. Relationships: Machine -[:PRODUCES]-> Part
-    for m_id, pt_id in data["machine_produces"]:
-        graph.query(
-            """
-            MATCH (m:Machine {id: $m_id}), (pt:Part {id: $pt_id})
-            CREATE (m)-[:PRODUCES]->(pt)
-            """,
-            {"m_id": m_id, "pt_id": pt_id}
-        )
+    # 10. Batch Machine -[:PRODUCES]-> Part
+    graph.query(
+        """
+        UNWIND $batch AS rel
+        MATCH (m:Machine {id: rel.m_id}), (pt:Part {id: rel.pt_id})
+        CREATE (m)-[:PRODUCES]->(pt)
+        """,
+        params={"batch": data["machine_produces"]}
+    )
 
-    # 11. Relationships: Supplier -[:SUPPLIES {lead_time_days}]-> Part
-    for s_id, pt_id, lead_time in data["supplier_supplies"]:
-        graph.query(
-            """
-            MATCH (s:Supplier {id: $s_id}), (pt:Part {id: $pt_id})
-            CREATE (s)-[:SUPPLIES {lead_time_days: $lead_time}]->(pt)
-            """,
-            {"s_id": s_id, "pt_id": pt_id, "lead_time": lead_time}
-        )
+    # 11. Batch Supplier -[:SUPPLIES {lead_time_days}]-> Part
+    graph.query(
+        """
+        UNWIND $batch AS rel
+        MATCH (s:Supplier {id: rel.s_id}), (pt:Part {id: rel.pt_id})
+        CREATE (s)-[:SUPPLIES {lead_time_days: rel.lead_time}]->(pt)
+        """,
+        params={"batch": data["supplier_supplies"]}
+    )
 
-    # 12. Relationships: Part -[:USED_IN {qty_per_unit}]-> Product
-    for pt_id, prod_id, qty in data["part_used_in"]:
-        graph.query(
-            """
-            MATCH (pt:Part {id: $pt_id}), (prod:Product {id: $prod_id})
-            CREATE (pt)-[:USED_IN {qty_per_unit: $qty}]->(prod)
-            """,
-            {"pt_id": pt_id, "prod_id": prod_id, "qty": qty}
-        )
+    # 12. Batch Part -[:USED_IN {qty_per_unit}]-> Product
+    graph.query(
+        """
+        UNWIND $batch AS rel
+        MATCH (pt:Part {id: rel.pt_id}), (prod:Product {id: rel.prod_id})
+        CREATE (pt)-[:USED_IN {qty_per_unit: rel.qty}]->(prod)
+        """,
+        params={"batch": data["part_used_in"]}
+    )
 
-    # 13. Relationships: Product -[:STOCKED_AT {qty}]-> Warehouse
-    for prod_id, wh_id, qty in data["product_stocked"]:
-        graph.query(
-            """
-            MATCH (prod:Product {id: $prod_id}), (wh:Warehouse {id: $wh_id})
-            CREATE (prod)-[:STOCKED_AT {qty: $qty}]->(wh)
-            """,
-            {"prod_id": prod_id, "wh_id": wh_id, "qty": qty}
-        )
+    # 13. Batch Product -[:STOCKED_AT {qty}]-> Warehouse
+    graph.query(
+        """
+        UNWIND $batch AS rel
+        MATCH (prod:Product {id: rel.prod_id}), (wh:Warehouse {id: rel.wh_id})
+        CREATE (prod)-[:STOCKED_AT {qty: rel.qty}]->(wh)
+        """,
+        params={"batch": data["product_stocked"]}
+    )
 
-    # 14. Relationships: Warehouse -[:SERVES]-> Customer
-    for wh_id, c_id in data["warehouse_serves"]:
-        graph.query(
-            """
-            MATCH (wh:Warehouse {id: $wh_id}), (c:Customer {id: $c_id})
-            CREATE (wh)-[:SERVES]->(c)
-            """,
-            {"wh_id": wh_id, "c_id": c_id}
-        )
+    # 14. Batch Warehouse -[:SERVES]-> Customer
+    graph.query(
+        """
+        UNWIND $batch AS rel
+        MATCH (wh:Warehouse {id: rel.wh_id}), (c:Customer {id: rel.c_id})
+        CREATE (wh)-[:SERVES]->(c)
+        """,
+        params={"batch": data["warehouse_serves"]}
+    )
 
-    # Count nodes & relationships to verify
+    # Verification counts
     counts = {}
     node_labels = ["Plant", "Machine", "Part", "Product", "Supplier", "Warehouse", "Customer", "Region"]
     for label in node_labels:
@@ -503,8 +429,9 @@ def seed_database(host: str = "localhost", port: int = 6379) -> Dict[str, int]:
 
 
 if __name__ == "__main__":
-    print("Seeding FalkorDB SupplyChain graph...")
+    cfg = get_connection_config()
+    print(f"Seeding FalkorDB graph '{cfg['graph_name']}' on {cfg['host']}:{cfg['port']}...")
     summary = seed_database()
-    print("Seed Complete! Node and Relationship Counts:")
+    print("Seed Complete! Verification Counts:")
     for k, v in summary.items():
         print(f"  {k:20s}: {v}")
