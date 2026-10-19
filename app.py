@@ -491,6 +491,7 @@ async def investigate_stream():
                 yield f"data: {payload}\n\n"
                 # Small yield pause for silky smooth UI stream rendering
                 await asyncio.sleep(0.05)
+            yield "event: done\ndata: {}\n\n"
         except Exception as e:
             err_payload = json.dumps({"event": "agent_error", "data": {"error": str(e)}})
             yield f"data: {err_payload}\n\n"

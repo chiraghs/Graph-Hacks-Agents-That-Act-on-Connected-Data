@@ -123,29 +123,29 @@ with sync_playwright() as p:
     wait_until(s3['end'])
 
     # -------------------------------------------------------------
-    # SCENE 4: Autonomous AI Agent Investigation (90.2s -> ~119.7s)
+    # SCENE 4: Autonomous AI Agent Investigation
     # -------------------------------------------------------------
     s4 = scenes[3]
     print(f"Executing {s4['id']}: {s4['title']} ({s4['start']:.1f}s - {s4['end']:.1f}s)")
     
     page.evaluate("navigatePage('agents');")
-    time.sleep(2.0)
+    time.sleep(1.5)
     
     # Trigger Investigation SSE stream
-    page.evaluate("startInvestigation();")
-    time.sleep(3.0)
+    page.click("#btn-run-agent")
+    time.sleep(2.0)
     
-    # Follow real-time stream logs
-    page.mouse.move(700, 400)
+    # Follow real-time stream logs inside agent-logs-container
+    page.mouse.move(500, 420)
+    time.sleep(6.0)
+    page.evaluate("const l = document.getElementById('agent-logs-container'); if (l) l.scrollTop = l.scrollHeight / 2;")
     time.sleep(5.0)
-    page.mouse.wheel(0, 250)
+    page.evaluate("const l = document.getElementById('agent-logs-container'); if (l) l.scrollTop = l.scrollHeight;")
     time.sleep(5.0)
     
-    # Scroll to Vis.js evidence subgraph
-    page.mouse.wheel(0, 400)
-    time.sleep(4.0)
-    page.mouse.move(960, 750)
-    time.sleep(4.0)
+    # Hover over the Evidence Subgraph on the right
+    page.mouse.move(1200, 420)
+    time.sleep(5.0)
     wait_until(s4['end'])
 
     # -------------------------------------------------------------
