@@ -60,8 +60,16 @@ async def health_check():
 
 
 @app.get("/", response_class=HTMLResponse)
+@app.get("/twin", response_class=HTMLResponse)
+@app.get("/dashboard", response_class=HTMLResponse)
+@app.get("/agents", response_class=HTMLResponse)
+@app.get("/control-room", response_class=HTMLResponse)
+@app.get("/approvals", response_class=HTMLResponse)
+@app.get("/simulator", response_class=HTMLResponse)
+@app.get("/audit", response_class=HTMLResponse)
+@app.get("/integrations", response_class=HTMLResponse)
 async def serve_index():
-    """Serves the Control Tower dashboard UI."""
+    """Serves the TwinForge Digital Twin Studio SPA."""
     index_path = STATIC_DIR / "index.html"
     return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
 
