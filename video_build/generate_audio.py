@@ -6,7 +6,7 @@ SCENES = [
     {
         "id": "scene1",
         "title": "Intro & Architecture Overview",
-        "text": "Welcome to Connected-Graph Agent, an autonomous industrial digital twin and self-healing supply chain intelligence platform. Built natively on FalkorDB's high-speed property graph database, Connected-Graph Agent monitors distributed physical plant assets, traverses multi-hop dependency networks, and deploys prescriptive agentic mitigations in real time. Notice our clean light theme interface, complete with a dark mode toggle and real-time plant telemetry."
+        "text": "Welcome to TwinForge Connected Graph, an autonomous industrial digital twin and self-healing supply chain intelligence platform. Built natively on FalkorDB's high-speed property graph database, TwinForge Connected Graph monitors distributed physical plant assets, traverses multi-hop dependency networks, and deploys prescriptive agentic mitigations in real time. Notice our clean light theme interface, complete with a dark mode toggle and real-time plant telemetry."
     },
     {
         "id": "scene2",
@@ -31,12 +31,12 @@ SCENES = [
     {
         "id": "scene6",
         "title": "Prescriptive Approvals & Graph Lineage",
-        "text": "Governance and human oversight are integral to Connected-Graph Agent. In the Approvals view, the agent's prescriptive mitigation recommendation is presented with clear financial and operational tradeoffs. When the operator approves the plan, FalkorDB executes a write transaction, creating a persistent Decision node linked via BASED_ON relationships directly to the supporting evidence nodes for immutable compliance."
+        "text": "Governance and human oversight are integral to TwinForge Connected Graph. In the Approvals view, the agent's prescriptive mitigation recommendation is presented with clear financial and operational tradeoffs. When the operator approves the plan, FalkorDB executes a write transaction, creating a persistent Decision node linked via BASED_ON relationships directly to the supporting evidence nodes for immutable compliance."
     },
     {
         "id": "scene7",
         "title": "Audit Trail, Control Room & Integrations",
-        "text": "Finally, the Audit Trail records every automated and human decision with cryptographic verification. The Plant Control Room provides direct operational oversight over active lines. And in the Integrations panel, you can verify our live FalkorDB instance on port 6379 with graph name supply chain. Connected-Graph Agent demonstrates the unmatched speed and intelligence of graph-native AI agents. Thank you for watching."
+        "text": "Finally, the Audit Trail records every automated and human decision with cryptographic verification. The Plant Control Room provides direct operational oversight over active lines. And in the Integrations panel, you can verify our live FalkorDB instance on port 6379 with graph name supply chain. TwinForge Connected Graph demonstrates the unmatched speed and intelligence of graph-native AI agents. Thank you for watching."
     }
 ]
 

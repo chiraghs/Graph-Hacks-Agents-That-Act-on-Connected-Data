@@ -187,7 +187,7 @@ Traces live tool executions, per-tool latency measurements, schedules action for
 ```bash
 python app.py
 ```
-Open **[http://localhost:8000](http://localhost:8000)** in your browser for the full interactive Connected-Graph Agent control tower.
+Open **[http://localhost:8000](http://localhost:8000)** in your browser for the full interactive TwinForge Connected Graph control tower.
 
 ---
 
@@ -209,7 +209,7 @@ Open **[http://localhost:8000](http://localhost:8000)** in your browser for the 
 ├── agent.py               # Autonomous graph reasoning loop with per-tool latency tracking
 ├── app.py                 # FastAPI backend with /health, SSE streaming & subgraph endpoints
 ├── static/
-│   └── index.html         # Enterprise Control Tower UI (Connected-Graph Agent theme)
+│   └── index.html         # Enterprise Control Tower UI (TwinForge Connected Graph theme)
 ├── queries.md             # Cypher query catalog & SQL multi-join comparison
 └── README.md              # Project overview, architecture, and verification
 ```

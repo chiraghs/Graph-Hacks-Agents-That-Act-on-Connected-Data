@@ -9,7 +9,7 @@ if not raw_files:
 
 raw_webm = raw_files[0]
 audio_wav = "video_build/master_narration.wav"
-output_mp4 = "connected_graph_agent_walkthrough_demo.mp4"
+output_mp4 = "twinforge_connected_graph_walkthrough_demo.mp4"
 
 print(f"Input video: {raw_webm}")
 print(f"Input audio: {audio_wav}")

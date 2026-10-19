@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connected-Graph Agent — Industrial Digital Twin</title>
+  <title>TwinForge Connected Graph — Industrial Digital Twin</title>
   
   <!-- Theme Boot Script (Execute before paint so default light applies instantly without flash) -->
   <script>
     (function() {
       try {
-        var t = localStorage.getItem("connected-graph-theme") || localStorage.getItem("twinforge-theme");
+        var t = localStorage.getItem("twinforge-connected-graph-theme") || localStorage.getItem("connected-graph-theme") || localStorage.getItem("twinforge-theme");
         if (t !== "light" && t !== "dark") t = "light";
         document.documentElement.setAttribute("data-theme", t);
       } catch(e) {
@@ -239,7 +239,7 @@
         <circle cx="21.5" cy="24" r="2.4" fill="#9085e9" />
       </svg>
       <span class="font-semibold tracking-tight text-[15px] text-ink">
-        Connected-Graph<span class="text-accent"> Agent</span>
+        TwinForge<span class="text-accent"> Connected Graph</span>
       </span>
     </a>
 
@@ -2370,7 +2370,7 @@
 
 
     // Theme Manager (Light default, persistent in localStorage)
-    const THEME_KEY = "connected-graph-theme";
+    const THEME_KEY = "twinforge-connected-graph-theme";
     function updateThemeUI(theme) {
       const sunIcon = document.getElementById('theme-sun-icon');
       const moonIcon = document.getElementById('theme-moon-icon');
