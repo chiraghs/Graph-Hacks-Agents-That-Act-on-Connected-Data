@@ -1,54 +1,54 @@
 {
-  "total_duration": 200.764535,
+  "total_duration": 202.552472,
   "scenes": [
     {
       "id": "scene1",
       "title": "Intro & Architecture Overview",
       "start": 0.0,
-      "duration": 29.686485,
-      "end": 29.686485
+      "duration": 30.383084,
+      "end": 30.383084
     },
     {
       "id": "scene2",
       "title": "Connected-Graph & Blast Radius",
-      "start": 30.186485,
+      "start": 30.883084,
       "duration": 31.551791,
-      "end": 61.738276
+      "end": 62.434875000000005
     },
     {
       "id": "scene3",
       "title": "Command Center & FalkorDB KPIs",
-      "start": 62.238276,
+      "start": 62.934875000000005,
       "duration": 27.504399,
-      "end": 89.74267499999999
+      "end": 90.43927400000001
     },
     {
       "id": "scene4",
       "title": "Autonomous AI Agent Investigation",
-      "start": 90.24267499999999,
+      "start": 90.93927400000001,
       "duration": 28.920227,
-      "end": 119.16290199999999
+      "end": 119.85950100000001
     },
     {
       "id": "scene5",
       "title": "Multi-Echelon Supply Chain Simulator",
-      "start": 119.66290199999999,
+      "start": 120.35950100000001,
       "duration": 26.547846,
-      "end": 146.210748
+      "end": 146.90734700000002
     },
     {
       "id": "scene6",
       "title": "Prescriptive Approvals & Graph Lineage",
-      "start": 146.710748,
-      "duration": 25.400635,
-      "end": 172.111383
+      "start": 147.40734700000002,
+      "duration": 25.865034,
+      "end": 173.27238100000002
     },
     {
       "id": "scene7",
       "title": "Audit Trail, Control Room & Integrations",
-      "start": 172.611383,
-      "duration": 28.153152,
-      "end": 200.764535
+      "start": 173.77238100000002,
+      "duration": 28.780091,
+      "end": 202.55247200000002
     }
   ]
 }

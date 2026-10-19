@@ -9,7 +9,7 @@ if not raw_files:
 
 raw_webm = raw_files[0]
 audio_wav = "video_build/master_narration.wav"
-output_mp4 = "twinforge_walkthrough_demo.mp4"
+output_mp4 = "connected_graph_agent_walkthrough_demo.mp4"
 
 print(f"Input video: {raw_webm}")
 print(f"Input audio: {audio_wav}")
@@ -33,6 +33,9 @@ cmd = [
 print("Running ffmpeg multiplexing & encoding...")
 subprocess.run(cmd, check=True)
 
+import shutil
+shutil.copy(output_mp4, os.path.join("static", output_mp4))
+
 # Probe final MP4
 probe_cmd = [
     "ffprobe", "-v", "error",
@@ -50,6 +53,7 @@ print("\n" + "="*50)
 print("FINAL VIDEO PRODUCTION COMPLETE")
 print("="*50)
 print(f"File Path: {os.path.abspath(output_mp4)}")
+print(f"Static URL Path: http://localhost:8000/static/{output_mp4}")
 print(f"Duration:  {dur:.2f} seconds ({dur/60:.2f} minutes)")
 print(f"Size:      {size_mb:.2f} MB")
 print("="*50)
