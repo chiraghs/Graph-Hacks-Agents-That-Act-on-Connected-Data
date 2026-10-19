@@ -61,6 +61,7 @@ async def health_check():
 
 @app.get("/", response_class=HTMLResponse)
 @app.get("/twin", response_class=HTMLResponse)
+@app.get("/connected-graph", response_class=HTMLResponse)
 @app.get("/dashboard", response_class=HTMLResponse)
 @app.get("/agents", response_class=HTMLResponse)
 @app.get("/control-room", response_class=HTMLResponse)
