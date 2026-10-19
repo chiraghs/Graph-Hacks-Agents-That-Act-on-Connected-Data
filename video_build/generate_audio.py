@@ -1,6 +1,8 @@
-import subprocess
+import asyncio
 import os
 import json
+import subprocess
+import edge_tts
 
 SCENES = [
     {
@@ -42,20 +44,19 @@ SCENES = [
 
 os.makedirs("video_build/audio", exist_ok=True)
 
-total_duration = 0.0
-voice = "Samantha"
-rate = 162  # words per minute for a calm, professional cadence
+# en-US-ChristopherNeural is a realistic, warm, studio-quality human voice
+VOICE = "en-US-ChristopherNeural"
+RATE = "-2%"
 
-for scene in SCENES:
-    aiff_path = f"video_build/audio/{scene['id']}.aiff"
+async def generate_scene_audio(scene):
+    mp3_path = f"video_build/audio/{scene['id']}.mp3"
     wav_path = f"video_build/audio/{scene['id']}.wav"
     
-    # Generate speech
-    cmd_say = ["say", "-v", voice, "-r", str(rate), scene["text"], "-o", aiff_path]
-    subprocess.run(cmd_say, check=True)
+    communicate = edge_tts.Communicate(scene["text"], VOICE, rate=RATE)
+    await communicate.save(mp3_path)
     
-    # Convert to WAV
-    cmd_ffmpeg = ["ffmpeg", "-y", "-i", aiff_path, "-ar", "44100", "-ac", "2", wav_path]
+    # Convert to standard 44.1kHz stereo WAV
+    cmd_ffmpeg = ["ffmpeg", "-y", "-i", mp3_path, "-ar", "44100", "-ac", "2", wav_path]
     subprocess.run(cmd_ffmpeg, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
     
     # Probe duration
@@ -63,9 +64,18 @@ for scene in SCENES:
     res = subprocess.run(cmd_probe, capture_output=True, text=True, check=True)
     dur = float(json.loads(res.stdout)["format"]["duration"])
     scene["duration"] = dur
-    total_duration += dur
-    print(f"[{scene['id']}] {scene['title']}: {dur:.2f}s")
+    print(f"[{scene['id']}] {scene['title']}: {dur:.2f}s (Natural Neural Voice)")
+    return dur
 
-print(f"\nTotal Voiceover Duration: {total_duration:.2f}s (~{total_duration/60:.2f} minutes)")
-with open("video_build/scenes.json", "w") as f:
-    json.dump(SCENES, f, indent=2)
+async def main():
+    total_duration = 0.0
+    for scene in SCENES:
+        dur = await generate_scene_audio(scene)
+        total_duration += dur
+
+    print(f"\nTotal Voiceover Duration: {total_duration:.2f}s (~{total_duration/60:.2f} minutes)")
+    with open("video_build/scenes.json", "w") as f:
+        json.dump(SCENES, f, indent=2)
+
+if __name__ == "__main__":
+    asyncio.run(main())
