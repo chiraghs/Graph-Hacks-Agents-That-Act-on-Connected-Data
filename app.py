@@ -36,6 +36,7 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 @app.get("/health")
+@app.get("/api/health")
 async def health_check():
     """Confirms FalkorDB connection and reveals target environment (host only, never credentials)."""
     cfg = get_connection_config()
@@ -462,10 +463,17 @@ async def approve_decision(payload: dict):
     """Approve and record a decision with BASED_ON edges directly in FalkorDB."""
     try:
         from mcp_server import schedule_action
-        action_type = payload.get("type", "schedule_maintenance")
-        target_id = payload.get("target_id", "M7")
+        raw_type = payload.get("type") or payload.get("decision_type") or "schedule_maintenance"
+        if raw_type in {"schedule_maintenance", "reroute_production", "expedite_order"}:
+            action_type = raw_type
+        elif "reroute" in raw_type.lower():
+            action_type = "reroute_production"
+        else:
+            action_type = "schedule_maintenance"
+
+        target_id = payload.get("target_id") or payload.get("target") or "M7"
         reason = payload.get("reason", "Approved mitigation plan from digital twin operator")
-        evidence_ids = payload.get("evidence_ids", [target_id])
+        evidence_ids = payload.get("evidence_ids", [target_id, "PT-4", "P4", "C1"])
         
         res = schedule_action(action_type, target_id, reason, evidence_ids)
         return {"status": "success", "result": res}
