@@ -78,6 +78,85 @@ In FalkorDB, all these silos are modeled as a **single, unified property graph**
 
 ---
 
+## 🏛️ End-to-End System Architecture
+
+```mermaid
+flowchart TD
+    %% SUBGRAPH 1: PHYSICAL LAYER & INGESTION
+    subgraph L1["1. PHYSICAL SHOPFLOOR & PERCEPTION LAYER"]
+        SENS["IoT Sensor Streams<br/>(Vibration mm/s, Temp °C)"] --> SCOR["scoring.py<br/>(Composite Z-Score Drift &amp; Exponential Smoothing)"]
+        DEMAND["ERP Demand Streams<br/>(30-Day Forward Sales Projections)"] --> SCOR
+    end
+
+    %% SUBGRAPH 2: APPLICATION & ORCHESTRATION LAYER
+    subgraph L2["2. BACKEND & AGENTIC ORCHESTRATION (FastAPI)"]
+        SCOR -->|"Risk &ge; 0.70 Alert"| AGENT["agent.py: Autonomous Graph Reasoning Loop<br/>(Claude 3.5 Sonnet / Autonomous Cypher Planner)"]
+        APP["app.py: FastAPI Server<br/>• REST Endpoints (/api/simulate, /api/kpis)<br/>• SSE Streaming (/api/investigate)"]
+        AGENT <-->|"Event Streaming (SSE)"| APP
+    end
+
+    %% SUBGRAPH 3: MODEL CONTEXT PROTOCOL (MCP) TOOL LAYER
+    subgraph L3["3. MCP TOOL INTEGRATION LAYER (mcp_server.py)"]
+        AGENT -->|"1. Tool Selection (JSON-RPC)"| MCP["Model Context Protocol Server"]
+        MCP --> T1["at_risk_machines()"]
+        MCP --> T2["downstream_impact()"]
+        MCP --> T3["shortfall_check()"]
+        MCP --> T4["alternate_sources()"]
+        MCP --> T5["shortest_path()"]
+        MCP --> T6["single_points_of_failure()"]
+        MCP --> T7["schedule_action() [WRITE]"]
+    end
+
+    %% SUBGRAPH 4: FALKORDB KNOWLEDGE GRAPH
+    subgraph L4["4. FALKORDB PROPERTY GRAPH (supply_chain)"]
+        DB_CONN["db.py: Resilient Connection Pool<br/>(Local Docker :6379 / FalkorDB Cloud TLS)"]
+        T1 & T2 & T3 & T4 & T5 & T6 & T7 <-->|"Sub-millisecond Cypher (&lt;10ms)"| DB_CONN
+        DB_CONN <--> GRAPH[("FalkorDB Graph Engine<br/>175 Nodes &bull; 465 Relationships")]
+        
+        GRAPH --- G_PLANT["(:Plant) -[:HAS]-> (:Machine)"]
+        GRAPH --- G_BOM["(:Machine) -[:PRODUCES]-> (:Part) -[:USED_IN]-> (:Product)"]
+        GRAPH --- G_SUPPLY["(:Supplier) -[:SUPPLIES]-> (:Part)"]
+        GRAPH --- G_DIST["(:Product) -[:STOCKED_AT]-> (:Warehouse) -[:SERVES]-> (:Customer)"]
+    end
+
+    %% SUBGRAPH 5: CLOSED-LOOP DECISION COMMIT & EVIDENCE
+    subgraph L5["5. CLOSED-LOOP GOVERNANCE & LINEAGE"]
+        T7 -->|"CREATE (:Decision)-[:BASED_ON]->(Evidence)"| DECISION_NODE["(:Decision Node)<br/>id: DEC_XXXX<br/>type: reroute_production<br/>target: M7"]
+        DECISION_NODE -.->|"[:BASED_ON]"| G_BOM
+        DECISION_NODE -.->|"[:BASED_ON]"| G_DIST
+    end
+
+    %% SUBGRAPH 6: PRESENTATION LAYER
+    subgraph L6["6. TWINFORGE CONTROL TOWER (static/index.html)"]
+        APP -->|"Real-time SSE Logs"| UI_CONSOLE["AI Investigation Console<br/>(Streaming Cypher Tool Trace)"]
+        APP -->|"Live Evidence Subgraph"| UI_VIS["Vis.js Evidence Subgraph<br/>(Interactive Graph Visualizer)"]
+        APP -->|"Topology & Blast Radius"| UI_TWIN["Connected-Graph Studio<br/>(Digital Twin Canvas)"]
+        APP -->|"KPI Aggregations"| UI_DASH["Command Center<br/>(OEE, Risk, Inventory Cards)"]
+    end
+
+    classDef falkor fill:#ef4444,stroke:#991b1b,stroke-width:2px,color:#fff;
+    classDef mcp fill:#3b82f6,stroke:#1d4ed8,stroke-width:2px,color:#fff;
+    classDef agent fill:#8b5cf6,stroke:#6d28d9,stroke-width:2px,color:#fff;
+    classDef ui fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff;
+
+    class GRAPH,DB_CONN,DECISION_NODE falkor;
+    class MCP,T1,T2,T3,T4,T5,T6,T7 mcp;
+    class AGENT,APP agent;
+    class UI_CONSOLE,UI_VIS,UI_TWIN,UI_DASH ui;
+```
+
+### Architecture Layer Responsibilities
+
+| Layer | Component | Technical Role |
+| :--- | :--- | :--- |
+| **1. Data & Context Layer** | **FalkorDB** | Stores all 175 entities and 465 relationships in a single native property graph. Provides sub-10ms Cypher execution and polymorphic `[:BASED_ON]` edge creation. |
+| **2. Interface Layer** | **Model Context Protocol (MCP)** | Standardized JSON-RPC tool interface (`mcp_server.py`) abstracting Cypher graph traversals into 7 typed agent tools with per-call latency tracking. |
+| **3. Reasoning Layer** | **Autonomous Agent** | Graph-guided planner (`agent.py`) that decides which tools to call, interprets multi-hop causal chains, and formulates verifiable operational decisions. |
+| **4. Transport Layer** | **FastAPI** | Asynchronous web layer (`app.py`) providing Server-Sent Events (SSE) streaming for real-time tool logs and REST endpoints for UI telemetry. |
+| **5. Presentation Layer** | **TwinForge Studio** | Responsive SPA (`static/index.html`) featuring an interactive Digital Twin Canvas, real-time Vis.js evidence graph, Command Center KPIs, and What-If simulator. |
+
+---
+
 ## 🏗️ Knowledge Graph Topology (Live in FalkorDB)
 
 The supply chain graph contains **175 nodes** and **465 relationships**:
@@ -150,6 +229,49 @@ Implemented in [`mcp_server.py`](mcp_server.py) conforming strictly to the **Mod
 ---
 
 ## 🚨 The Autonomous Incident Walkthrough (M7 Crisis Demo)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Operator as Plant Operator
+    participant UI as TwinForge Dashboard
+    participant Agent as AI Agent Loop
+    participant MCP as MCP Tool Server
+    participant Falkor as FalkorDB Engine
+
+    Note over Falkor,UI: 1. Continuous Observation
+    Falkor->>UI: Stream live telemetry (M7 Vibration: 6.22 mm/s, Risk: 94%)
+    Operator->>UI: Click "Run Agent Analysis" (or triggers automatically)
+
+    Note over UI,Agent: 2. Investigation & Multi-Hop Reasoning
+    UI->>Agent: POST /api/investigate (SSE Stream)
+    Agent->>MCP: check_machine_health("M7")
+    MCP->>Falkor: MATCH (m:Machine {id: "M7"}) RETURN m.failure_risk, m.predicted_days
+    Falkor-->>MCP: {risk: 0.94, predicted_days: 5}
+    MCP-->>Agent: Result returned in 3.2ms
+
+    Agent->>MCP: downstream_impact("M7")
+    MCP->>Falkor: MATCH (m:Machine {id: "M7"})-[:PRODUCES]->(p)-[:USED_IN]->(prod)-[:STOCKED_AT]->(w)-[:SERVES]->(c) RETURN ...
+    Falkor-->>MCP: {part: "PT-4", spof: true, product: "P4", customers: ["ORD-1042"]}
+    MCP-->>Agent: Result returned in 8.1ms
+
+    Agent->>MCP: shortfall_check("P4")
+    MCP->>Falkor: MATCH (p:Product {id: "P4"})-[:STOCKED_AT]->(w) RETURN sum(w.stock)
+    Falkor-->>MCP: {stock: 400, forecast: 1200, shortfall: 800}
+    MCP-->>Agent: Critical Shortfall Confirmed!
+
+    Agent->>MCP: alternate_sources("PT-4")
+    MCP->>Falkor: MATCH (p:Part)-[:SUPPLIES]-(s:Supplier) RETURN s.lead_time_days
+    Falkor-->>MCP: {supplier_lead_time: 12, failure_window: 5} (External supplier too slow!)
+
+    Note over Agent,Falkor: 3. Prescriptive Decision & Graph Lineage
+    Agent->>MCP: schedule_action("reroute_production", "M7", "Reroute to Plant 2 Leipzig", evidence_ids)
+    MCP->>Falkor: CREATE (d:Decision)-[:BASED_ON]->(evidence_nodes)
+    Falkor-->>MCP: Decision DEC_890 committed with 8 evidence edges
+    MCP-->>Agent: Action Scheduled
+    Agent-->>UI: Stream final report & render Vis.js Evidence Subgraph
+    UI-->>Operator: Display "Mitigation Plan Approved & Persisted"
+```
 
 ```
 [1. OBSERVE]
