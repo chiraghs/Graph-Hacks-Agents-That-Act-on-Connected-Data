@@ -8,8 +8,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Vis.js Network CDN for Evidence & Topology Graph -->
   <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-  <!-- Three.js CDN for 3D Viewport -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -340,17 +338,9 @@
               <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
               <span>Topology</span>
             </button>
-            <button onclick="setTwinView('iso')" id="tab-twin-iso" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] text-muted hover:text-ink transition-colors">
-              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-              <span>Isometric</span>
-            </button>
             <button onclick="setTwinView('floor')" id="tab-twin-floor" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] text-muted hover:text-ink transition-colors">
               <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
               <span>Floor plan</span>
-            </button>
-            <button onclick="setTwinView('3d')" id="tab-twin-3d" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] text-muted hover:text-ink transition-colors">
-              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-              <span>3D</span>
             </button>
           </div>
 
@@ -1108,35 +1098,7 @@
 
           </div>
 
-          <!-- 2. ISOMETRIC VIEW LAYER (Hidden by default) -->
-          <div id="stage-iso" class="hidden absolute inset-0 h-full w-full overflow-hidden p-6">
-            <svg id="iso-svg" viewBox="0 0 1400 800" class="w-full h-full">
-              <!-- Grid & Floor -->
-              <polygon points="700,50 1350,400 700,750 50,400" fill="#0a1120" stroke="#1e2a44" stroke-width="2" />
-              <!-- Bays -->
-              <polygon points="600,180 1000,400 750,540 350,320" fill="#0e182c" stroke="#131d33" stroke-width="1.5" />
-              <text x="600" y="320" fill="#6f7d99" font-size="14" font-weight="600">ASSEMBLY LINE A</text>
-              <text x="650" y="440" fill="#6f7d99" font-size="14" font-weight="600">ASSEMBLY LINE B</text>
-              <text x="960" y="420" fill="#6f7d99" font-size="14" font-weight="600">PACKAGING</text>
-              <!-- 3D Isometric Machine Blocks -->
-              <!-- A-ROB-03 Block -->
-              <g transform="translate(680, 290)" class="cursor-pointer" onclick="selectAsset('A-ROB-03')">
-                <polygon points="0,0 50,-25 100,0 50,25" fill="#f59e0b" />
-                <polygon points="0,0 50,25 50,65 0,40" fill="#b45309" />
-                <polygon points="50,25 100,0 100,40 50,65" fill="#d97706" />
-                <text x="18" y="-10" fill="#fbc561" font-size="11" font-family="monospace" font-weight="bold">A-ROB-03 (M7)</text>
-              </g>
-              <!-- Packaging C Block -->
-              <g transform="translate(980, 390)" class="cursor-pointer" onclick="selectAsset('C-PKG-02')">
-                <polygon points="0,0 40,-20 80,0 40,20" fill="#3c5078" />
-                <polygon points="0,0 40,20 40,60 0,40" fill="#1f2d4a" />
-                <polygon points="40,20 80,0 80,40 40,60" fill="#2b3c60" />
-                <text x="14" y="-8" fill="#e6ebf5" font-size="10" font-family="monospace">C-PKG-02</text>
-              </g>
-            </svg>
-          </div>
-
-          <!-- 3. FLOOR PLAN VIEW LAYER (Exact 2D Architectural SVG Blueprint) -->
+          <!-- 2. FLOOR PLAN VIEW LAYER (Exact 2D Architectural SVG Blueprint) -->
           <div id="stage-floor" class="hidden absolute inset-0 h-full w-full overflow-auto p-4">
             <svg viewBox="0 0 1100 520" class="h-full w-full min-h-[500px]">
               <defs>
@@ -1259,8 +1221,6 @@
             </svg>
           </div>
 
-          <!-- 4. 3D THREE.JS VIEWPORT LAYER -->
-          <div id="stage-3d" class="hidden absolute inset-0 h-full w-full"></div>
 
           <!-- ------------------------------------------------------------- -->
           <!-- FLOATING WIDGET 1: RISK WATCHLIST (Top Right)                 -->
@@ -1971,7 +1931,7 @@
     // View Switcher inside Twin Studio
     function setTwinView(mode) {
       currentTwinMode = mode;
-      const modes = ['topology', 'iso', 'floor', '3d'];
+      const modes = ['topology', 'floor'];
       modes.forEach(m => {
         const btn = document.getElementById('tab-twin-' + m);
         const st = document.getElementById('stage-' + m);
@@ -1983,8 +1943,6 @@
       const activeStage = document.getElementById('stage-' + mode);
       if (activeBtn) activeBtn.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] bg-surface-3 text-ink font-medium transition-colors";
       if (activeStage) activeStage.classList.remove('hidden');
-
-      if (mode === '3d') init3DViewport();
     }
 
     // Interactive Canvas Pan & Zoom
@@ -2232,51 +2190,6 @@
       }
     }
 
-    // Three.js 3D Viewport
-    let threeInitialized = false;
-    function init3DViewport() {
-      if (threeInitialized) return;
-      threeInitialized = true;
-      const container = document.getElementById('stage-3d');
-      if (!container) return;
-
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x070b14);
-
-      const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-      camera.position.set(20, 25, 30);
-      camera.lookAt(0, 0, 0);
-
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      container.appendChild(renderer.domElement);
-
-      const light = new THREE.DirectionalLight(0xffffff, 1.2);
-      light.position.set(10, 30, 20);
-      scene.add(light);
-      scene.add(new THREE.AmbientLight(0x2b3b5e, 0.8));
-
-      // Floor Grid
-      const grid = new THREE.GridHelper(50, 25, 0x1e2a44, 0x111a2e);
-      scene.add(grid);
-
-      // Machines in 3D
-      const geom = new THREE.BoxGeometry(4, 3, 2);
-      const matLineA = new THREE.MeshStandardMaterial({ color: 0x3987e5 });
-      const matM7 = new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0x78350f });
-
-      for (let i = 0; i < 4; i++) {
-        const m = new THREE.Mesh(geom, i === 2 ? matM7 : matLineA);
-        m.position.set(-15 + i * 8, 1.5, 5);
-        scene.add(m);
-      }
-
-      function animate() {
-        requestAnimationFrame(animate);
-        renderer.render(scene, camera);
-      }
-      animate();
-    }
 
     // Toggle layer buttons
     function toggleLayer(layerName) {
