@@ -18,6 +18,7 @@ from core.api import (
     agent_router,
     decisions_router,
     copilot_router,
+    factories_router,
 )
 
 app = FastAPI(title="TwinForge Connected Graph — Control Tower & Digital Twin")
@@ -39,6 +40,7 @@ app.include_router(simulation_router)
 app.include_router(agent_router)
 app.include_router(decisions_router)
 app.include_router(copilot_router)
+app.include_router(factories_router)
 
 
 # Single Page Application Routes (Catch-all for clean SPA client-side routing)

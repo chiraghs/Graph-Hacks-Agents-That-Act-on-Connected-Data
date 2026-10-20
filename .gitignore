@@ -9,5 +9,9 @@ __pycache__/
 # macOS
 .DS_Store
 
-# FalkorDB data volume
-data/
+# FalkorDB runtime data
+data/*.rdb
+!data/factories.db
+
+# Node / JS
+node_modules/

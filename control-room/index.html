@@ -653,6 +653,8 @@
               <path d="M 1118 464 C 1080 464, 1070 440, 1064 440" fill="none" stroke="var(--color-line-strong)" stroke-width="1.4" />
             </svg>
 
+            <!-- Dynamic Blueprint Nodes Container -->
+            <div id="stage-topology-nodes" class="relative z-10 w-[1400px] h-[600px] pointer-events-auto">
             <!-- ------------------------------------------------------------- -->
             <!-- A. INVENTORY COLUMN (Left, x: 10)                             -->
             <!-- ------------------------------------------------------------- -->
@@ -1293,6 +1295,9 @@
                 <span class="h-1.5 w-1.5 rounded-full bg-healthy"></span>
               </div>
 
+            </div>
+
+            <!-- /stage-topology-nodes -->
             </div>
 
           </div>
@@ -2959,38 +2964,8 @@
       if (cntWarning) cntWarning.innerText = p.warningCount;
       if (cntCritical) cntCritical.innerText = p.criticalCount;
 
-      // 5. Visual focus in Topology Canvas
-      const lineA = document.getElementById('line-container-a');
-      const lineB = document.getElementById('line-container-b');
-      const lineC = document.getElementById('line-container-c');
-      if (lineA && lineB && lineC) {
-        if (p.highlightLine === 'a') {
-          lineA.classList.remove('opacity-40');
-          lineA.classList.add('ring-2', 'ring-amber-500/40');
-          lineB.classList.add('opacity-40');
-          lineB.classList.remove('ring-2', 'ring-blue-500/40');
-          lineC.classList.add('opacity-40');
-          lineC.classList.remove('ring-2', 'ring-emerald-500/40');
-        } else if (p.highlightLine === 'b') {
-          lineA.classList.add('opacity-40');
-          lineA.classList.remove('ring-2', 'ring-amber-500/40');
-          lineB.classList.remove('opacity-40');
-          lineB.classList.add('ring-2', 'ring-blue-500/40');
-          lineC.classList.add('opacity-40');
-          lineC.classList.remove('ring-2', 'ring-emerald-500/40');
-        } else if (p.highlightLine === 'c') {
-          lineA.classList.add('opacity-40');
-          lineA.classList.remove('ring-2', 'ring-amber-500/40');
-          lineB.classList.add('opacity-40');
-          lineB.classList.remove('ring-2', 'ring-blue-500/40');
-          lineC.classList.remove('opacity-40');
-          lineC.classList.add('ring-2', 'ring-emerald-500/40');
-        } else {
-          lineA.classList.remove('opacity-40', 'ring-2', 'ring-amber-500/40');
-          lineB.classList.remove('opacity-40', 'ring-2', 'ring-blue-500/40');
-          lineC.classList.remove('opacity-40', 'ring-2', 'ring-emerald-500/40');
-        }
-      }
+      // 5. Load and Render Distinct Plant Blueprint from SQLite (Binds Live FalkorDB Telemetry)
+      loadPlantBlueprint(plantId);
 
       // 6. Update Dashboard
       const dashTitle = document.getElementById('dashboard-plant-title');
@@ -3000,6 +2975,139 @@
 
       // 7. Load Filtered KPIs
       loadKpis(plantId);
+    }
+
+    // Dynamic Blueprint Topology Loader (Fetches CAD Layout from SQLite + Live Graph Telemetry)
+    async function loadPlantBlueprint(plantId) {
+      try {
+        const res = await fetch(API_BASE + '/api/factories/' + plantId + '/blueprint');
+        const data = await res.json();
+        if (data.status === 'success' && data.blueprint) {
+          renderBlueprintTopology(data.blueprint);
+        }
+      } catch (err) {
+        console.warn('Could not load dynamic blueprint from API, retaining current layout:', err);
+      }
+    }
+
+    // Dynamic Blueprint Renderer: Draws customized visual node cards & SVG edge paths
+    function renderBlueprintTopology(bp) {
+      if (!bp || !bp.nodes) return;
+
+      if (bp.canvas_config) {
+        if (bp.canvas_config.panX !== undefined) canvasPanX = bp.canvas_config.panX;
+        if (bp.canvas_config.panY !== undefined) canvasPanY = bp.canvas_config.panY;
+        if (bp.canvas_config.zoom !== undefined) canvasZoom = bp.canvas_config.zoom;
+        if (typeof updateCanvasTransform === 'function') updateCanvasTransform();
+      }
+
+      // 1. Render SVG Edges Layer
+      const svgEl = document.getElementById('canvas-edges-svg');
+      if (svgEl) {
+        const defs = `
+          <defs>
+            <marker id="edge-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-line-strong)" />
+            </marker>
+            <marker id="edge-arrow-hot" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+            </marker>
+          </defs>
+        `;
+        let pathsHtml = '';
+        (bp.edges || []).forEach(edge => {
+          const isHot = edge.is_hot;
+          const strokeClass = isHot ? 'edge-flow-hot' : 'edge-flow';
+          const dashes = edge.dashes ? `stroke-dasharray="${edge.dashes}"` : '';
+          pathsHtml += `<path d="${edge.path}" fill="none" stroke="${edge.color || 'var(--color-line-strong)'}" stroke-width="${edge.stroke || '2.0'}" class="${strokeClass}" ${dashes} />`;
+        });
+        svgEl.innerHTML = defs + pathsHtml;
+      }
+
+      // 2. Render Blueprint Node Cards
+      const nodesContainer = document.getElementById('stage-topology-nodes');
+      if (nodesContainer) {
+        let nodesHtml = '';
+        (bp.nodes || []).forEach(node => {
+          const isCrit = node.status === 'CRITICAL' || (node.failure_risk && node.failure_risk >= 0.85);
+          const isWarn = node.status === 'WARNING' || (node.failure_risk && node.failure_risk >= 0.50 && node.failure_risk < 0.85);
+          const isBackup = node.status === 'BACKUP';
+          
+          let borderClass = 'border-line-strong hover:border-accent';
+          let statusColor = 'text-healthy';
+          let statusBg = 'bg-healthy';
+          let statusText = 'Healthy';
+          let barBg = 'bg-healthy';
+          let health = node.health_score !== undefined ? node.health_score : (node.failure_risk !== undefined ? Math.round((1.0 - node.failure_risk) * 100) : 100);
+          let vib = node.vibration !== undefined ? node.vibration : 1.2;
+          let temp = node.temperature !== undefined ? node.temperature : 65.0;
+
+          if (isCrit) {
+            borderClass = 'border-critical/90 bg-surface shadow-[0_0_0_3px_rgba(239,68,68,0.25),0_0_24px_-4px_rgba(239,68,68,0.45)]';
+            statusColor = 'text-critical';
+            statusBg = 'bg-critical';
+            statusText = 'Critical';
+            barBg = 'bg-critical';
+          } else if (isWarn) {
+            borderClass = 'border-warning/80 bg-surface shadow-[0_0_0_3px_rgba(245,158,11,0.22),0_0_24px_-4px_rgba(245,158,11,0.4)]';
+            statusColor = 'text-warning';
+            statusBg = 'bg-warning';
+            statusText = 'Warning';
+            barBg = 'bg-warning';
+          } else if (isBackup) {
+            borderClass = 'border-emerald-500/50 border-dashed bg-surface';
+            statusColor = 'text-emerald-400';
+            statusBg = 'bg-emerald-400';
+            statusText = 'Standby';
+            barBg = 'bg-emerald-400';
+          }
+
+          const alertBadge = node.alert ? `
+            <span class="absolute -top-2.5 right-2 rounded-md border ${isCrit ? 'border-critical/60 bg-critical/20 text-critical-ink' : 'border-warning/60 bg-warning/20 text-warning-ink'} px-1.5 py-px text-[9.5px] font-semibold tracking-wide uppercase shadow-sm">
+              ${escapeHtml(node.alert)}
+            </span>
+          ` : '';
+
+          const bayLabel = node.bay ? `<div class="text-[9px] uppercase font-bold text-muted tracking-wider mb-0.5 truncate">${escapeHtml(node.bay)}</div>` : '';
+
+          nodesHtml += `
+            <div onclick="selectAsset('${node.machine_id || node.id}')"
+                 style="position: absolute; left: ${node.x}px; top: ${node.y}px; width: ${node.w || 190}px; min-height: ${node.h || 96}px;"
+                 class="group rounded-xl border ${borderClass} bg-surface transition-all duration-200 hover:scale-[1.01] cursor-pointer p-2.5 select-none z-10 shadow-sm">
+              ${alertBadge}
+              <div class="flex h-full flex-col justify-between">
+                <div>
+                  ${bayLabel}
+                  <div class="flex items-center justify-between gap-1.5">
+                    <span class="truncate font-mono text-[11px] font-semibold text-ink">${escapeHtml(node.name)}</span>
+                    <span class="flex items-center gap-1 text-[10px] font-medium ${statusColor}">
+                      <span class="h-1.5 w-1.5 rounded-full ${statusBg}"></span>
+                      ${statusText}
+                    </span>
+                  </div>
+                  <p class="mt-0.5 truncate text-[11px] text-muted">${escapeHtml(node.spec || '')}</p>
+                </div>
+                
+                <div class="mt-1.5">
+                  <div class="flex items-center justify-between gap-2 text-[10px] mb-1 font-mono">
+                    <span class="text-muted">Health</span>
+                    <span class="font-semibold text-ink">${health}%</span>
+                  </div>
+                  <div class="h-1 w-full overflow-hidden rounded-full bg-surface-3">
+                    <div class="h-full rounded-full ${barBg}" style="width: ${health}%"></div>
+                  </div>
+                  <div class="tabular mt-1.5 flex items-center justify-between text-[10px] text-muted font-mono">
+                    <span>〰 ${vib}</span>
+                    <span>🌡 ${temp}°</span>
+                    <span>⏱ 120/h</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        nodesContainer.innerHTML = nodesHtml;
+      }
     }
 
     // Outside click listener to dismiss plant selector dropdown
