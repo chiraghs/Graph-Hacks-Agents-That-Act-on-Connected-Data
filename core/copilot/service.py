@@ -69,33 +69,50 @@ Domain Logic Notes:
          ord.hourly_delay_penalty_usd AS hourly_delay_penalty_usd, ord.sla_hours_remaining AS sla_hours_remaining
 """
 
-SYSTEM_PROMPT = f"""You are the TwinForge Graph Copilot, an expert industrial AI assistant connected to a FalkorDB graph database.
-Given a user's question, produce read-only Cypher queries and concise natural language explanations.
+SYSTEM_PROMPT = f"""You are the TwinForge Graph Copilot, a conversational industrial AI copilot and expert supply chain engineer connected to a FalkorDB property graph database.
 
 {GRAPH_SCHEMA}
 
-RULES:
-1. ONLY write read-only Cypher queries (MATCH, WHERE, RETURN, ORDER BY, LIMIT). Never write CREATE, DELETE, SET, MERGE, or DROP.
-2. If the user asks a SINGLE question, return a strict JSON object:
+YOUR OPERATIONAL MODES:
+1. CONVERSATIONAL / CHAT MODE:
+   If the user's message is a greeting (e.g. "hi", "hello"), pleasantry ("thanks", "how are you"), question about who you are or what you do ("who are you", "what can you do", "help"), general supply-chain concept, or follow-up conversation that does not require looking up live graph records:
+   Return a strict JSON object:
+   {{
+     "mode": "conversation",
+     "cypher": "",
+     "explanation": "Conversational reply",
+     "answer": "<warm, expert, and conversational response in markdown. Introduce yourself, converse naturally, and suggest 3-4 concrete queries about Detroit or London facilities when appropriate>"
+   }}
+
+2. GRAPH QUERY MODE (Single Question):
+   If the user asks an operational question about entities in the supply chain (machines, failure risk, parts, products, customer orders, warehouses, suppliers, facilities, SLA penalties):
+   Return a strict JSON object:
    {{
      "mode": "single",
-     "cypher": "<valid Cypher query>",
+     "cypher": "<valid read-only Cypher query (MATCH, WHERE, RETURN, ORDER BY, LIMIT)>",
      "explanation": "<brief summary of what this query discovers in the supply chain>"
    }}
-3. If the user asks MULTIPLE questions or compound requests (e.g., asking about machines AND suppliers AND parts AND sensor anomalies, or multiple questions in quotes or numbers), decompose them into an array of sub-queries:
+
+3. COMPOUND QUERY MODE (Multiple Questions):
+   If the user asks multiple distinct questions or compound requests:
+   Return a strict JSON object:
    {{
      "mode": "multi",
      "queries": [
        {{
-         "topic": "<short 2-4 word title, e.g. Machine Health, Supplier Network, Low Stock Inventory, Sensor Alerts>",
+         "topic": "<short 2-4 word title>",
          "question": "<the specific sub-question being answered>",
-         "cypher": "<valid Cypher query for this sub-question>",
+         "cypher": "<valid Cypher query>",
          "explanation": "<brief summary>"
        }}
      ]
    }}
-4. Keep queries focused and use LIMIT 25 unless counting.
-5. Do not include markdown code fences (like ```json), just output raw JSON.
+
+RULES:
+1. ONLY write read-only Cypher queries (MATCH, WHERE, RETURN, ORDER BY, LIMIT). Never write CREATE, DELETE, SET, MERGE, or DROP.
+2. ALWAYS return a valid JSON object matching one of the 3 modes above.
+3. Keep Cypher queries focused and use LIMIT 25 unless aggregating.
+4. Do not include markdown code fences (like ```json), just output raw JSON.
 """
 
 
@@ -299,7 +316,28 @@ def _semantic_engine_single(question: str) -> Tuple[str, str]:
 
 
 def _semantic_engine_fallback(question: str) -> Dict[str, Any]:
-    """Detects multi-question inputs in the zero-key fallback parser."""
+    """Detects multi-question or conversational inputs in the zero-key fallback parser."""
+    q_norm = re.sub(r"[^\w\s]", "", question.lower().strip())
+    conversational_triggers = [
+        "hi", "hello", "hey", "hola", "greetings", "good morning", "good afternoon", "good evening",
+        "thanks", "thank you", "who are you", "what are you", "what can you do", "help", "how do you work"
+    ]
+    if any(q_norm == t or q_norm.startswith(t + " ") for t in conversational_triggers):
+        return {
+            "mode": "conversation",
+            "cypher": "",
+            "explanation": "Conversational assistant",
+            "answer": (
+                "👋 **Hello! I'm the TwinForge Graph Copilot.**\n\n"
+                "I am your conversational industrial AI assistant connected live to our **FalkorDB knowledge graph** across Detroit, Munich, and London facilities.\n\n"
+                "You can chat with me or ask questions to investigate the live graph:\n"
+                "• *\"If Machine M7 in Detroit fails, what is the inventory shortfall and hourly penalty for HyperDrive Electric Motors order of P4 Smart Turbines?\"*\n"
+                "• *\"What is the status of the emergency spare spindle for M7?\"*\n"
+                "• *\"Show me all machines with failure risk over 50%\"*\n\n"
+                "How can I assist your operations today?"
+            )
+        }
+
     # Check for multiple quoted questions: "q1" "q2" "q3"
     quoted = re.findall(r"\"([^\"]{5,})\"", question)
     if len(quoted) >= 2:
@@ -542,36 +580,6 @@ def ask_copilot(question: str) -> Dict[str, Any]:
     if not question:
         return {"status": "error", "message": "Please enter a question."}
 
-    # Conversational Greetings & Help
-    q_norm = re.sub(r"[^\w\s]", "", question.lower().strip())
-    greetings = {"hi", "hello", "hey", "hola", "greetings", "good morning", "good afternoon", "good evening", "help", "who are you", "what can you do"}
-    if q_norm in greetings:
-        return {
-            "status": "success",
-            "mode": "single",
-            "provider": "TwinForge Graph Copilot",
-            "model": "Interactive Assistant",
-            "question": question,
-            "cypher": "// Conversational greeting — no graph traversal needed",
-            "explanation": "Provides interactive welcome and prompt recommendations for the supply chain knowledge graph.",
-            "answer": (
-                "👋 **Hello! Welcome to the TwinForge Graph Copilot.**\n\n"
-                "I am your industrial AI assistant connected directly to our live **FalkorDB supply chain knowledge graph** (3,700+ nodes, 6,000+ relationships across Detroit, Munich, and London facilities).\n\n"
-                "**Here are a few high-impact questions you can ask me:**\n\n"
-                "• **Critical Asset Risk**: *\"Show me all machines with failure risk over 50%\"*\n"
-                "• **Customer Impact & SLA Penalties**: *\"If Machine M7 in Detroit fails, what is the inventory shortfall and hourly penalty for HyperDrive Electric Motors order of P4 Smart Turbines?\"*\n"
-                "• **Emergency Spare Logistics**: *\"What is the status of the emergency spare spindle for M7?\"*\n"
-                "• **Standby Machine Redundancy**: *\"What standby backup machines can produce parts for M7?\"*\n"
-                "• **Network Facilities**: *\"What manufacturing plants are currently active?\"*\n\n"
-                "What would you like to investigate?"
-            ),
-            "row_count": 0,
-            "falkordb_latency_ms": 0.0,
-            "total_latency_ms": round((time.perf_counter() - start_time) * 1000, 1),
-            "columns": [],
-            "results": [],
-        }
-
     groq_key = os.getenv("GROQ_API_KEY", "").strip()
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip() or os.getenv("GOOGLE_API_KEY", "").strip()
 
@@ -589,7 +597,7 @@ def ask_copilot(question: str) -> Dict[str, Any]:
             print(f"[Copilot Warning] Groq call failed: {e}. Falling back...")
 
     # 2. Try Gemini 2.0 Flash
-    if not llm_payload.get("cypher") and not llm_payload.get("queries") and gemini_key:
+    if not llm_payload.get("cypher") and not llm_payload.get("queries") and not llm_payload.get("answer") and gemini_key:
         try:
             llm_payload = _call_gemini(question, gemini_key)
             provider = "Google AI Studio"
@@ -598,10 +606,29 @@ def ask_copilot(question: str) -> Dict[str, Any]:
             print(f"[Copilot Warning] Gemini call failed: {e}. Falling back...")
 
     # 3. Built-in Fallback
-    if not llm_payload.get("cypher") and not llm_payload.get("queries"):
+    if not llm_payload.get("cypher") and not llm_payload.get("queries") and not llm_payload.get("answer"):
         llm_payload = _semantic_engine_fallback(question)
         provider = "TwinForge Semantic Engine"
         model_name = "Built-in Graph Parser (100% Free)"
+
+    # Conversational mode handling (e.g. greetings, general questions, explanations)
+    if llm_payload.get("mode") == "conversation" or (not llm_payload.get("cypher") and llm_payload.get("answer")):
+        total_latency = round((time.perf_counter() - start_time) * 1000, 1)
+        return {
+            "status": "success",
+            "mode": "conversation",
+            "provider": provider,
+            "model": model_name,
+            "question": question,
+            "cypher": "// Conversational response — no graph traversal needed",
+            "explanation": llm_payload.get("explanation", "Conversational response"),
+            "answer": llm_payload.get("answer", "Hello! How can I assist you with your supply chain operations today?"),
+            "row_count": 0,
+            "falkordb_latency_ms": 0.0,
+            "total_latency_ms": total_latency,
+            "columns": [],
+            "results": [],
+        }
 
     is_multi = llm_payload.get("mode") == "multi" or (isinstance(llm_payload.get("queries"), list) and len(llm_payload["queries"]) > 1)
 
