@@ -326,17 +326,20 @@
 
     <!-- Topbar -->
     <header class="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-canvas/85 px-4 backdrop-blur-md lg:px-6">
-      <!-- Main Facility Filter (Facility Level Unit) -->
-      <div class="relative shrink-0">
-        <button onclick="toggleFacilityDropdown()" id="btn-facility-selector" class="group flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 px-2.5 py-1.5 transition-all text-left shadow-sm hover:border-cyan-400 cursor-pointer">
-          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 font-bold text-xs" id="topbar-facility-icon">
+      <!-- Main Facility Filter (Simpler Top-Level Dropdown) -->
+      <div class="relative">
+        <button onclick="toggleFacilityDropdown()" id="btn-facility-selector" class="group flex items-center gap-2.5 rounded-xl border border-line-strong bg-surface hover:bg-surface-2 px-3 py-1.5 transition-all text-left shadow-sm hover:border-accent cursor-pointer">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-500/15 text-cyan-400 font-bold text-sm" id="topbar-facility-icon">
             🔬
-          </span>
-          <div class="min-w-0 pr-1 hidden sm:block">
-            <div class="text-[9px] uppercase font-bold text-cyan-400 tracking-wider leading-none">Facility (Unit)</div>
+          </div>
+          <div class="min-w-0 pr-1">
+            <div class="flex items-center gap-2">
+              <span class="text-[9px] uppercase font-bold text-muted tracking-wider leading-none">Facility</span>
+              <span id="topbar-facility-badge" class="rounded bg-cyan-500/15 px-1.5 py-0.2 text-[9px] font-semibold text-cyan-400 border border-cyan-500/30">London • Class 10</span>
+            </div>
             <div class="flex items-center gap-1.5 mt-0.5">
-              <span id="topbar-facility-name" class="font-bold text-[12.5px] text-ink truncate max-w-[170px]">London Semiconductor Foundry</span>
-              <svg class="h-3 w-3 shrink-0 text-muted transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+              <span id="topbar-facility-name" class="font-bold text-[13px] text-ink truncate max-w-[240px] sm:max-w-[360px]">London Semiconductor Foundry</span>
+              <svg class="h-3.5 w-3.5 shrink-0 text-muted transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </div>
           </div>
         </button>
@@ -344,7 +347,7 @@
         <!-- Facility Dropdown Menu -->
         <div id="facility-selector-dropdown" class="hidden absolute left-0 mt-2 w-80 sm:w-96 rounded-2xl border border-line-strong bg-shell p-2 shadow-2xl z-50 animate-in fade-in duration-150">
           <div class="px-2.5 py-2 border-b border-line mb-1.5 flex items-center justify-between">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Select Facility (Unit Level)</span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Select Facility</span>
             <span class="text-[10px] text-cyan-400 font-medium">Enterprise Unit</span>
           </div>
 
@@ -384,39 +387,8 @@
         </div>
       </div>
 
-      <!-- Interactive Plant Selector Dropdown -->
-      <div class="relative min-w-0 flex-1">
-        <button onclick="togglePlantDropdown()" id="btn-plant-selector" class="group flex items-center gap-2.5 rounded-xl border border-line bg-surface/90 hover:bg-surface-2 px-3 py-1.5 transition-all text-left max-w-full shadow-sm hover:border-line-strong">
-          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent group-hover:bg-accent group-hover:text-white transition-colors">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-          </div>
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-1.5">
-              <span id="topbar-plant-name" class="truncate text-[13.5px] font-bold text-ink">London Semiconductor Foundry (Both Lines → 1 Unit Facility)</span>
-              <span id="topbar-plant-badge" class="shrink-0 rounded bg-cyan-500/15 px-1.5 py-0.5 text-[9.5px] font-semibold tracking-wide text-cyan-400 border border-cyan-500/30 uppercase">London Unit</span>
-              <svg class="h-3 w-3 shrink-0 text-muted transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-            </div>
-            <p id="topbar-plant-location" class="flex items-center gap-1 truncate text-[11px] text-muted">
-              <svg class="h-2.5 w-2.5 inline text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
-              London, UK &bull; 2 Lines Leading to 1 Unit Facility &bull; 8 Machines
-            </p>
-          </div>
-        </button>
-
-        <!-- Dropdown Menu -->
-        <div id="plant-selector-dropdown" class="hidden absolute left-0 mt-2 w-80 sm:w-96 rounded-2xl border border-line-strong bg-shell p-2 shadow-2xl z-50 animate-in fade-in duration-150">
-          <div class="px-2.5 py-2 border-b border-line mb-1.5 flex items-center justify-between">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Switch Plant / Line</span>
-            <span class="text-[10px] text-accent font-medium">Plant Level</span>
-          </div>
-
-          <div id="plant-options-list" class="space-y-1">
-            <!-- Dynamically populated by renderFacilityPlantsUI -->
-          </div>
-        </div>
-      </div>
+      <!-- Spacer -->
+      <div class="flex-1"></div>
 
       <!-- Plant Clock -->
       <div class="hidden items-center gap-2 sm:flex">
@@ -535,21 +507,26 @@
             </button>
           </div>
 
-          <!-- Plant Switcher Toolbar Pills -->
-          <div class="inline-flex rounded-lg border border-line bg-shell p-0.5" id="twin-plant-pills">
-            <button onclick="switchPlant('PLANT_DETROIT')" id="pill-plant-PLANT_DETROIT" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors bg-surface-3 text-ink shadow-sm">
-              <span>🏭 Detroit (Apex)</span>
+          <!-- Plant Level Dropdown (Right to Topology and Floor plan) -->
+          <div class="relative">
+            <button onclick="togglePlantDropdown()" id="btn-plant-selector" class="flex h-7 items-center gap-2 rounded-lg border border-line bg-shell hover:bg-surface-2 px-2.5 text-[12px] font-medium text-ink transition-colors cursor-pointer shadow-sm hover:border-line-strong">
+              <span id="twin-plant-icon" class="text-xs">🌐</span>
+              <span class="text-muted text-[11px] hidden sm:inline">Plant / Line:</span>
+              <span id="twin-selected-plant-name" class="font-semibold text-ink truncate max-w-[180px] sm:max-w-[280px]">Thames Semiconductor Foundry (Full Unit)</span>
+              <span id="twin-selected-plant-badge" class="rounded px-1.5 py-0.2 text-[9.5px] font-semibold text-cyan-400 bg-cyan-500/15 border border-cyan-500/30 uppercase">London Unit</span>
+              <svg class="h-3 w-3 shrink-0 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
-            <button onclick="switchPlant('PLANT_MUNICH')" id="pill-plant-PLANT_MUNICH" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink">
-              <span>🏭 Munich (Bavaria)</span>
-            </button>
-            <button onclick="switchPlant('PLANT_AUSTIN')" id="pill-plant-PLANT_AUSTIN" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink">
-              <span>🏭 Austin (Silicon Hill)</span>
-            </button>
-            <button onclick="switchPlant('ALL')" id="pill-plant-ALL" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink" title="Expand all plants side-by-side">
-              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-              <span>Expand All Plants</span>
-            </button>
+
+            <!-- Dropdown Menu for Plants -->
+            <div id="plant-selector-dropdown" class="hidden absolute left-0 mt-1.5 w-80 sm:w-96 rounded-2xl border border-line-strong bg-shell p-2 shadow-2xl z-50 animate-in fade-in duration-150">
+              <div class="px-2.5 py-2 border-b border-line mb-1.5 flex items-center justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Select Plant / Line</span>
+                <span id="plant-dropdown-facility-label" class="text-[10px] text-accent font-medium">London Facility</span>
+              </div>
+              <div id="plant-options-list" class="space-y-1">
+                <!-- Dynamically populated by renderFacilityPlantsUI -->
+              </div>
+            </div>
           </div>
 
           <button onclick="resetCanvasTransform()" class="flex h-7 items-center gap-1.5 rounded-md px-2 text-[12px] text-muted hover:text-ink transition-colors">
@@ -3023,8 +3000,13 @@
       // Update Facility Topbar Button
       const nameEl = document.getElementById('topbar-facility-name');
       const iconEl = document.getElementById('topbar-facility-icon');
-      if (nameEl) nameEl.innerText = fac.shortName || fac.name;
+      const badgeEl = document.getElementById('topbar-facility-badge');
+      if (nameEl) nameEl.innerText = fac.name;
       if (iconEl) iconEl.innerText = facilityId === 'FACILITY_LONDON' ? '🔬' : '🏭';
+      if (badgeEl) {
+        badgeEl.innerText = fac.badge;
+        badgeEl.className = `rounded px-1.5 py-0.2 text-[9px] font-semibold border ${fac.badgeColor}`;
+      }
 
       // Update Facility Dropdown Checkmarks
       const facChecks = document.querySelectorAll('.facility-check-icon');
@@ -3047,7 +3029,7 @@
       const facDropdown = document.getElementById('facility-selector-dropdown');
       if (facDropdown) facDropdown.classList.add('hidden');
 
-      // Update Twin View Toolbar Pills and Plant Dropdown for this facility
+      // Update Twin View Toolbar Plant Dropdown for this facility
       renderFacilityPlantsUI(facilityId);
 
       // Switch to targeted or default plant of this facility
@@ -3062,42 +3044,9 @@
       const fac = FACILITIES_DATA[facilityId];
       if (!fac) return;
 
-      // 1. Update Toolbar Pills (#twin-plant-pills)
-      const pillsContainer = document.getElementById('twin-plant-pills');
-      if (pillsContainer) {
-        let pillsHtml = '';
-        if (facilityId === 'FACILITY_LONDON') {
-          pillsHtml = `
-            <button onclick="switchPlant('PLANT_LONDON_ALL')" id="pill-plant-PLANT_LONDON_ALL" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-semibold transition-colors bg-surface-3 text-ink shadow-sm cursor-pointer" title="London Facility: 2 Plants Leading to 1 Unit Facility">
-              <svg class="h-3.5 w-3.5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-              <span>🌐 London Unit (2 Lines → 1 Unit Facility)</span>
-            </button>
-            <button onclick="switchPlant('PLANT_LONDON_FAB')" id="pill-plant-PLANT_LONDON_FAB" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink cursor-pointer">
-              <span>🔬 Line Alpha: Wafer Fab</span>
-            </button>
-            <button onclick="switchPlant('PLANT_LONDON_PKG')" id="pill-plant-PLANT_LONDON_PKG" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink cursor-pointer">
-              <span>📦 Line Beta: Micro-Packaging</span>
-            </button>
-          `;
-        } else {
-          pillsHtml = `
-            <button onclick="switchPlant('PLANT_DETROIT')" id="pill-plant-PLANT_DETROIT" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors bg-surface-3 text-ink shadow-sm cursor-pointer">
-              <span>🏭 Detroit (Apex)</span>
-            </button>
-            <button onclick="switchPlant('PLANT_MUNICH')" id="pill-plant-PLANT_MUNICH" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink cursor-pointer">
-              <span>🏭 Munich (Bavaria)</span>
-            </button>
-            <button onclick="switchPlant('PLANT_AUSTIN')" id="pill-plant-PLANT_AUSTIN" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink cursor-pointer">
-              <span>🏭 Austin (Silicon Hill)</span>
-            </button>
-            <button onclick="switchPlant('ALL')" id="pill-plant-ALL" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink cursor-pointer" title="Expand all plants side-by-side">
-              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-              <span>Expand All Plants</span>
-            </button>
-          `;
-        }
-        pillsContainer.innerHTML = pillsHtml;
-      }
+      // 1. Update Dropdown Header Facility Label
+      const facLabel = document.getElementById('plant-dropdown-facility-label');
+      if (facLabel) facLabel.innerText = fac.shortName || fac.name;
 
       // 2. Update Plant Selector Dropdown List (#plant-options-list)
       const optionsList = document.getElementById('plant-options-list');
@@ -3145,23 +3094,20 @@
 
       const p = PLANTS_DATA[plantId];
 
-      // 1. Update Topbar Header
-      const nameEl = document.getElementById('topbar-plant-name');
-      const badgeEl = document.getElementById('topbar-plant-badge');
-      const locEl = document.getElementById('topbar-plant-location');
-      if (nameEl) nameEl.innerText = p.name;
-      if (badgeEl) {
-        badgeEl.innerText = p.badge;
-        badgeEl.className = `shrink-0 rounded px-1.5 py-0.5 text-[9.5px] font-semibold tracking-wide border uppercase ${p.badgeColor}`;
+      // 1. Update Twin Toolbar Plant Dropdown Trigger Button
+      const twinPlantName = document.getElementById('twin-selected-plant-name');
+      const twinPlantBadge = document.getElementById('twin-selected-plant-badge');
+      const twinPlantIcon = document.getElementById('twin-plant-icon');
+      if (twinPlantName) twinPlantName.innerText = p.name;
+      if (twinPlantBadge) {
+        twinPlantBadge.innerText = p.badge;
+        twinPlantBadge.className = `rounded px-1.5 py-0.2 text-[9.5px] font-semibold border uppercase ${p.badgeColor}`;
       }
-      if (locEl) {
-        locEl.innerHTML = `
-          <svg class="h-2.5 w-2.5 inline text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
-          ${p.city} &bull; ${p.type} &bull; ${p.machinesCount} Machines
-        `;
+      if (twinPlantIcon) {
+        twinPlantIcon.innerText = p.facilityId === 'FACILITY_LONDON' ? (plantId === 'PLANT_LONDON_FAB' ? '🔬' : (plantId === 'PLANT_LONDON_PKG' ? '📦' : '🌐')) : (plantId === 'ALL' ? '🌐' : '🏭');
       }
 
-      // 2. Update Topbar Dropdown Active Checks
+      // 2. Update Plant Dropdown Active Checks
       const checkIcons = document.querySelectorAll('.plant-check-icon');
       checkIcons.forEach(ic => {
         if (ic.getAttribute('data-check') === plantId) {
@@ -3183,22 +3129,7 @@
       const dropdown = document.getElementById('plant-selector-dropdown');
       if (dropdown) dropdown.classList.add('hidden');
 
-      // 3. Update Twin View Toolbar Pills Active Styling
-      const currentFac = FACILITIES_DATA[p.facilityId || currentFacilityId];
-      if (currentFac) {
-        currentFac.plants.forEach(key => {
-          const pill = document.getElementById('pill-plant-' + key);
-          if (pill) {
-            if (key === plantId) {
-              pill.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-semibold transition-colors bg-surface-3 text-ink shadow-sm cursor-pointer";
-            } else {
-              pill.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink cursor-pointer";
-            }
-          }
-        });
-      }
-
-      // 4. Update Twin Title & Status Counts
+      // 3. Update Twin Title & Status Counts
       const twinTitle = document.getElementById('twin-page-title');
       const twinSub = document.getElementById('twin-page-subtitle');
       if (twinTitle) twinTitle.innerText = `Connected-Graph — ${p.name}`;
