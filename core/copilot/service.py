@@ -542,6 +542,36 @@ def ask_copilot(question: str) -> Dict[str, Any]:
     if not question:
         return {"status": "error", "message": "Please enter a question."}
 
+    # Conversational Greetings & Help
+    q_norm = re.sub(r"[^\w\s]", "", question.lower().strip())
+    greetings = {"hi", "hello", "hey", "hola", "greetings", "good morning", "good afternoon", "good evening", "help", "who are you", "what can you do"}
+    if q_norm in greetings:
+        return {
+            "status": "success",
+            "mode": "single",
+            "provider": "TwinForge Graph Copilot",
+            "model": "Interactive Assistant",
+            "question": question,
+            "cypher": "// Conversational greeting — no graph traversal needed",
+            "explanation": "Provides interactive welcome and prompt recommendations for the supply chain knowledge graph.",
+            "answer": (
+                "👋 **Hello! Welcome to the TwinForge Graph Copilot.**\n\n"
+                "I am your industrial AI assistant connected directly to our live **FalkorDB supply chain knowledge graph** (3,700+ nodes, 6,000+ relationships across Detroit, Munich, and London facilities).\n\n"
+                "**Here are a few high-impact questions you can ask me:**\n\n"
+                "• **Critical Asset Risk**: *\"Show me all machines with failure risk over 50%\"*\n"
+                "• **Customer Impact & SLA Penalties**: *\"If Machine M7 in Detroit fails, what is the inventory shortfall and hourly penalty for HyperDrive Electric Motors order of P4 Smart Turbines?\"*\n"
+                "• **Emergency Spare Logistics**: *\"What is the status of the emergency spare spindle for M7?\"*\n"
+                "• **Standby Machine Redundancy**: *\"What standby backup machines can produce parts for M7?\"*\n"
+                "• **Network Facilities**: *\"What manufacturing plants are currently active?\"*\n\n"
+                "What would you like to investigate?"
+            ),
+            "row_count": 0,
+            "falkordb_latency_ms": 0.0,
+            "total_latency_ms": round((time.perf_counter() - start_time) * 1000, 1),
+            "columns": [],
+            "results": [],
+        }
+
     groq_key = os.getenv("GROQ_API_KEY", "").strip()
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip() or os.getenv("GOOGLE_API_KEY", "").strip()
 
