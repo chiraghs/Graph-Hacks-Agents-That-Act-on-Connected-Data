@@ -1,219 +1,185 @@
 # TwinForge Connected Graph 🌐⚡
 > **Graph Hacks: Context for AI Agents (WeMakeDevs x FalkorDB)**  
 > **Track:** *Track 01 — Agents That Act on Connected Data*  
-> **Database:** FalkorDB (Cypher Query Engine, Local Docker & FalkorDB Cloud TLS)  
+> **Database:** FalkorDB (Cypher Graph Engine • Local Docker & FalkorDB Cloud)  
 > **Runtime:** Python 3.14 (tested), 3.12+ compatible  
 > **Deployment:** Local Docker or One-Click Cloud on Render  
 
-[![FalkorDB](https://img.shields.io/badge/Database-FalkorDB-red.svg)](https://www.falkordb.com/)
+[![FalkorDB](https://img.shields.io/badge/Database-FalkorDB_Cloud-red.svg)](https://www.falkordb.com/)
+[![Track](https://img.shields.io/badge/Track_01-Agents_That_Act_on_Connected_Data-purple.svg)](#-track-01-agents-that-act-on-connected-data)
 [![MCP](https://img.shields.io/badge/Protocol-Model_Context_Protocol_(MCP)-blue.svg)](https://modelcontextprotocol.io/)
 [![FastAPI](https://img.shields.io/badge/Framework-FastAPI-green.svg)](https://fastapi.tiangolo.com/)
 [![TailwindCSS](https://img.shields.io/badge/UI-TailwindCSS_&_Vis.js-38bdf8.svg)](https://tailwindcss.com/)
 
 ---
 
-## 🎥 3-Minute Video Walkthrough
+## 💡 Submission Statement
 
-📺 **Direct Video File**: [twinforge_connected_graph_walkthrough_demo.mp4](static/twinforge_connected_graph_walkthrough_demo.mp4) *(or stream at `http://localhost:8000/static/twinforge_connected_graph_walkthrough_demo.mp4`)*  
+> **An autonomous AI control tower that combines predictive-maintenance sensor signals and exponential-smoothing demand forecasts, leveraging a FalkorDB knowledge graph to perform multi-hop topological reasoning and prescriptive mitigation.**
+>
+> When machinery shows telemetry drift, traditional relational ERPs struggle with complex 9-table joins to gauge operational impact. TwinForge uses FalkorDB to traverse the full graph topology—from degraded machines through bills of materials, products, regional warehouses, and downstream enterprise customers—evaluating buffer stock, alternate supplier lead times, and single points of failure. The agent autonomously schedules maintenance and rerouting only when true inventory deficits exist, explicitly clearing harmless alerts with zero production disruption, and committing auditable decision nodes connected via graph evidence.
+
+---
+
+### 🚨 The Problem
+
+Industrial manufacturing networks lose billions annually to unexpected machine breakdowns and blind supply chain disruptions. Traditional monitoring tools trigger noisy alarms on isolated sensor drift without understanding context:
+
+1. **Lack of Topological Context**: Relational databases cannot efficiently answer: *"If this machine breaks down, which finished goods, warehouses, and customer orders are actually starved?"*
+2. **False Alarms & Wasteful Interventions**: Teams often halt machines that have redundant production lines and ample safety stock, while missing critical sole-source bottlenecks.
+3. **Traceability Deficits**: Automated decision systems rarely provide an auditable chain of evidence linking decisions back to underlying network topology.
+
+### 🎯 Who It Is For
+
+* **Supply Chain Directors & Plant Managers**: Managing complex global manufacturing networks who need real-time, end-to-end topological visibility.
+* **Operations & Maintenance Engineers**: Who must prioritize repairs based on true customer delivery and revenue impact rather than isolated sensor alarms.
+* **Procurement & Logistics Teams**: Evaluating emergency alternate supplier lead times and mitigating single points of failure before line starvation occurs.
+
+---
+
+## 🎥 4-Minute Video Walkthrough
+
+📺 **Direct Video File**: [`twinforge_connected_graph_walkthrough_demo.mp4`](static/twinforge_connected_graph_walkthrough_demo.mp4) *(Stream locally at `http://localhost:8000/static/twinforge_connected_graph_walkthrough_demo.mp4`)*  
 🎙️ **Narration**: Studio-grade natural human neural voice (`en-US-ChristopherNeural` via Azure Speech)  
+⏱️ **Recorded From**: Actual live UI at `http://localhost:8000` via Playwright Chromium automation  
 
 ```
-00:00 ─── Intro & Architecture Overview (FalkorDB Property Graph)
-00:30 ─── Connected-Graph & Multi-Hop Blast Radius Simulation
-01:02 ─── Command Center & Real-Time Production KPIs
-01:30 ─── Autonomous AI Agent Investigation Console (Live SSE Cypher Loop)
-02:00 ─── Multi-Echelon Supply Chain Simulator & Supplier Lead Times
-02:27 ─── Human-in-the-Loop Prescriptive Approvals & BASED_ON Lineage
-02:53 ─── Cryptographic Audit Trail, Control Room & FalkorDB Integrations
+00:00 ─── Scene 1: Intro & Architecture Overview (FalkorDB Property Graph Canvas)
+00:30 ─── Scene 2: Connected-Graph & Multi-Hop Blast Radius Drawer (Robotic Arm M7)
+01:01 ─── Scene 3: TwinForge Graph Copilot (Conversational "Hi" & Multi-Hop Cypher Execution)
+01:43 ─── Scene 4: Command Center & Real-Time FalkorDB KPI Aggregations
+02:11 ─── Scene 5: Autonomous AI Agent Investigation Console (Live SSE Cypher Loop)
+02:41 ─── Scene 6: Multi-Echelon Supply Chain Simulator & Alternate Supplier Lead Times
+03:07 ─── Scene 7: Human-in-the-Loop Prescriptive Approvals & BASED_ON Graph Lineage
+03:34 ─── Scene 8: Cryptographic Audit Trail, Control Room & FalkorDB Port 6379 Verification
 ```
 
 ---
 
-## 📌 Executive Summary
+## 🤖 The AI Agents: How They Act on Connected Data
 
-**TwinForge Connected Graph** is an **autonomous industrial digital twin and self-healing supply chain intelligence platform** built natively on **FalkorDB**.
-
-Global manufacturing networks are non-linear, multi-echelon webs of physical plant machinery, bills of materials (BOM), regional warehouses, and enterprise customer delivery contracts. When predictive maintenance systems detect machine degradation, traditional ERPs fail because relational databases cannot easily answer the core operational question:
-
-> **"If this machine fails, which parts, products, warehouses, and customers are affected, does forecast demand exceed available stock, and what is the cheapest, fastest fix?"**
-
-TwinForge Connected Graph connects predictive maintenance telemetry and demand forecasts directly to an active **FalkorDB knowledge graph**. The graph does the heavy analytical reasoning—multi-hop blast radius traversals, redundancy analysis, supply bottleneck detection, and shortest dependency path discovery—allowing an autonomous AI agent to make auditable, grounded decisions recorded directly back into the graph.
-
----
-
-## 💥 The Core Problem: Why Relational Databases Fail
-
-In conventional manufacturing and logistics:
-* **IoT sensor data** lives in time-series databases.
-* **Bills of Materials (BOM)** live in product lifecycle management (PLM) tools.
-* **Inventory & orders** live in ERP systems (SAP, Oracle).
-* **Customer contracts & SLAs** live in CRM databases.
-
-```
-Conventional Relational Approach:
-IoT Alert ──> [5 to 7 SQL JOINs across ERP, MES, CRM tables] ──> Slow (Seconds/Timeouts)
-                                                                 Fragile nested queries
-                                                                 Black-box AI guessing
-```
-
-When an alert triggers, tracing how a broken bearing impacts a customer order requires joining 5 to 8 massive relational tables. In large enterprises, these queries are too slow or impossible to run in real time during an agent loop. As a result, companies react **after** production lines stop.
-
-### The FalkorDB Shift: Unified Graph Context
-
-In FalkorDB, all these silos are modeled as a **single, unified property graph**:
-
-```
-(Machine: M7)
-   │  [:PRODUCES]
-   ▼
-(Part: PT-4 Rotor) ──[:USED_IN]──> (Product: P4 Turbine)
-                                       │  [:STOCKED_AT]
-                                       ▼
-(Customer: Kestrel Robotics) <──[:SERVES]── (Warehouse: Atlantic Hub)
-```
-
-1. **Sub-Millisecond Traversal**: 6 hops take less than **10ms**, enabling the AI agent to execute multiple diagnostic queries in a tight loop.
-2. **Zero Hallucination**: The agent's reasoning is grounded in deterministic graph structure.
-3. **Auditable Lineage**: Every decision made by the agent links directly to the exact graph nodes that justified it via `[:BASED_ON]` edges.
-
----
-
-## 🏛️ End-to-End System Architecture
+In TwinForge, the AI is not a generic text generator or a passive chatbot. It is an **autonomous agent loop** that acts directly on connected graph data.
 
 ```mermaid
 flowchart TD
-    %% SUBGRAPH 1: PHYSICAL LAYER & INGESTION
-    subgraph L1["1. PHYSICAL SHOPFLOOR & PERCEPTION LAYER"]
-        SENS["IoT Sensor Streams<br/>(Vibration mm/s, Temp °C)"] --> SCOR["scoring.py<br/>(Composite Z-Score Drift &amp; Exponential Smoothing)"]
-        DEMAND["ERP Demand Streams<br/>(30-Day Forward Sales Projections)"] --> SCOR
+    subgraph "Perception Engines"
+        PDM["Predictive Maintenance Engine<br/>• Z-Score Drift Model (scoring.py)<br/>• SensorTelemetry (8.45 mm/s, 48h RUL)"]
+        DEMAND["Demand Forecasting Engine<br/>• Exponential Smoothing S_t = αY_t + (1-α)S_{t-1}<br/>• DemandForecast (1,450 Q2 units, +28.5%)"]
     end
 
-    %% SUBGRAPH 2: APPLICATION & ORCHESTRATION LAYER
-    subgraph L2["2. BACKEND & AGENTIC ORCHESTRATION (FastAPI)"]
-        SCOR -->|"Risk &ge; 0.70 Alert"| AGENT["agent.py: Autonomous Graph Reasoning Loop<br/>(Claude 3.5 Sonnet / Autonomous Cypher Planner)"]
-        APP["app.py: FastAPI Server<br/>• REST Endpoints (/api/simulate, /api/kpis)<br/>• SSE Streaming (/api/investigate)"]
-        AGENT <-->|"Event Streaming (SSE)"| APP
+    subgraph "Autonomous Control Tower Agent (runner.py)"
+        SCAN["1. at_risk_machines(0.70)"]
+        IMPACT["2. downstream_impact(M7) [5 Hops]"]
+        SHORTFALL["3. shortfall_check(P4) [Compare Forecast vs Stock]"]
+        REDUNDANCY{"Is Sole Producer?<br/>Critical Shortfall?"}
     end
 
-    %% SUBGRAPH 3: MODEL CONTEXT PROTOCOL (MCP) TOOL LAYER
-    subgraph L3["3. MCP TOOL INTEGRATION LAYER (mcp_server.py)"]
-        AGENT -->|"1. Tool Selection (JSON-RPC)"| MCP["Model Context Protocol Server"]
-        MCP --> T1["at_risk_machines()"]
-        MCP --> T2["downstream_impact()"]
-        MCP --> T3["shortfall_check()"]
-        MCP --> T4["alternate_sources()"]
-        MCP --> T5["shortest_path()"]
-        MCP --> T6["single_points_of_failure()"]
-        MCP --> T7["schedule_action() [WRITE]"]
+    subgraph "Prescriptive Actions & Graph Commitment"
+        HARMLESS["HARMLESS (M12):<br/>• Sister M13 available<br/>• 2,400 buffer units in stock<br/>➔ EXPLICITLY CLEAR ALERT (0 Downtime)"]
+        HARMFUL["HARMFUL (M7):<br/>• Sole producer of P4 rotor<br/>• 150-unit deficit ($25k/hr penalty)<br/>• Alternate supplier 12d > 5d failure window<br/>➔ SCHEDULE REROUTE & MUNICH AIR COURIER"]
+        COMMIT["CREATE (:Decision)-[:BASED_ON]->(EvidenceNodes)<br/>• Persisted in FalkorDB with SHA-256 audit hash"]
     end
 
-    %% SUBGRAPH 4: FALKORDB KNOWLEDGE GRAPH
-    subgraph L4["4. FALKORDB PROPERTY GRAPH (supply_chain)"]
-        DB_CONN["db.py: Resilient Connection Pool<br/>(Local Docker :6379 / FalkorDB Cloud TLS)"]
-        T1 & T2 & T3 & T4 & T5 & T6 & T7 <-->|"Sub-millisecond Cypher (&lt;10ms)"| DB_CONN
-        DB_CONN <--> GRAPH[("FalkorDB Graph Engine<br/>175 Nodes &bull; 465 Relationships")]
-        
-        GRAPH --- G_PLANT["(:Plant) -[:HAS]-> (:Machine)"]
-        GRAPH --- G_BOM["(:Machine) -[:PRODUCES]-> (:Part) -[:USED_IN]-> (:Product)"]
-        GRAPH --- G_SUPPLY["(:Supplier) -[:SUPPLIES]-> (:Part)"]
-        GRAPH --- G_DIST["(:Product) -[:STOCKED_AT]-> (:Warehouse) -[:SERVES]-> (:Customer)"]
-    end
-
-    %% SUBGRAPH 5: CLOSED-LOOP DECISION COMMIT & EVIDENCE
-    subgraph L5["5. CLOSED-LOOP GOVERNANCE & LINEAGE"]
-        T7 -->|"CREATE (:Decision)-[:BASED_ON]->(Evidence)"| DECISION_NODE["(:Decision Node)<br/>id: DEC_XXXX<br/>type: reroute_production<br/>target: M7"]
-        DECISION_NODE -.->|"[:BASED_ON]"| G_BOM
-        DECISION_NODE -.->|"[:BASED_ON]"| G_DIST
-    end
-
-    %% SUBGRAPH 6: PRESENTATION LAYER
-    subgraph L6["6. TWINFORGE CONTROL TOWER (static/index.html)"]
-        APP -->|"Real-time SSE Logs"| UI_CONSOLE["AI Investigation Console<br/>(Streaming Cypher Tool Trace)"]
-        APP -->|"Live Evidence Subgraph"| UI_VIS["Vis.js Evidence Subgraph<br/>(Interactive Graph Visualizer)"]
-        APP -->|"Topology & Blast Radius"| UI_TWIN["Connected-Graph Studio<br/>(Digital Twin Canvas)"]
-        APP -->|"KPI Aggregations"| UI_DASH["Command Center<br/>(OEE, Risk, Inventory Cards)"]
-    end
-
-    classDef falkor fill:#ef4444,stroke:#991b1b,stroke-width:2px,color:#fff;
-    classDef mcp fill:#3b82f6,stroke:#1d4ed8,stroke-width:2px,color:#fff;
-    classDef agent fill:#8b5cf6,stroke:#6d28d9,stroke-width:2px,color:#fff;
-    classDef ui fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff;
-
-    class GRAPH,DB_CONN,DECISION_NODE falkor;
-    class MCP,T1,T2,T3,T4,T5,T6,T7 mcp;
-    class AGENT,APP agent;
-    class UI_CONSOLE,UI_VIS,UI_TWIN,UI_DASH ui;
+    PDM --> SCAN
+    DEMAND --> SHORTFALL
+    SCAN --> IMPACT --> SHORTFALL --> REDUNDANCY
+    REDUNDANCY -->|No Shortfall / Redundant| HARMLESS
+    REDUNDANCY -->|Sole Source & Shortfall| HARMFUL
+    HARMFUL --> COMMIT
 ```
 
-### Architecture Layer Responsibilities
+### 1. The Predictive Maintenance (PdM) Engine
+* **Mathematical Drift Scoring** ([`core/graph/scoring.py::compute_machine_risk`](core/graph/scoring.py)):
+  Ingests high-frequency vibration and temperature telemetry, computing weighted composite z-scores against calibrated baseline statistics ($z_{\text{composite}} = 0.6 \cdot z_{\text{vibe}} + 0.4 \cdot z_{\text{temp}}$), mapped through a sigmoid curve centered at $2\sigma$ to output failure probability $(0.0 - 1.0)$ and days to breakdown.
+* **Graph Representation in FalkorDB**:
+  * `(:SensorTelemetry)`: Stores triaxial vibration RMS, bearing temperatures, acoustic emission dB, lubricant particle PPM, and Remaining Useful Life (`rul_hours`).
+  * `(:PdMPrescription)`: Contains prescriptive maintenance intervention windows and cost-avoidance economics ($140,200 saved on M7 by scheduling bearing replacement vs. catastrophic breakdown).
 
-| Layer | Component | Technical Role |
-| :--- | :--- | :--- |
-| **1. Data & Context Layer** | **FalkorDB** | Stores all 175 entities and 465 relationships in a single native property graph. Provides sub-10ms Cypher execution and polymorphic `[:BASED_ON]` edge creation. |
-| **2. Interface Layer** | **Model Context Protocol (MCP)** | Standardized JSON-RPC tool interface (`mcp_server.py`) abstracting Cypher graph traversals into 7 typed agent tools with per-call latency tracking. |
-| **3. Reasoning Layer** | **Autonomous Agent** | Graph-guided planner (`agent.py`) that decides which tools to call, interprets multi-hop causal chains, and formulates verifiable operational decisions. |
-| **4. Transport Layer** | **FastAPI** | Asynchronous web layer (`app.py`) providing Server-Sent Events (SSE) streaming for real-time tool logs and REST endpoints for UI telemetry. |
-| **5. Presentation Layer** | **TwinForge Studio** | Responsive SPA (`static/index.html`) featuring an interactive Digital Twin Canvas, real-time Vis.js evidence graph, Command Center KPIs, and What-If simulator. |
+### 2. The Demand Forecasting Engine
+* **Single Exponential Smoothing** ([`core/graph/scoring.py::compute_demand_forecast`](core/graph/scoring.py)):
+  Projects forward demand using $S_t = \alpha Y_t + (1 - \alpha) S_{t-1}$ with smoothing parameter $\alpha = 0.35$, complemented by dynamic safety stock calculations ($\text{Safety Stock} = 1.65 \cdot \sigma_{\text{daily}} \cdot \sqrt{\text{Lead Time}}$).
+* **Graph Representation in FalkorDB**:
+  * `(:DemandForecast)`: Stores quarterly demand horizons (e.g. `FC_P4_2026Q2` with 1,450 forecast units, +28.5% growth rate, EV market driver, and 11-day stockout horizon).
+  * `[:COMMITTED_DEMAND]`: Links strategic customers (such as HyperDrive Electric Motors, 550 contracted units) to forecast nodes with \$25,000/hr SLA delay penalty terms.
+
+### 3. How the Autonomous Agent Fuses Both
+When machinery drifts, the Autonomous Control Tower Agent ([`core/agent/runner.py`](core/agent/runner.py)) queries FalkorDB via MCP tools to resolve the conflict:
+1. **Machine M7 (Harmful / Critical Bottleneck)**:
+   * Failure risk is 94% (breakdown in 5 days, 48h RUL).
+   * Graph reveals M7 is the **sole source** for turbine rotor `PT-4` for product `P4`.
+   * Warehouse stock has 400 units, but HyperDrive ordered 550 $\rightarrow$ **150-unit deficit with \$25,000/hr delay penalty**.
+   * Emergency supplier takes 12 days (exceeds the 5-day failure window) $\rightarrow$ Agent prescribes emergency rerouting to standby `M18` (3.5h retool) and air couriering the spare spindle from Munich (8.5h transit).
+2. **Machine M12 (Harmless False Alarm / Noise)**:
+   * Failure risk is 88% (breakdown in 4 days).
+   * Graph reveals sister machine `M13` is an **active redundant producer**, and warehouses hold **2,400 units of buffer stock** (0 shortfall).
+   * The agent **explicitly logs `NO_ACTION_REQUIRED` and clears the alert**, saving thousands in unnecessary line shutdown costs.
+
+### 4. Interactive Natural Language Graph Copilot
+Alongside the autonomous runner, TwinForge provides an interactive conversational copilot ([`core/copilot/service.py`](core/copilot/service.py)):
+* **Conversational Greeting**: Responds to *"Hi"* or pleasantries conversationally in <2ms with contextual operational prompts without querying the database.
+* **Natural Language to Cypher**: Translates operational questions (*"If Machine M7 in Detroit fails, what is the inventory shortfall and hourly penalty for HyperDrive Electric Motors?"*) into exact, read-only Cypher queries executing in **under 40ms** on FalkorDB.
+* **Compound Multi-Query Decomposition**: Decomposes complex multi-part questions into parallel Cypher sub-queries.
+
+---
+
+### 💥 The Relational Dilemma: 9-Table Joins vs. Graph Traversal
+
+In traditional ERPs and relational databases, determining the impact of machine failure requires joining 9 separate tables across disparate silos:
+$$\text{Machines} \bowtie \text{Telemetry} \bowtie \text{Plants} \bowtie \text{BOM\_Parts} \bowtie \text{Products} \bowtie \text{Warehouses} \bowtie \text{Suppliers} \bowtie \text{CustomerOrders} \bowtie \text{CustomerSLAs}$$
+
+These relational queries take seconds, crash under index lockups, or timeout during real-time agent loops.
+
+In **FalkorDB**, this entire multi-echelon network is traversed in a single sub-40ms Cypher query:
+```cypher
+MATCH (m:Machine {id: 'M7'})-[:PRODUCES]->(p:Part)-[:USED_IN]->(prod:Product)-[:STOCKED_AT]->(w:Warehouse)
+OPTIONAL MATCH (c:Customer)-[:PLACED]->(ord:CustomerOrder)-[:CONTAINS_PRODUCT]->(prod)
+RETURN m.name, prod.name, sum(w.capacity), ord.hourly_delay_penalty_usd
+```
 
 ---
 
 ## 🏗️ Knowledge Graph Topology (Live in FalkorDB)
 
-The supply chain graph contains **175 nodes** and **465 relationships**:
+The supply chain graph models over **3,700 nodes** and **6,000 relationships** spanning Detroit, Munich, Austin, and London Cleanroom Semiconductor Foundry facilities:
 
 | Node Label | Count | Real-World Role | Key Properties |
 | :--- | :---: | :--- | :--- |
-| **`Plant`** | 5 | Manufacturing facilities (e.g. Leipzig, Austin, Tokyo) | `id`, `name`, `status`, `capacity_utilization` |
-| **`Machine`** | 20 | Physical shopfloor assets (Robots, CNCs, Press units) | `id`, `name`, `failure_risk`, `predicted_failure_days` |
-| **`Part`** | 30 | Components produced by machines | `id`, `name`, `single_point_of_failure`, `lead_time_days` |
-| **`Product`** | 20 | Finished goods assembled from parts | `id`, `name`, `demand_units`, `shortfall_projected` |
-| **`Warehouse`** | 10 | Regional distribution and buffering centers | `id`, `name`, `inventory_level`, `capacity` |
-| **`Customer`** | 40 | Enterprise buyers with SLA agreements | `id`, `name`, `sla_tier`, `penalty_per_day_late` |
-| **`Supplier`** | 15 | Global parts vendors & backup foundries | `id`, `name`, `lead_time_days`, `expedite_cost_multiplier` |
-| **`Region`** | 3 | Geographic macro-zones (Americas, EMEA, APAC) | `id`, `name` |
-| **`Decision`** | Live | Action records created by the agent | `id`, `type`, `target`, `reason`, `timestamp` |
-
-### Graph Schema
-
-```mermaid
-graph TD
-    Plant["(:Plant)"] -->|:HAS| Machine["(:Machine)"]
-    Machine -->|:PRODUCES| Part["(:Part)"]
-    Supplier["(:Supplier)"] -->|:SUPPLIES {lead_time_days}| Part
-    Supplier -->|:LOCATED_IN| Region["(:Region)"]
-    Supplier <-->|:ALTERNATE_FOR| SupplierAlt["(:Supplier)"]
-    Part -->|:USED_IN {qty_per_unit}| Product["(:Product)"]
-    Product -->|:STOCKED_AT {qty}| Warehouse["(:Warehouse)"]
-    Warehouse -->|:SERVES| Customer["(:Customer)"]
-    Decision["(:Decision {id, type, target, reason, ts})"] -.->|:BASED_ON| Machine
-    Decision -.->|:BASED_ON| Product
-    Decision -.->|:BASED_ON| Part
-    Decision -.->|:BASED_ON| Warehouse
-    Decision -.->|:BASED_ON| Supplier
-    Decision -.->|:BASED_ON| Customer
-```
+| **`Facility`** | 2 | Top-level industrial campuses (Detroit Mechatronics, London Cleanroom) | `id`, `name`, `city`, `total_area_sqm`, `director` |
+| **`Plant`** | 5 | Physical assembly plants & semiconductor fabs | `id`, `name`, `location`, `capacity_utilization` |
+| **`Machine`** | 25+ | Shopfloor assets (CNC units, cleanroom lithography, robotic arms) | `id`, `name`, `failure_risk`, `predicted_failure_days` |
+| **`SensorTelemetry`** | Live | High-frequency IoT condition monitoring streams | `sensor_type`, `vibration_rms_mms`, `bearing_temp_c`, `rul_hours` |
+| **`PdMPrescription`**| Live | Prescriptive maintenance intervention plans | `action_title`, `preventive_cost_usd`, `cost_avoidance_usd` |
+| **`Part`** | 60+ | Precision components, rotors, stators, and single-source alloys | `id`, `name`, `cost`, `single_point_of_failure` |
+| **`Product`** | 20 | Finished industrial systems and turbine modules | `id`, `name`, `forecast_30d`, `safety_stock` |
+| **`DemandForecast`**| Live | Multi-quarter market forecast projections | `period`, `forecast_units`, `growth_rate_pct`, `stockout_risk_level` |
+| **`Warehouse`** | 6 | Regional distribution and buffering centers | `id`, `name`, `location`, `capacity` |
+| **`Customer`** | 40+ | Global buyers (e.g. HyperDrive Electric Motors, Tier-1 OEMs) | `id`, `name`, `tier`, `city` |
+| **`CustomerOrder`** | 100+ | Active purchase orders with delivery SLAs | `order_number`, `units_ordered`, `hourly_delay_penalty_usd` |
+| **`SparePart`** | Live | Critical backup components (KUKA Spindles, bearing kits) | `compatible_machine`, `detroit_stock`, `munich_stock`, `transit_hours` |
+| **`Supplier`** | 15 | Global parts vendors & backup emergency foundries | `id`, `name`, `rating`, `lead_time_days` |
+| **`Decision`** | Live | Audit-proof action records committed by the AI Agent | `id`, `type`, `target`, `reason`, `audit_hash`, `timestamp` |
 
 ---
 
 ## 🛠️ The 7 Cypher-Backed MCP Tools
 
-Implemented in [`mcp_server.py`](mcp_server.py) conforming strictly to the **Model Context Protocol (MCP)**:
+Implemented in [`core/mcp/server.py`](core/mcp/server.py) conforming strictly to the **Model Context Protocol (MCP)**:
 
 ```
-                      ┌───────────────────────────────┐
-                      │    Autonomous AI Agent Loop   │
-                      └───────────────┬───────────────┘
+                      ┌────────────────────────────────┐
+                      │    Autonomous AI Agent Loop    │
+                      └───────────────┬────────────────┘
                                       │ MCP Tool Protocol
                                       ▼
-                      ┌───────────────────────────────┐
-                      │    mcp_server.py (7 Tools)    │
-                      └───────────────┬───────────────┘
-                                      │ Native Cypher
+                      ┌────────────────────────────────┐
+                      │     core/mcp/server.py         │
+                      └───────────────┬────────────────┘
+                                      │ Native Cypher (<40ms)
                                       ▼
-                      ┌───────────────────────────────┐
-                      │      FalkorDB Graph Engine    │
-                      │     (Graph: supply_chain)     │
-                      └───────────────────────────────┘
+                      ┌────────────────────────────────┐
+                      │      FalkorDB Graph Engine     │
+                      │     (Graph: supply_chain)      │
+                      └────────────────────────────────┘
 ```
 
 1. **`at_risk_machines(threshold=0.70)`**: Scans for machines where `m.failure_risk >= threshold`.
@@ -221,111 +187,8 @@ Implemented in [`mcp_server.py`](mcp_server.py) conforming strictly to the **Mod
 3. **`shortfall_check(product_id)`**: Computes numeric inventory gap: `max(0, forecast_30d - total_warehouse_stock)`.
 4. **`single_points_of_failure()`**: Global topological scan for components with `<= 1` supplier or `<= 1` producer.
 5. **`alternate_sources(part_id)`**: Traverses substitute suppliers connected via `[:ALTERNATE_FOR]` ranked by delivery lead time.
-6. **`shortest_path(a_id, b_id)`**: Fast variable-length path traversal explaining dependency chains between disparate entities.
+6. **`shortest_path(a_id, b_id)`**: Fast variable-length path traversal explaining causal dependency chains between disparate entities.
 7. **`schedule_action(type, target_id, reason, evidence_ids)`**: **The only write tool**. Commits a `(:Decision)` node with `[:BASED_ON]` edges to every supporting evidence node.
-
-*See [`queries.md`](queries.md) for full Cypher query explanations and relational multi-join comparisons.*
-
----
-
-## 💬 Natural Language Graph Copilot (NLP ➔ Cypher)
-
-TwinForge includes an interactive **Natural Language Copilot** that allows plant operators, supply chain managers, and judges to query the graph in plain English:
-
-* **Multi-Provider Architecture**:
-  * **Groq Cloud** (`llama-3.3-70b-versatile`): 100% free open model operating at ~500 tokens/sec.
-  * **Google Gemini** (`gemini-2.0-flash`): Free tier via Google AI Studio.
-  * **Built-in Semantic Engine**: Intelligent zero-key fallback running directly in Python (~1.5ms latency).
-* **Full Cypher Traceability**: Every answer includes the exact generated Cypher query, sub-10ms FalkorDB execution latency badge, and grounded entity citations.
-* **Instant Quick-Prompt Chips**: Clickable prompts in the UI for *High Risk Machines*, *M7 Blast Radius*, *Inventory Shortfalls*, *SPOF Parts*, and *Alternate Suppliers*.
-
----
-
-## 🚨 The Autonomous Incident Walkthrough (M7 Crisis Demo)
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Operator as Plant Operator
-    participant UI as TwinForge Dashboard
-    participant Agent as AI Agent Loop
-    participant MCP as MCP Tool Server
-    participant Falkor as FalkorDB Engine
-
-    Note over Falkor,UI: 1. Continuous Observation
-    Falkor->>UI: Stream live telemetry (M7 Vibration: 6.22 mm/s, Risk: 94%)
-    Operator->>UI: Click "Run Agent Analysis" (or triggers automatically)
-
-    Note over UI,Agent: 2. Investigation & Multi-Hop Reasoning
-    UI->>Agent: POST /api/investigate (SSE Stream)
-    Agent->>MCP: check_machine_health("M7")
-    MCP->>Falkor: MATCH (m:Machine {id: "M7"}) RETURN m.failure_risk, m.predicted_days
-    Falkor-->>MCP: {risk: 0.94, predicted_days: 5}
-    MCP-->>Agent: Result returned in 3.2ms
-
-    Agent->>MCP: downstream_impact("M7")
-    MCP->>Falkor: MATCH (m:Machine {id: "M7"})-[:PRODUCES]->(p)-[:USED_IN]->(prod)-[:STOCKED_AT]->(w)-[:SERVES]->(c) RETURN ...
-    Falkor-->>MCP: {part: "PT-4", spof: true, product: "P4", customers: ["ORD-1042"]}
-    MCP-->>Agent: Result returned in 8.1ms
-
-    Agent->>MCP: shortfall_check("P4")
-    MCP->>Falkor: MATCH (p:Product {id: "P4"})-[:STOCKED_AT]->(w) RETURN sum(w.stock)
-    Falkor-->>MCP: {stock: 400, forecast: 1200, shortfall: 800}
-    MCP-->>Agent: Critical Shortfall Confirmed!
-
-    Agent->>MCP: alternate_sources("PT-4")
-    MCP->>Falkor: MATCH (p:Part)-[:SUPPLIES]-(s:Supplier) RETURN s.lead_time_days
-    Falkor-->>MCP: {supplier_lead_time: 12, failure_window: 5} (External supplier too slow!)
-
-    Note over Agent,Falkor: 3. Prescriptive Decision & Graph Lineage
-    Agent->>MCP: schedule_action("reroute_production", "M7", "Reroute to Plant 2 Leipzig", evidence_ids)
-    MCP->>Falkor: CREATE (d:Decision)-[:BASED_ON]->(evidence_nodes)
-    Falkor-->>MCP: Decision DEC_890 committed with 8 evidence edges
-    MCP-->>Agent: Action Scheduled
-    Agent-->>UI: Stream final report & render Vis.js Evidence Subgraph
-    UI-->>Operator: Display "Mitigation Plan Approved & Persisted"
-```
-
-```
-[1. OBSERVE]
-Sensor vibration on robotic arm A-ROB-03 (M7) spikes to 6.22 mm/s (Failure risk: 94%, breakdown in 5 days).
-                    │
-                    ▼
-[2. INVESTIGATE (Graph Traversal)]
-Agent calls `downstream_impact('M7')`:
-• M7 produces Part PT-4 (Precision Rotor).
-• PT-4 is a Single Point of Failure (no other machine at Plant 1 can make it).
-• PT-4 is used exclusively in Product P4 (Smart Turbine Module).
-                    │
-                    ▼
-[3. PREDICT (Inventory Buffer)]
-Agent calls `shortfall_check('P4')`:
-• Total warehouse stock: 400 units.
-• 30-day forecast demand: 1,200 units.
-• Projected Shortfall: 800 units within 23 hours of line stoppage.
-                    │
-                    ▼
-[4. SIMULATE (Alternate Sourcing)]
-Agent calls `alternate_sources('PT-4')`:
-• Emergency Supplier lead time: 12 days. (Exceeds the 5-day machine failure window!)
-• Redundant capacity found at Plant 2 (Leipzig).
-                    │
-                    ▼
-[5. RECOMMEND & APPROVE]
-Prescriptive Plan: Reroute P4 production to Leipzig & schedule emergency bearing swap on M7.
-                    │
-                    ▼
-[6. COMMIT TO GRAPH]
-Agent calls `schedule_action`:
-FalkorDB creates: (:Decision {id: "DEC_...", type: "reroute_production"})
-                     -[:BASED_ON]-> (:Machine {id: "M7"})
-                     -[:BASED_ON]-> (:Part {id: "PT-4"})
-                     -[:BASED_ON]-> (:Product {id: "P4"})
-                     -[:BASED_ON]-> (:Customer {id: "ORD-1042"})
-```
-
-### Contrast Scenario: Machine M12 (Harmless Anomaly)
-Machine **M12** also exhibits high failure risk (**88%**, failure in 4 days). However, multi-hop traversal reveals that its parts have **redundant backup machines (M13)** and Product **P12** holds **2,400 units of buffer stock** against a 520-unit forecast. The agent **explicitly clears M12** and takes no disruptive action, avoiding unnecessary operational expense.
 
 ---
 
@@ -333,8 +196,8 @@ Machine **M12** also exhibits high failure risk (**88%**, failure in 4 days). Ho
 
 | Track 01 Key Focus (From Brief) | How TwinForge Connected Graph Delivers |
 | :--- | :--- |
-| **Multi-hop reasoning** | **6-Hop Traversal**: `(Machine) → (Part) → (Product) → (Warehouse) → (Customer) → (Region)`. Traverses deep dependencies in <10ms. |
-| **Graph queries as agent tools** | **7 Dedicated Cypher Tools**: Health checks, BOM traversal, inventory levels, alternate supplier matching in `mcp_server.py`. |
+| **Multi-hop reasoning** | **6-Hop Traversal**: `(Machine) → (Part) → (Product) → (Warehouse) → (Customer) → (Region)`. Traverses deep dependencies in under 40ms. |
+| **Graph queries as agent tools** | **7 Dedicated Cypher Tools**: Health checks, BOM traversal, inventory levels, alternate supplier matching in `core/mcp/server.py`. |
 | **Tool selection through MCP** | **Model Context Protocol (MCP)**: Native Python MCP server conforming strictly to the standard. |
 | **Actions based on graph context** | **FalkorDB Write Tool (`schedule_action`)**: Agent writes `:Decision` nodes connected directly to graph evidence. |
 | **Explainable results** | **Lineage & Vis.js Subgraph**: The agent renders the mathematical proof graph justifying the mitigation plan. |
@@ -356,16 +219,16 @@ Set the connection variables according to your environment:
 | Variable | Local Docker Default | FalkorDB Cloud Example | Description |
 | :--- | :--- | :--- | :--- |
 | `FALKORDB_HOST` | `localhost` | `cluster-id.falkordb.cloud` | Database server hostname |
-| `FALKORDB_PORT` | `6379` | `6379` | Database connection port |
+| `FALKORDB_PORT` | `6379` | `52047` | Database connection port |
 | `FALKORDB_USERNAME` | *(empty)* | `default` | ACL username (if applicable) |
 | `FALKORDB_PASSWORD` | *(empty)* | `your_cloud_password` | Database authentication token |
 | `FALKORDB_SSL` | `false` | `false` | Enables TLS encryption (false on Free Tier) |
 | `FALKORDB_GRAPH` | `supply_chain` | `supply_chain` | Active graph name |
-| `GEMINI_API_KEY` | *(optional)* | *(optional)* | Google Gemini 2.0 Flash for NL Cypher Copilot |
 | `GROQ_API_KEY` | *(optional)* | *(optional)* | Groq Meta Llama 3.3 70B for NL Cypher Copilot |
+| `GEMINI_API_KEY` | *(optional)* | *(optional)* | Google Gemini 2.0 Flash for NL Cypher Copilot |
 
 > [!NOTE]
-> **No credentials or secrets are committed to this repository**. All secrets are loaded via `python-dotenv` from `.env`, which is ignored by git. Judges and evaluators can connect the agent to their own FalkorDB Cloud or local Docker database in seconds.
+> **No credentials or secrets are committed to this repository**. All secrets are loaded via `python-dotenv` from `.env`, which is ignored by git. Evaluators can connect the agent to their own FalkorDB Cloud or local Docker database in seconds.
 
 ### 2. Verify Database Connectivity
 ```bash
@@ -376,25 +239,20 @@ Pings the target database, runs a `RETURN 1` sanity test, and outputs connection
 ### 3. High-Speed Batched Seeding (`scripts/seed.py`)
 ```bash
 python scripts/seed.py
+python scripts/seed_pdm_and_forecasting.py
 ```
-Fully idempotent: resets the target graph and seeds 175 nodes and 465 edges using Cypher `UNWIND` batch transactions (slashing network latency over Cloud).
+Fully idempotent: seeds nodes, IoT telemetry, demand forecast horizons, and cross-domain relationships using Cypher `UNWIND` batch transactions.
 
 ### 4. Automated Parity Test Suite (`test_scenarios.py`)
 ```bash
 python test_scenarios.py
 ```
-Runs 5 automated regression and parity checks against Cloud/Local FalkorDB:
-- `at_risk_machines` flags M7 (94%) and M12 (88%).
-- `shortfall_check` proves Product P4 has an 800-unit deficit.
-- M12's downstream impact proves 0 shortfall and redundant backup machines (M13).
-- `single_points_of_failure` discovers `PART_SPOF_ALLOY`.
-- `schedule_action` creates a `(:Decision)` node linked to evidence via `[:BASED_ON]` and cleanly self-audits.
-
-### 5. Clean Demo Reset
-```bash
-python scripts/reset_decisions.py
-```
-Deletes all `(:Decision)` nodes from the graph so evaluators can start fresh and demonstrate live autonomous decision commits.
+Runs automated regression and parity checks against Cloud/Local FalkorDB:
+* `at_risk_machines` flags M7 (94%) and M12 (88%).
+* `shortfall_check` proves Product P4 has a critical deficit.
+* M12's downstream impact proves 0 shortfall and redundant backup machines (M13).
+* `single_points_of_failure` discovers `PART_SPOF_ALLOY`.
+* `schedule_action` creates a `(:Decision)` node linked to evidence via `[:BASED_ON]`.
 
 ---
 
@@ -435,15 +293,15 @@ This repository includes a [`Dockerfile`](Dockerfile) (built on `python:3.14-sli
 2. Click **New +** ➔ **Blueprint** (or **Web Service**).
 3. Connect your fork or repository: `https://github.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data`.
 4. Render will detect `render.yaml` and configure the web service:
-   - **Runtime**: Docker (`Dockerfile`)
-   - **Health Check Path**: `/health`
+   * **Runtime**: Docker (`Dockerfile`)
+   * **Health Check Path**: `/health`
 5. In the **Environment Variables** / **Secret Settings** tab, configure:
-   - `FALKORDB_HOST`: your FalkorDB Cloud cluster host
-   - `FALKORDB_PORT`: `6379`
-   - `FALKORDB_PASSWORD`: your FalkorDB Cloud password
-   - `FALKORDB_SSL`: `false`
-   - `FALKORDB_GRAPH`: `supply_chain`
-   - *(Optional)* `GEMINI_API_KEY` or `GROQ_API_KEY`: free LLM keys for the Copilot
+   * `FALKORDB_HOST`: your FalkorDB Cloud cluster host
+   * `FALKORDB_PORT`: `6379` (or cloud port)
+   * `FALKORDB_PASSWORD`: your FalkorDB Cloud password
+   * `FALKORDB_SSL`: `false`
+   * `FALKORDB_GRAPH`: `supply_chain`
+   * *(Optional)* `GROQ_API_KEY`: free LLM key for the Copilot
 6. Click **Apply / Deploy**. The service will build and go live with zero downtime!
 
 ---
@@ -456,8 +314,8 @@ This repository includes a [`Dockerfile`](Dockerfile) (built on `python:3.14-sli
 ├── docker-compose.yml     # Local FalkorDB engine (port 6379) + Web UI (port 3000)
 ├── requirements.txt       # Pinned dependencies (falkordb, mcp, fastapi, uvicorn)
 ├── .env.example           # Documented configuration template (Cloud & Local)
-├── app.py                 # Clean FastAPI entrypoint (~50 lines) mounting core.api routers
-├── test_scenarios.py      # 5/5 automated parity & scenario verification suite
+├── app.py                 # Clean FastAPI entrypoint mounting core.api routers
+├── test_scenarios.py      # Automated parity & scenario verification suite
 ├── core/                  # Modular backend package
 │   ├── db.py              # Unified FalkorDB connection pool with TLS & auto-retry
 │   ├── graph/             # Graph domain logic
@@ -478,11 +336,13 @@ This repository includes a [`Dockerfile`](Dockerfile) (built on `python:3.14-sli
 ├── scripts/               # Operational CLI tools & utilities
 │   ├── check_connection.py # Diagnostic database connectivity test tool
 │   ├── seed.py            # Graph database seeder CLI
+│   ├── seed_pdm_and_forecasting.py # Predictive Maintenance & Demand Forecasting dataset seeder
 │   ├── reset_decisions.py # Clean-slate decision reset utility for live demos
 │   └── run_agent.py       # Terminal runner for autonomous investigation loop
 ├── static/                # Self-contained web frontend (Zero external build dependencies)
 │   ├── index.html         # Complete TwinForge Connected Graph Studio SPA
-│   └── twinforge_connected_graph_walkthrough_demo.mp4 # Direct streamable 3.4-min walkthrough video
+│   ├── twinforge_connected_graph_walkthrough_demo.mp4 # Direct 4-minute demo walkthrough video
+│   └── twinforge_demo.mp4 # Backup demo walkthrough video
 ├── video_build/           # Video synthesis pipeline (edge-tts natural voiceover, Playwright tour)
 ├── queries.md             # Cypher query catalog & SQL multi-join comparison
 └── README.md              # Project overview, architecture, and verification
