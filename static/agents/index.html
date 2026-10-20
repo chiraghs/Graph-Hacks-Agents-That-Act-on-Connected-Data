@@ -326,6 +326,64 @@
 
     <!-- Topbar -->
     <header class="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-canvas/85 px-4 backdrop-blur-md lg:px-6">
+      <!-- Main Facility Filter (Facility Level Unit) -->
+      <div class="relative shrink-0">
+        <button onclick="toggleFacilityDropdown()" id="btn-facility-selector" class="group flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 px-2.5 py-1.5 transition-all text-left shadow-sm hover:border-cyan-400 cursor-pointer">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 font-bold text-xs" id="topbar-facility-icon">
+            🔬
+          </span>
+          <div class="min-w-0 pr-1 hidden sm:block">
+            <div class="text-[9px] uppercase font-bold text-cyan-400 tracking-wider leading-none">Facility (Unit)</div>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span id="topbar-facility-name" class="font-bold text-[12.5px] text-ink truncate max-w-[170px]">London Semiconductor Foundry</span>
+              <svg class="h-3 w-3 shrink-0 text-muted transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+            </div>
+          </div>
+        </button>
+
+        <!-- Facility Dropdown Menu -->
+        <div id="facility-selector-dropdown" class="hidden absolute left-0 mt-2 w-80 sm:w-96 rounded-2xl border border-line-strong bg-shell p-2 shadow-2xl z-50 animate-in fade-in duration-150">
+          <div class="px-2.5 py-2 border-b border-line mb-1.5 flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Select Facility (Unit Level)</span>
+            <span class="text-[10px] text-cyan-400 font-medium">Enterprise Unit</span>
+          </div>
+
+          <!-- London Semiconductor Option -->
+          <button onclick="switchFacility('FACILITY_LONDON')" class="facility-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group cursor-pointer" data-facility-id="FACILITY_LONDON">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 font-bold text-xs">
+                LDN
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-[13px] text-ink truncate">London Semiconductor Foundry</span>
+                  <span class="rounded bg-cyan-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-cyan-400">Class 10</span>
+                </div>
+                <p class="text-[11px] text-muted truncate">London, UK &bull; 2 Lines Leading to 1 Shared Unit Facility</p>
+              </div>
+            </div>
+            <span class="facility-check-icon text-cyan-400 font-bold text-sm" data-fac-check="FACILITY_LONDON">✓</span>
+          </button>
+
+          <!-- Apex Automotive Option -->
+          <button onclick="switchFacility('FACILITY_APEX')" class="facility-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group cursor-pointer" data-facility-id="FACILITY_APEX">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/20 text-amber-500 font-bold text-xs">
+                APX
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-[13px] text-ink truncate">Apex Automotive Network</span>
+                  <span class="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-amber-500">Global</span>
+                </div>
+                <p class="text-[11px] text-muted truncate">Detroit, Munich, Austin &bull; 3 Plants &bull; Powertrain & Robotics</p>
+              </div>
+            </div>
+            <span class="facility-check-icon text-amber-500 font-bold text-sm hidden" data-fac-check="FACILITY_APEX">✓</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Interactive Plant Selector Dropdown -->
       <div class="relative min-w-0 flex-1">
         <button onclick="togglePlantDropdown()" id="btn-plant-selector" class="group flex items-center gap-2.5 rounded-xl border border-line bg-surface/90 hover:bg-surface-2 px-3 py-1.5 transition-all text-left max-w-full shadow-sm hover:border-line-strong">
@@ -336,13 +394,13 @@
           </div>
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">
-              <span id="topbar-plant-name" class="truncate text-[13.5px] font-bold text-ink">Apex Advanced Assembly</span>
-              <span id="topbar-plant-badge" class="shrink-0 rounded bg-amber-500/15 px-1.5 py-0.5 text-[9.5px] font-semibold tracking-wide text-amber-500 border border-amber-500/30 uppercase">Detroit</span>
+              <span id="topbar-plant-name" class="truncate text-[13.5px] font-bold text-ink">London Semiconductor Foundry (Both Lines → 1 Unit Facility)</span>
+              <span id="topbar-plant-badge" class="shrink-0 rounded bg-cyan-500/15 px-1.5 py-0.5 text-[9.5px] font-semibold tracking-wide text-cyan-400 border border-cyan-500/30 uppercase">London Unit</span>
               <svg class="h-3 w-3 shrink-0 text-muted transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </div>
             <p id="topbar-plant-location" class="flex items-center gap-1 truncate text-[11px] text-muted">
               <svg class="h-2.5 w-2.5 inline text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
-              Detroit, USA &bull; High-Volume Precision Milling &bull; 9 Machines
+              London, UK &bull; 2 Lines Leading to 1 Unit Facility &bull; 8 Machines
             </p>
           </div>
         </button>
@@ -350,79 +408,13 @@
         <!-- Dropdown Menu -->
         <div id="plant-selector-dropdown" class="hidden absolute left-0 mt-2 w-80 sm:w-96 rounded-2xl border border-line-strong bg-shell p-2 shadow-2xl z-50 animate-in fade-in duration-150">
           <div class="px-2.5 py-2 border-b border-line mb-1.5 flex items-center justify-between">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Switch Manufacturing Plant</span>
-            <span class="text-[10px] text-accent font-medium">FalkorDB Graph</span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Switch Plant / Line</span>
+            <span class="text-[10px] text-accent font-medium">Plant Level</span>
           </div>
 
-          <!-- Detroit Option -->
-          <button onclick="switchPlant('PLANT_DETROIT')" class="plant-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group" data-plant-id="PLANT_DETROIT">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500 font-bold text-xs">
-                DET
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold text-[13px] text-ink truncate">Apex Advanced Assembly</span>
-                  <span class="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-amber-500">1 Alert</span>
-                </div>
-                <p class="text-[11px] text-muted truncate">Detroit, USA &bull; 9 Machines &bull; Line A (M7 Alert)</p>
-              </div>
-            </div>
-            <span class="plant-check-icon text-accent font-bold text-sm" data-check="PLANT_DETROIT">✓</span>
-          </button>
-
-          <!-- Munich Option -->
-          <button onclick="switchPlant('PLANT_MUNICH')" class="plant-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group" data-plant-id="PLANT_MUNICH">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500 font-bold text-xs">
-                MUC
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold text-[13px] text-ink truncate">Bavaria Mechatronics</span>
-                  <span class="rounded bg-blue-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-blue-500">1 Alert</span>
-                </div>
-                <p class="text-[11px] text-muted truncate">Munich, Germany &bull; 8 Machines &bull; Line B (M12 Backup)</p>
-              </div>
-            </div>
-            <span class="plant-check-icon text-accent font-bold text-sm hidden" data-check="PLANT_MUNICH">✓</span>
-          </button>
-
-          <!-- Austin Option -->
-          <button onclick="switchPlant('PLANT_AUSTIN')" class="plant-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group" data-plant-id="PLANT_AUSTIN">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500 font-bold text-xs">
-                AUS
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold text-[13px] text-ink truncate">Silicon Hill Precision</span>
-                  <span class="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-emerald-500">100% OK</span>
-                </div>
-                <p class="text-[11px] text-muted truncate">Austin, USA &bull; 8 Machines &bull; Line C (Semiconductor)</p>
-              </div>
-            </div>
-            <span class="plant-check-icon text-accent font-bold text-sm hidden" data-check="PLANT_AUSTIN">✓</span>
-          </button>
-
-          <div class="my-1.5 h-px bg-line"></div>
-
-          <!-- All Plants Option -->
-          <button onclick="switchPlant('ALL')" class="plant-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group" data-plant-id="ALL">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-purple-500/10 text-purple-500 font-bold text-xs">
-                ALL
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold text-[13px] text-ink truncate">All Global Facilities (Expand All Plants)</span>
-                  <span class="rounded bg-purple-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-purple-500">Expanded</span>
-                </div>
-                <p class="text-[11px] text-muted truncate">Detroit Line A + Munich Line B + Austin Line C &bull; All Plants Expanded</p>
-              </div>
-            </div>
-            <span class="plant-check-icon text-accent font-bold text-sm hidden" data-check="ALL">✓</span>
-          </button>
+          <div id="plant-options-list" class="space-y-1">
+            <!-- Dynamically populated by renderFacilityPlantsUI -->
+          </div>
         </div>
       </div>
 
@@ -2354,6 +2346,38 @@
         if (healthBar) { healthBar.style.width = "100%"; healthBar.className = "h-full bg-healthy rounded-full"; }
         if (vibEl) vibEl.innerText = "2.60 mm/s";
         if (tempEl) tempEl.innerText = "56.0 \u00B0C";
+      } else if (assetId === 'LDN-UNIT-QC') {
+        if (idEl) idEl.innerText = "LDN-UNIT-QC";
+        if (nameEl) nameEl.innerText = "Unit Final Cleanroom Inspection Bay";
+        if (subEl) subEl.innerText = "London Shared Unit Facility \u2022 Converged Line Alpha & Line Beta \u2022 100% Optical Metrology";
+        if (healthEl) healthEl.innerText = "100";
+        if (healthBar) { healthBar.style.width = "100%"; healthBar.className = "h-full bg-purple-500 rounded-full"; }
+        if (vibEl) vibEl.innerText = "0.02 mm/s";
+        if (tempEl) tempEl.innerText = "20.1 \u00B0C";
+      } else if (assetId === 'LDN-UNIT-DISPATCH') {
+        if (idEl) idEl.innerText = "LDN-UNIT-DISPATCH";
+        if (nameEl) nameEl.innerText = "Airlock Freight Dispatch Bay";
+        if (subEl) subEl.innerText = "Unit Dispatch Bay \u2022 Dry Nitrogen Packaged Outbound Logistics";
+        if (healthEl) healthEl.innerText = "100";
+        if (healthBar) { healthBar.style.width = "100%"; healthBar.className = "h-full bg-emerald-500 rounded-full"; }
+        if (vibEl) vibEl.innerText = "0.05 mm/s";
+        if (tempEl) tempEl.innerText = "21.0 \u00B0C";
+      } else if (assetId === 'LDN_STORES') {
+        if (idEl) idEl.innerText = "LDN_STORES";
+        if (nameEl) nameEl.innerText = "London Clean Infeed Vault";
+        if (subEl) subEl.innerText = "Clean Infeed Storage \u2022 200mm/300mm Ingot Wafers & Gold Wire Spools";
+        if (healthEl) healthEl.innerText = "100";
+        if (healthBar) { healthBar.style.width = "100%"; healthBar.className = "h-full bg-cyan-500 rounded-full"; }
+        if (vibEl) vibEl.innerText = "0.01 mm/s";
+        if (tempEl) tempEl.innerText = "19.5 \u00B0C";
+      } else if (assetId.startsWith('LDN-')) {
+        if (idEl) idEl.innerText = assetId;
+        if (nameEl) nameEl.innerText = assetId;
+        if (subEl) subEl.innerText = "London Semiconductor Foundry \u2022 ISO Class 4 Cleanroom";
+        if (healthEl) healthEl.innerText = "100";
+        if (healthBar) { healthBar.style.width = "100%"; healthBar.className = "h-full bg-healthy rounded-full"; }
+        if (vibEl) vibEl.innerText = "0.12 mm/s";
+        if (tempEl) tempEl.innerText = "21.5 \u00B0C";
       } else {
         if (idEl) idEl.innerText = assetId;
         if (nameEl) nameEl.innerText = assetId;
@@ -2870,7 +2894,8 @@
       },
       'ALL': {
         id: 'ALL',
-        name: 'All Global Facilities (Expanded)',
+        facilityId: 'FACILITY_APEX',
+        name: 'Apex Global Facilities (Expanded)',
         city: 'Global Network (Detroit, Munich, Austin)',
         type: 'Enterprise Connected Graph • 3 Manufacturing Facilities',
         badge: 'All Plants',
@@ -2883,6 +2908,86 @@
         warningCount: 2,
         criticalCount: 0,
         highlightLine: 'all'
+      },
+      // London Semiconductor Foundry Plants (2 Lines Leading to 1 Unit Facility)
+      'PLANT_LONDON_ALL': {
+        id: 'PLANT_LONDON_ALL',
+        facilityId: 'FACILITY_LONDON',
+        name: 'London Semiconductor Foundry (Both Lines → 1 Unit Facility)',
+        city: 'London, United Kingdom (Olympic Tech Park)',
+        type: 'ISO Class 4 Cleanroom • 2 Production Lines → 1 Shared Unit Facility',
+        badge: 'London Unit',
+        badgeColor: 'text-cyan-400 bg-cyan-500/15 border-cyan-500/30',
+        machinesCount: 8,
+        line: 'Line Alpha (Wafer Fab) + Line Beta (Micro-Packaging) → Shared Unit Final Inspection',
+        status: 'HEALTHY',
+        statusText: '100% Nominal Cleanroom Operations',
+        healthyCount: 8,
+        warningCount: 0,
+        criticalCount: 0,
+        highlightLine: 'all'
+      },
+      'PLANT_LONDON_FAB': {
+        id: 'PLANT_LONDON_FAB',
+        facilityId: 'FACILITY_LONDON',
+        name: 'Thames Cleanroom Fab Alpha',
+        city: 'London, United Kingdom',
+        type: 'Plant 1: Front-End Wafer Lithography, CMP & Atomic Layer CVD',
+        badge: 'London Fab Alpha',
+        badgeColor: 'text-blue-400 bg-blue-500/15 border-blue-500/30',
+        machinesCount: 5,
+        line: 'Line Alpha (13.5nm EUV Lithography & DRIE Plasma Etch)',
+        status: 'HEALTHY',
+        statusText: 'ASML 13.5nm EUV Nominal',
+        healthyCount: 5,
+        warningCount: 0,
+        criticalCount: 0,
+        highlightLine: 'fab'
+      },
+      'PLANT_LONDON_PKG': {
+        id: 'PLANT_LONDON_PKG',
+        facilityId: 'FACILITY_LONDON',
+        name: 'Thames Packaging Beta',
+        city: 'London, United Kingdom',
+        type: 'Plant 2: Back-End Picosecond Laser Dicing & Ultrasonic Wire Bonding',
+        badge: 'London Packaging Beta',
+        badgeColor: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30',
+        machinesCount: 5,
+        line: 'Line Beta (Laser Singulation, Die Attach & Cryogenic Seal)',
+        status: 'HEALTHY',
+        statusText: '100% Packaging Yield',
+        healthyCount: 5,
+        warningCount: 0,
+        criticalCount: 0,
+        highlightLine: 'pkg'
+      }
+    };
+
+    // Top-Level Facilities (Units)
+    const FACILITIES_DATA = {
+      'FACILITY_LONDON': {
+        id: 'FACILITY_LONDON',
+        name: 'Thames Nanotech Semiconductor Foundry',
+        shortName: 'London Semiconductor Foundry',
+        city: 'London, United Kingdom (Olympic Tech Park)',
+        badge: 'London • Class 10',
+        badgeColor: 'text-cyan-400 bg-cyan-500/15 border-cyan-500/30',
+        director: 'Prof. Alistair Finch (Director of Nanofabrication)',
+        plants: ['PLANT_LONDON_ALL', 'PLANT_LONDON_FAB', 'PLANT_LONDON_PKG'],
+        defaultPlant: 'PLANT_LONDON_ALL',
+        description: 'ISO Class 4 Cleanroom • 2 Plants Leading to 1 Shared Unit Facility'
+      },
+      'FACILITY_APEX': {
+        id: 'FACILITY_APEX',
+        name: 'Apex Global Manufacturing Network',
+        shortName: 'Apex Automotive Network',
+        city: 'Detroit, MI, USA & Global',
+        badge: 'Global Automotive',
+        badgeColor: 'text-amber-400 bg-amber-500/15 border-amber-500/30',
+        director: 'Marcus Vance (Chief Supply Chain Officer)',
+        plants: ['ALL', 'PLANT_DETROIT', 'PLANT_MUNICH', 'PLANT_AUSTIN'],
+        defaultPlant: 'ALL',
+        description: 'Heavy 5-Axis CNC, SMT Cleanroom & Precision Robotics'
       }
     };
 
@@ -2895,8 +3000,133 @@
     if (_initSvgEl) defaultExpandedSvgHtml = _initSvgEl.innerHTML;
 
     let activeBlueprintSeq = 0;
-    let currentPlantId = localStorage.getItem('twinforge_active_plant') || 'ALL';
+    let currentFacilityId = localStorage.getItem('twinforge_active_facility') || 'FACILITY_LONDON';
+    let currentPlantId = localStorage.getItem('twinforge_active_plant') || 'PLANT_LONDON_ALL';
+    window.currentFacilityId = currentFacilityId;
     window.currentPlantId = currentPlantId;
+
+    function toggleFacilityDropdown() {
+      const dropdown = document.getElementById('facility-selector-dropdown');
+      if (dropdown) dropdown.classList.toggle('hidden');
+    }
+
+    function switchFacility(facilityId, targetPlantOverride) {
+      if (!FACILITIES_DATA[facilityId]) facilityId = 'FACILITY_LONDON';
+      currentFacilityId = facilityId;
+      window.currentFacilityId = facilityId;
+      try {
+        localStorage.setItem('twinforge_active_facility', facilityId);
+      } catch (e) {}
+
+      const fac = FACILITIES_DATA[facilityId];
+
+      // Update Facility Topbar Button
+      const nameEl = document.getElementById('topbar-facility-name');
+      const iconEl = document.getElementById('topbar-facility-icon');
+      if (nameEl) nameEl.innerText = fac.shortName || fac.name;
+      if (iconEl) iconEl.innerText = facilityId === 'FACILITY_LONDON' ? '🔬' : '🏭';
+
+      // Update Facility Dropdown Checkmarks
+      const facChecks = document.querySelectorAll('.facility-check-icon');
+      facChecks.forEach(ic => {
+        if (ic.getAttribute('data-fac-check') === facilityId) {
+          ic.classList.remove('hidden');
+        } else {
+          ic.classList.add('hidden');
+        }
+      });
+      const facBtns = document.querySelectorAll('.facility-option-btn');
+      facBtns.forEach(b => {
+        if (b.getAttribute('data-facility-id') === facilityId) {
+          b.classList.add('bg-surface-2');
+        } else {
+          b.classList.remove('bg-surface-2');
+        }
+      });
+
+      const facDropdown = document.getElementById('facility-selector-dropdown');
+      if (facDropdown) facDropdown.classList.add('hidden');
+
+      // Update Twin View Toolbar Pills and Plant Dropdown for this facility
+      renderFacilityPlantsUI(facilityId);
+
+      // Switch to targeted or default plant of this facility
+      let targetPlant = targetPlantOverride;
+      if (!targetPlant || !fac.plants.includes(targetPlant)) {
+        targetPlant = fac.defaultPlant || fac.plants[0];
+      }
+      switchPlant(targetPlant);
+    }
+
+    function renderFacilityPlantsUI(facilityId) {
+      const fac = FACILITIES_DATA[facilityId];
+      if (!fac) return;
+
+      // 1. Update Toolbar Pills (#twin-plant-pills)
+      const pillsContainer = document.getElementById('twin-plant-pills');
+      if (pillsContainer) {
+        let pillsHtml = '';
+        if (facilityId === 'FACILITY_LONDON') {
+          pillsHtml = `
+            <button onclick="switchPlant('PLANT_LONDON_ALL')" id="pill-plant-PLANT_LONDON_ALL" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-semibold transition-colors bg-surface-3 text-ink shadow-sm cursor-pointer" title="London Facility: 2 Plants Leading to 1 Unit Facility">
+              <svg class="h-3.5 w-3.5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+              <span>🌐 London Unit (2 Lines → 1 Unit Facility)</span>
+            </button>
+            <button onclick="switchPlant('PLANT_LONDON_FAB')" id="pill-plant-PLANT_LONDON_FAB" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink cursor-pointer">
+              <span>🔬 Line Alpha: Wafer Fab</span>
+            </button>
+            <button onclick="switchPlant('PLANT_LONDON_PKG')" id="pill-plant-PLANT_LONDON_PKG" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink cursor-pointer">
+              <span>📦 Line Beta: Micro-Packaging</span>
+            </button>
+          `;
+        } else {
+          pillsHtml = `
+            <button onclick="switchPlant('PLANT_DETROIT')" id="pill-plant-PLANT_DETROIT" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors bg-surface-3 text-ink shadow-sm cursor-pointer">
+              <span>🏭 Detroit (Apex)</span>
+            </button>
+            <button onclick="switchPlant('PLANT_MUNICH')" id="pill-plant-PLANT_MUNICH" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink cursor-pointer">
+              <span>🏭 Munich (Bavaria)</span>
+            </button>
+            <button onclick="switchPlant('PLANT_AUSTIN')" id="pill-plant-PLANT_AUSTIN" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink cursor-pointer">
+              <span>🏭 Austin (Silicon Hill)</span>
+            </button>
+            <button onclick="switchPlant('ALL')" id="pill-plant-ALL" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink cursor-pointer" title="Expand all plants side-by-side">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+              <span>Expand All Plants</span>
+            </button>
+          `;
+        }
+        pillsContainer.innerHTML = pillsHtml;
+      }
+
+      // 2. Update Plant Selector Dropdown List (#plant-options-list)
+      const optionsList = document.getElementById('plant-options-list');
+      if (optionsList) {
+        let optsHtml = '';
+        fac.plants.forEach(pKey => {
+          const p = PLANTS_DATA[pKey];
+          if (!p) return;
+          optsHtml += `
+            <button onclick="switchPlant('${p.id}')" class="plant-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group cursor-pointer" data-plant-id="${p.id}">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent font-bold text-xs">
+                  ${p.badge.substring(0, 3).toUpperCase()}
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold text-[13px] text-ink truncate">${p.name}</span>
+                    <span class="rounded px-1.5 py-0.5 text-[9.5px] font-medium ${p.badgeColor}">${p.badge}</span>
+                  </div>
+                  <p class="text-[11px] text-muted truncate">${p.city} &bull; ${p.machinesCount} Units &bull; ${p.line}</p>
+                </div>
+              </div>
+              <span class="plant-check-icon text-accent font-bold text-sm hidden" data-check="${p.id}">✓</span>
+            </button>
+          `;
+        });
+        optionsList.innerHTML = optsHtml;
+      }
+    }
 
     function togglePlantDropdown() {
       const dropdown = document.getElementById('plant-selector-dropdown');
@@ -2904,7 +3134,7 @@
     }
 
     function switchPlant(plantId) {
-      if (!PLANTS_DATA[plantId]) plantId = 'ALL';
+      if (!PLANTS_DATA[plantId]) plantId = 'PLANT_LONDON_ALL';
       currentPlantId = plantId;
       window.currentPlantId = plantId;
       activeBlueprintSeq++;
@@ -2953,18 +3183,20 @@
       const dropdown = document.getElementById('plant-selector-dropdown');
       if (dropdown) dropdown.classList.add('hidden');
 
-      // 3. Update Twin View Toolbar Pills
-      const plantKeys = ['PLANT_DETROIT', 'PLANT_MUNICH', 'PLANT_AUSTIN', 'ALL'];
-      plantKeys.forEach(key => {
-        const pill = document.getElementById('pill-plant-' + key);
-        if (pill) {
-          if (key === plantId) {
-            pill.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-semibold transition-colors bg-surface-3 text-ink shadow-sm";
-          } else {
-            pill.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink";
+      // 3. Update Twin View Toolbar Pills Active Styling
+      const currentFac = FACILITIES_DATA[p.facilityId || currentFacilityId];
+      if (currentFac) {
+        currentFac.plants.forEach(key => {
+          const pill = document.getElementById('pill-plant-' + key);
+          if (pill) {
+            if (key === plantId) {
+              pill.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-semibold transition-colors bg-surface-3 text-ink shadow-sm cursor-pointer";
+            } else {
+              pill.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink cursor-pointer";
+            }
           }
-        }
-      });
+        });
+      }
 
       // 4. Update Twin Title & Status Counts
       const twinTitle = document.getElementById('twin-page-title');
@@ -3001,7 +3233,7 @@
 
         centerCanvasTopology(true);
       } else {
-        // Single plant: load distinct CAD blueprint layout from SQLite
+        // Load CAD blueprint layout from SQLite (London All, London Fab, London Pkg, Detroit, Munich, Austin)
         loadPlantBlueprint(plantId, currentReqSeq);
       }
 
@@ -3075,6 +3307,9 @@
           const isCrit = node.status === 'CRITICAL' || (node.failure_risk && node.failure_risk >= 0.85);
           const isWarn = node.status === 'WARNING' || (node.failure_risk && node.failure_risk >= 0.50 && node.failure_risk < 0.85);
           const isBackup = node.status === 'BACKUP';
+          const isUnitFacility = node.type === 'UnitFacility';
+          const isDispatch = node.type === 'Dispatch';
+          const isInventory = node.type === 'Inventory';
           
           let borderClass = 'border-line-strong hover:border-accent';
           let statusColor = 'text-healthy';
@@ -3097,6 +3332,24 @@
             statusBg = 'bg-warning';
             statusText = 'Warning';
             barBg = 'bg-warning';
+          } else if (isUnitFacility) {
+            borderClass = 'border-purple-500/80 bg-surface shadow-[0_0_0_3px_rgba(168,85,247,0.25),0_0_24px_-4px_rgba(168,85,247,0.4)] ring-1 ring-purple-500/50';
+            statusColor = 'text-purple-400';
+            statusBg = 'bg-purple-400';
+            statusText = 'Converged';
+            barBg = 'bg-gradient-to-r from-cyan-400 via-purple-500 to-emerald-400';
+          } else if (isDispatch) {
+            borderClass = 'border-emerald-500/70 bg-surface shadow-sm';
+            statusColor = 'text-emerald-400';
+            statusBg = 'bg-emerald-400';
+            statusText = 'Dispatch';
+            barBg = 'bg-emerald-400';
+          } else if (isInventory) {
+            borderClass = 'border-cyan-500/60 bg-surface shadow-sm';
+            statusColor = 'text-cyan-400';
+            statusBg = 'bg-cyan-400';
+            statusText = 'Infeed';
+            barBg = 'bg-cyan-400';
           } else if (isBackup) {
             borderClass = 'border-emerald-500/50 border-dashed bg-surface';
             statusColor = 'text-emerald-400';
@@ -3105,13 +3358,51 @@
             barBg = 'bg-emerald-400';
           }
 
-          const alertBadge = node.alert ? `
-            <span class="absolute -top-2.5 right-2 rounded-md border ${isCrit ? 'border-critical/60 bg-critical/20 text-critical-ink' : 'border-warning/60 bg-warning/20 text-warning-ink'} px-1.5 py-px text-[9.5px] font-semibold tracking-wide uppercase shadow-sm">
-              ${escapeHtml(node.alert)}
-            </span>
-          ` : '';
+          let alertBadge = '';
+          if (node.alert) {
+            alertBadge = `
+              <span class="absolute -top-2.5 right-2 rounded-md border ${isCrit ? 'border-critical/60 bg-critical/20 text-critical-ink' : 'border-warning/60 bg-warning/20 text-warning-ink'} px-1.5 py-px text-[9.5px] font-semibold tracking-wide uppercase shadow-sm">
+                ${escapeHtml(node.alert)}
+              </span>
+            `;
+          } else if (isUnitFacility) {
+            alertBadge = `
+              <span class="absolute -top-2.5 right-2 rounded-md border border-purple-500/60 bg-purple-500/20 text-purple-300 px-1.5 py-px text-[9.5px] font-semibold tracking-wide uppercase shadow-sm">
+                ⚡ Converged Unit
+              </span>
+            `;
+          } else if (isDispatch) {
+            alertBadge = `
+              <span class="absolute -top-2.5 right-2 rounded-md border border-emerald-500/60 bg-emerald-500/20 text-emerald-300 px-1.5 py-px text-[9.5px] font-semibold tracking-wide uppercase shadow-sm">
+                🚢 Airlock Dispatch
+              </span>
+            `;
+          } else if (isInventory) {
+            alertBadge = `
+              <span class="absolute -top-2.5 right-2 rounded-md border border-cyan-500/60 bg-cyan-500/20 text-cyan-300 px-1.5 py-px text-[9.5px] font-semibold tracking-wide uppercase shadow-sm">
+                Vault Infeed
+              </span>
+            `;
+          }
 
           const bayLabel = node.bay ? `<div class="text-[9px] uppercase font-bold text-muted tracking-wider mb-0.5 truncate">${escapeHtml(node.bay)}</div>` : '';
+
+          let metric1 = `〰 ${vib}`;
+          let metric2 = `🌡 ${temp}°`;
+          let metric3 = `⏱ 120/h`;
+          if (isUnitFacility) {
+            metric1 = '🔍 100% Optical';
+            metric2 = '⚡ 2 Lines';
+            metric3 = '✨ ISO-4';
+          } else if (isDispatch) {
+            metric1 = '📦 Outbound';
+            metric2 = '🌡 21.0°';
+            metric3 = '🚛 Active';
+          } else if (isInventory) {
+            metric1 = '💎 200mm Wafers';
+            metric2 = '📦 1,420 kg';
+            metric3 = '🛡 Vault';
+          }
 
           nodesHtml += `
             <div onclick="selectAsset('${node.machine_id || node.id}')"
@@ -3140,9 +3431,9 @@
                     <div class="h-full rounded-full ${barBg}" style="width: ${health}%"></div>
                   </div>
                   <div class="tabular mt-1.5 flex items-center justify-between text-[10px] text-muted font-mono">
-                    <span>〰 ${vib}</span>
-                    <span>🌡 ${temp}°</span>
-                    <span>⏱ 120/h</span>
+                    <span>${metric1}</span>
+                    <span>${metric2}</span>
+                    <span>${metric3}</span>
                   </div>
                 </div>
               </div>
@@ -3153,13 +3444,21 @@
       }
     }
 
-    // Outside click listener to dismiss plant selector dropdown
+    // Outside click listener to dismiss plant & facility selector dropdowns
     window.addEventListener('click', function(e) {
-      const dropdown = document.getElementById('plant-selector-dropdown');
-      const btn = document.getElementById('btn-plant-selector');
-      if (dropdown && !dropdown.classList.contains('hidden')) {
-        if (btn && !btn.contains(e.target) && !dropdown.contains(e.target)) {
-          dropdown.classList.add('hidden');
+      const plantDropdown = document.getElementById('plant-selector-dropdown');
+      const plantBtn = document.getElementById('btn-plant-selector');
+      if (plantDropdown && !plantDropdown.classList.contains('hidden')) {
+        if (plantBtn && !plantBtn.contains(e.target) && !plantDropdown.contains(e.target)) {
+          plantDropdown.classList.add('hidden');
+        }
+      }
+
+      const facDropdown = document.getElementById('facility-selector-dropdown');
+      const facBtn = document.getElementById('btn-facility-selector');
+      if (facDropdown && !facDropdown.classList.contains('hidden')) {
+        if (facBtn && !facBtn.contains(e.target) && !facDropdown.contains(e.target)) {
+          facDropdown.classList.add('hidden');
         }
       }
     });
@@ -3216,7 +3515,7 @@
     const path = (!rawPath || rawPath === 'home' || rawPath === 'index.html') ? 'twin' : rawPath;
     navigatePage(path);
     checkHealth();
-    switchPlant(currentPlantId);
+    switchFacility(currentFacilityId, currentPlantId);
   </script>
 </body>
 </html>
