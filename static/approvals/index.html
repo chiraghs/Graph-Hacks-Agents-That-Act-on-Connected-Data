@@ -2056,6 +2056,12 @@
   </div>
 
   <script>
+    // Live Backend API Routing
+    // When running on the submitted static frontend site, forward API calls to the live Render backend service.
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('graph-hacks-supply-chain-agent'))
+      ? ''
+      : 'https://graph-hacks-supply-chain-agent.onrender.com';
+
     // State management
     let currentView = 'twin';
     let currentTwinMode = 'topology';
@@ -2245,7 +2251,7 @@
       // Query live FalkorDB graph impact & blast radius
       const targetMachineId = (assetId.includes('A-ROB-03') || assetId === 'M7') ? 'M7' : ((assetId.includes('B-ROB-03') || assetId === 'M12') ? 'M12' : null);
       if (targetMachineId) {
-        fetch('/api/simulate/' + targetMachineId)
+        fetch(API_BASE + '/api/simulate/' + targetMachineId)
           .then(r => r.json())
           .then(data => {
             if (data && data.machine) {
@@ -2382,7 +2388,7 @@
       thread.scrollTop = thread.scrollHeight;
 
       try {
-        const resp = await fetch('/api/copilot', {
+        const resp = await fetch(API_BASE + '/api/copilot', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query: query })
@@ -2486,7 +2492,7 @@
       if (badge) badge.classList.remove('hidden');
       if (runBtn) runBtn.disabled = true;
 
-      const evtSource = new EventSource('/api/investigate');
+      const evtSource = new EventSource(API_BASE + '/api/investigate');
       evtSource.onmessage = function(event) {
         if (!event.data) return;
         let msg;
@@ -2598,7 +2604,7 @@
       if (!container) return;
 
       try {
-        const res = await fetch('/api/subgraph');
+        const res = await fetch(API_BASE + '/api/subgraph');
         const data = await res.json();
         if (!data.nodes || !data.nodes.length) {
           container.innerHTML = '<div class="h-full flex items-center justify-center text-muted font-mono text-xs">Run agent investigation to generate evidence nodes.</div>';
@@ -2621,7 +2627,7 @@
     // Prescriptive Decision Approval
     async function approvePrescription(type) {
       try {
-        const res = await fetch('/api/decisions/approve', {
+        const res = await fetch(API_BASE + '/api/decisions/approve', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
@@ -2642,7 +2648,7 @@
     // Reset Demo State in FalkorDB
     async function resetGraphState() {
       try {
-        const res = await fetch('/api/reset', { method: 'POST' });
+        const res = await fetch(API_BASE + '/api/reset', { method: 'POST' });
         const out = await res.json();
         alert('FalkorDB SupplyChain graph reset and re-seeded successfully (' + JSON.stringify(out.counts || out) + ')');
         window.location.reload();
@@ -2670,7 +2676,7 @@
     // Health Check & Live KPIs from FalkorDB
     async function checkHealth() {
       try {
-        const res = await fetch('/api/health');
+        const res = await fetch(API_BASE + '/api/health');
         const data = await res.json();
         const hostEl = document.getElementById('integrations-falkordb-host');
         const envEl = document.getElementById('integrations-env-type');
@@ -2685,7 +2691,7 @@
 
     async function loadKpis() {
       try {
-        const res = await fetch('/api/kpis');
+        const res = await fetch(API_BASE + '/api/kpis');
         const data = await res.json();
         if (data.status === 'online') {
           const atRiskEl = document.getElementById('kpi-machine-risk');
