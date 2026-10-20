@@ -34,14 +34,22 @@ Node Labels & Properties:
 - Region: {id (e.g. REG_NA, REG_EU, REG_EAST_ASIA), name}
 - Facility: {id (e.g. FAC_APEX_DETROIT, FAC_LONDON_THAMES), name, city, facility_type, total_area_sqm}
 - MaintenanceLog: {id, incident_type, action_taken, downtime_minutes, technician, diagnostic_summary, timestamp}
+- SensorTelemetry: {id (e.g. SENSOR_M7_VIB_SPINDLE, SENSOR_M12_HYDRAULIC_FLOW), sensor_type, vibration_rms_mms, vibration_threshold_mms, bearing_temp_c, normal_temp_c, acoustic_emission_db, lubricant_particle_ppm, operating_hours, rul_hours (Remaining Useful Life), health_index, anomaly_status, diagnostic_summary}
+- PdMPrescription: {id (e.g. PDM_PLAN_M7_OVERHAUL, PDM_PLAN_M12_FLUSH), action_title, intervention_window_hours, scheduled_downtime_hours, preventive_cost_usd, catastrophic_breakdown_cost_usd, cost_avoidance_usd, urgency, technician_cert_required, retooling_reroute_target}
+- DemandForecast: {id (e.g. FC_P4_2026Q2, FC_P4_2026Q3, FC_P12_2026Q2), period, forecast_units, confidence_score, ci_lower, ci_upper, growth_rate_pct, market_driver, stockout_risk_level, projected_inventory_shortfall, days_of_supply_remaining, recommended_production_ramp}
 
 Relationship Types:
 - (:Plant)-[:HAS]->(:Machine)
 - (:Machine)-[:PRODUCES]->(:Part)
 - (:Machine)-[:CAPABLE_OF_PRODUCING {retooling_time_hours, daily_output_units, status}]->(:Part)
+- (:Machine)-[:HAS_TELEMETRY]->(:SensorTelemetry)
+- (:Machine)-[:HAS_PDM_PLAN]->(:PdMPrescription)
+- (:PdMPrescription)-[:REQUIRES_SPARE]->(:SparePart)
 - (:Machine)-[:HAS_SPARE_COMPONENT]->(:SparePart)
 - (:Plant)-[:STOCKS_SPARE {units_available}]->(:SparePart)
 - (:Part)-[:USED_IN]->(:Product)
+- (:Product)-[:HAS_FORECAST]->(:DemandForecast)
+- (:Customer)-[:COMMITTED_DEMAND {contract_units, contract_number, priority, penalty_risk, hourly_penalty_usd, delivery_window}]->(:DemandForecast)
 - (:Product)-[:STOCKED_AT {qty}]->(:Warehouse)
 - (:Warehouse)-[:SERVES]->(:Customer)
 - (:Customer)-[:PLACED]->(:CustomerOrder)
@@ -53,6 +61,8 @@ Relationship Types:
 - (:Machine)-[:HAS_MAINTENANCE_EVENT]->(:MaintenanceLog)
 
 Domain Logic Notes:
+- Predictive Maintenance (PdM): Machine M7 has SensorTelemetry showing critical vibration (8.45 mm/s vs 4.5 threshold), high bearing temp (89.4°C), and RUL of only 48 hours due to bearing spalling. Its PdMPrescription (PDM_PLAN_M7_OVERHAUL) recommends scheduled bearing replacement with $140,200 cost avoidance ($4,800 preventive vs $145,000 catastrophic breakdown).
+- Demand Forecasting: Product P4 has DemandForecast FC_P4_2026Q2 with 1,450 forecast units (+28.5% growth from EV Powertrain ramp). With only 400 warehouse units in stock, net projected shortfall is 1,050 units with critical stockout risk in 11 days. Strategic customer CUST_HYPERDRIVE_AUTO has committed demand for 550 units with $25,000/hr penalty exposure.
 - HyperDrive Electric Motors (CUST_HYPERDRIVE_AUTO) is a Customer (NOT a supplier!). They placed CustomerOrder ORD_APEX_CRITICAL_01 (PO-HYPERDRIVE-2026-P4) for 550 units of Product P4 ('P4 Smart Turbine Module').
 - Order ORD_APEX_CRITICAL_01 has: hourly_delay_penalty_usd: 25000.0, sla_hours_remaining: 72, total_value_usd: 1650000.0.
 - Machine M7 ('CNC-Unit-M7') at Plant Detroit has critical failure_risk (0.94) and produces rotor, shaft, and stator parts used in Product P4.
@@ -113,6 +123,7 @@ RULES:
 2. ALWAYS return a valid JSON object matching one of the 3 modes above.
 3. Keep Cypher queries focused and use LIMIT 25 unless aggregating.
 4. Do not include markdown code fences (like ```json), just output raw JSON.
+5. In FalkorDB Cypher, if using UNION, each subquery branch must have the exact identical column alias names. Prefer MATCH with OPTIONAL MATCH rather than UNION when joining disparate paths.
 """
 
 
@@ -225,14 +236,63 @@ def _semantic_engine_single(question: str) -> Tuple[str, str]:
             f"Identifies physical assets with failure risk exceeding {int(threshold*100)}% (health score below {100-int(threshold*100)})."
         )
 
-    # 2. Sensor Alerts & Anomalies
-    if any(k in q for k in ["alert", "anomal", "sensor", "telemetry"]):
+    # 2. Predictive Maintenance, IoT Sensor Telemetry & RUL
+    if any(k in q for k in ["predictive maintenance", "pdm", "telemetry", "vibration", "rul", "remaining useful", "sensor", "bearing temp", "condition monitor"]):
+        if machine_id:
+            return (
+                f"MATCH (m:Machine {{id: '{machine_id}'}})-[:HAS_TELEMETRY]->(t:SensorTelemetry) "
+                f"OPTIONAL MATCH (m)-[:HAS_PDM_PLAN]->(plan:PdMPrescription) "
+                f"OPTIONAL MATCH (plan)-[:REQUIRES_SPARE]->(sp:SparePart) "
+                f"RETURN m.name AS machine, t.sensor_type AS sensor, t.vibration_rms_mms AS vibration_rms, "
+                f"t.bearing_temp_c AS bearing_temp, t.rul_hours AS rul_remaining_hours, t.anomaly_status AS anomaly, "
+                f"t.diagnostic_summary AS diagnostic, plan.action_title AS maintenance_action, "
+                f"plan.preventive_cost_usd AS preventive_cost, plan.catastrophic_breakdown_cost_usd AS breakdown_cost, "
+                f"plan.cost_avoidance_usd AS cost_avoidance, sp.name AS required_spare",
+                f"Retrieves IoT sensor condition monitoring, Remaining Useful Life (RUL), and prescriptive maintenance cost-avoidance plan for Machine {machine_id}."
+            )
         return (
-            "MATCH (m:Machine) WHERE m.failure_risk >= 0.70 OR m.predicted_failure_days <= 10 "
-            "RETURN m.id AS machine_id, m.name AS machine_name, m.failure_risk AS failure_risk, "
-            "m.predicted_failure_days AS breakdown_imminent_days "
-            "ORDER BY m.failure_risk DESC LIMIT 15",
-            "Scans connected shopfloor telemetry for critical vibration anomalies and imminent machine breakdowns."
+            "MATCH (m:Machine)-[:HAS_TELEMETRY]->(t:SensorTelemetry) "
+            "OPTIONAL MATCH (m)-[:HAS_PDM_PLAN]->(plan:PdMPrescription) "
+            "RETURN m.id AS machine_id, m.name AS machine_name, t.anomaly_status AS anomaly_status, "
+            "t.vibration_rms_mms AS vibration_rms, t.bearing_temp_c AS bearing_temp, "
+            "t.rul_hours AS rul_remaining_hours, plan.action_title AS prescription_plan, "
+            "plan.cost_avoidance_usd AS cost_avoidance_usd "
+            "ORDER BY m.failure_risk DESC LIMIT 10",
+            "Monitors real-time IoT vibration, bearing telemetry, Remaining Useful Life (RUL), and prescriptive maintenance plans across fleet machines."
+        )
+
+    # 2.5 Demand Forecasting & Market Projections
+    if any(k in q for k in ["demand forecast", "forecasting", "forecast unit", "growth rate", "market driver", "stockout risk", "committed demand"]):
+        if any(k in q for k in ["commit", "contract"]):
+            return (
+                "MATCH (c:Customer)-[r:COMMITTED_DEMAND]->(fc:DemandForecast)<-[:HAS_FORECAST]-(p:Product) "
+                "RETURN c.name AS customer_name, r.contract_number AS contract, r.contract_units AS committed_units, "
+                "r.priority AS priority, r.penalty_risk AS penalty_risk, r.hourly_penalty_usd AS hourly_penalty_usd, "
+                "fc.period AS forecast_quarter, p.name AS product_name "
+                "ORDER BY r.contract_units DESC LIMIT 10",
+                "Cross-references forward customer contract commitments against quarterly product demand forecasts."
+            )
+        if product_id:
+            return (
+                f"MATCH (p:Product {{id: '{product_id}'}})-[:HAS_FORECAST]->(fc:DemandForecast) "
+                f"OPTIONAL MATCH (p)-[s:STOCKED_AT]->(wh:Warehouse) "
+                f"WITH p, fc, coalesce(sum(s.qty), 0) AS total_stock "
+                f"RETURN p.name AS product, fc.period AS quarter, fc.forecast_units AS forecast_demand, "
+                f"total_stock AS warehouse_stock, (fc.forecast_units - total_stock) AS projected_shortfall, "
+                f"fc.growth_rate_pct AS growth_pct, fc.market_driver AS market_driver, fc.stockout_risk_level AS stockout_risk",
+                f"Evaluates forward demand forecasts, market drivers, and warehouse stockout risk for product {product_id}."
+            )
+        return (
+            "MATCH (p:Product)-[:HAS_FORECAST]->(fc:DemandForecast) "
+            "OPTIONAL MATCH (p)-[s:STOCKED_AT]->(wh:Warehouse) "
+            "WITH p, fc, coalesce(sum(s.qty), 0) AS total_stock "
+            "RETURN p.id AS product_id, p.name AS product_name, fc.period AS forecast_period, "
+            "fc.forecast_units AS forecast_demand, total_stock AS current_warehouse_stock, "
+            "(fc.forecast_units - total_stock) AS projected_shortfall, "
+            "fc.growth_rate_pct AS growth_pct, fc.stockout_risk_level AS stockout_risk, "
+            "fc.market_driver AS market_driver "
+            "ORDER BY projected_shortfall DESC LIMIT 10",
+            "Projects quarterly multi-echelon demand forecasts, market growth drivers, and stockout shortfalls across product lines."
         )
 
     # 3. Suppliers & Location / Risk Rating
