@@ -2404,23 +2404,31 @@
         responseBubble.className = "flex items-start gap-3";
 
         if (data.status === 'success') {
+          const isMulti = data.mode === 'multi' && data.queries && data.queries.length > 1;
+          const cypherHeaderTitle = isMulti
+            ? `BATCHED CYPHER (${data.queries.length} QUERIES)`
+            : `GENERATED CYPHER`;
+          
           const cypherHtml = data.cypher ? `
             <div class="mt-2.5 rounded-lg border border-line-strong bg-deep p-2.5 font-mono text-[11px] overflow-x-auto">
               <div class="flex items-center justify-between text-[10px] text-muted mb-1 pb-1 border-b border-line">
                 <span class="text-accent font-semibold flex items-center gap-1">
                   <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-                  GENERATED CYPHER
+                  ${cypherHeaderTitle}
                 </span>
                 <span class="text-healthy font-semibold">⚡ ${data.falkordb_latency_ms || 1.8}ms on FalkorDB</span>
               </div>
-              <code class="text-ink-2 select-all">${escapeHtml(data.cypher)}</code>
+              <pre class="text-ink-2 select-all whitespace-pre leading-relaxed font-mono text-[11px]">${escapeHtml(data.cypher)}</pre>
             </div>
           ` : '';
 
-          const answerFormatted = escapeHtml(data.answer || data.explanation || '')
+          let answerFormatted = escapeHtml(data.answer || data.explanation || '')
+            .replace(/### (.*?)(?:\n|$)/g, '<div class="mt-3.5 mb-1.5 font-bold text-sm text-ink flex items-center gap-2 border-b border-line pb-1"><span class="h-2 w-2 rounded-full bg-accent"></span>$1</div>')
             .replace(/\*\*(.*?)\*\*/g, '<strong class="text-ink font-semibold">$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em class="text-muted text-xs block mb-1">$1</em>')
             .replace(/• (.*?)(?:\n|$)/g, '<div class="flex items-start gap-1.5 my-1"><span class="text-accent">•</span><span>$1</span></div>')
-            .replace(/\n\n/g, '<br/>');
+            .replace(/\n\n/g, '<br/>')
+            .replace(/\n/g, '<br/>');
 
           responseBubble.innerHTML = `
             <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-agent text-white text-xs font-bold shadow">
@@ -2431,8 +2439,9 @@
                 <span class="flex items-center gap-1 text-agent font-medium">
                   <span class="h-1.5 w-1.5 rounded-full bg-agent"></span>
                   ${escapeHtml(data.provider || 'TwinForge Engine')} &bull; ${escapeHtml(data.model || 'Free Open Model')}
+                  ${isMulti ? '<span class="ml-1 rounded bg-accent/15 px-1.5 py-0.5 text-[9px] font-semibold text-accent">MULTI-QUERY BATCH</span>' : ''}
                 </span>
-                <span>${data.row_count || 0} records matched</span>
+                <span>${data.row_count || 0} records matched (${data.total_latency_ms || 0}ms)</span>
               </div>
               <div class="text-ink leading-relaxed font-sans text-[12.5px]">
                 ${answerFormatted}
