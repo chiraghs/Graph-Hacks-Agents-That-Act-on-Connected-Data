@@ -2068,8 +2068,9 @@
 
     // Navigation Router
     function navigatePage(viewName) {
-      if (viewName === 'connected-graph') viewName = 'twin';
+      if (!viewName || viewName === 'connected-graph' || viewName === 'home' || viewName === 'index.html') viewName = 'twin';
       const views = ['twin', 'dashboard', 'agents', 'simulator', 'approvals', 'audit', 'control-room', 'integrations'];
+      if (!views.includes(viewName)) viewName = 'twin';
       views.forEach(v => {
         const el = document.getElementById('view-' + v);
         const btn = document.getElementById('nav-btn-' + v);
@@ -2701,7 +2702,8 @@
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     updateThemeUI(currentTheme);
 
-    const path = window.location.pathname.replace('/', '') || 'twin';
+    const rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    const path = (!rawPath || rawPath === 'home' || rawPath === 'index.html') ? 'twin' : rawPath;
     navigatePage(path);
     checkHealth();
     loadKpis();
