@@ -1,6 +1,5 @@
-"""core/api/routes_telemetry.py - Health, KPIs, Telemetry & Inventory endpoints."""
-
-from fastapi import APIRouter
+from typing import Optional
+from fastapi import APIRouter, Query
 from core.db import get_graph, get_connection_config
 
 router = APIRouter(tags=["telemetry"])
@@ -31,14 +30,56 @@ async def health_check():
         }
 
 
+@router.get("/api/plants")
+async def get_plants():
+    """Retrieve all manufacturing facilities from FalkorDB with fleet metrics."""
+    try:
+        g = get_graph()
+        cypher = """
+        MATCH (pl:Plant)
+        OPTIONAL MATCH (pl)-[:HAS]->(m:Machine)
+        RETURN pl.id AS id, pl.name AS name, pl.location AS location,
+               count(m) AS machine_count,
+               sum(CASE WHEN m.failure_risk >= 0.70 THEN 1 ELSE 0 END) AS at_risk_count,
+               avg(m.failure_risk) AS avg_risk
+        ORDER BY pl.name
+        """
+        rows = g.query(cypher).result_set
+        plants = []
+        for row in rows:
+            p_id, name, location, m_cnt, risk_cnt, avg_risk = row
+            avg_health = int(round((1.0 - (avg_risk or 0)) * 100))
+            plants.append({
+                "id": p_id,
+                "name": name,
+                "location": location,
+                "machine_count": m_cnt,
+                "at_risk_count": int(risk_cnt or 0),
+                "avg_health": avg_health,
+            })
+        return {"plants": plants}
+    except Exception as e:
+        return {"plants": [], "error": str(e)}
+
+
 @router.get("/api/kpis")
-async def get_kpis():
-    """Retrieve top-level operational supply chain KPIs from FalkorDB."""
+async def get_kpis(plant_id: Optional[str] = Query(None)):
+    """Retrieve top-level operational supply chain KPIs from FalkorDB with optional plant filtering."""
     try:
         g = get_graph()
         
         # At risk machines count
-        risk_res = g.query("MATCH (m:Machine) WHERE m.failure_risk >= 0.70 RETURN count(m)").result_set
+        if plant_id:
+            risk_cypher = "MATCH (pl:Plant {id: $pid})-[:HAS]->(m:Machine) WHERE m.failure_risk >= 0.70 RETURN count(m)"
+            risk_res = g.query(risk_cypher, params={"pid": plant_id}).result_set
+            machine_count_cypher = "MATCH (pl:Plant {id: $pid})-[:HAS]->(m:Machine) RETURN count(m)"
+            m_res = g.query(machine_count_cypher, params={"pid": plant_id}).result_set
+            monitored_machines = m_res[0][0] if m_res else 0
+        else:
+            risk_res = g.query("MATCH (m:Machine) WHERE m.failure_risk >= 0.70 RETURN count(m)").result_set
+            m_res = g.query("MATCH (m:Machine) RETURN count(m)").result_set
+            monitored_machines = m_res[0][0] if m_res else 0
+            
         at_risk_count = risk_res[0][0] if risk_res else 0
 
         # Decisions made
@@ -56,6 +97,8 @@ async def get_kpis():
 
         return {
             "status": "online",
+            "plant_id": plant_id or "ALL",
+            "machines_monitored": monitored_machines,
             "at_risk_machines": at_risk_count,
             "decisions_active": decision_count,
             "products_monitored": prod_count,
@@ -67,17 +110,27 @@ async def get_kpis():
 
 
 @router.get("/api/telemetry")
-async def get_telemetry():
-    """Retrieve all machines with live health, vibration, temperature and risk metrics."""
+async def get_telemetry(plant_id: Optional[str] = Query(None)):
+    """Retrieve machines with live health, vibration, temperature and risk metrics, optionally filtered by plant."""
     try:
         g = get_graph()
-        cypher = """
-        MATCH (pl:Plant)-[:HAS]->(m:Machine)
-        RETURN m.id AS id, m.name AS name, m.failure_risk AS failure_risk,
-               m.predicted_failure_days AS predicted_days, pl.id AS plant_id, pl.name AS plant_name
-        ORDER BY m.failure_risk DESC
-        """
-        rows = g.query(cypher).result_set
+        if plant_id:
+            cypher = """
+            MATCH (pl:Plant {id: $pid})-[:HAS]->(m:Machine)
+            RETURN m.id AS id, m.name AS name, m.failure_risk AS failure_risk,
+                   m.predicted_failure_days AS predicted_days, pl.id AS plant_id, pl.name AS plant_name
+            ORDER BY m.failure_risk DESC
+            """
+            rows = g.query(cypher, params={"pid": plant_id}).result_set
+        else:
+            cypher = """
+            MATCH (pl:Plant)-[:HAS]->(m:Machine)
+            RETURN m.id AS id, m.name AS name, m.failure_risk AS failure_risk,
+                   m.predicted_failure_days AS predicted_days, pl.id AS plant_id, pl.name AS plant_name
+            ORDER BY m.failure_risk DESC
+            """
+            rows = g.query(cypher).result_set
+
         machines = []
         for row in rows:
             m_id, name, risk, days, pl_id, pl_name = row
@@ -93,10 +146,11 @@ async def get_telemetry():
                 "predicted_failure_days": days,
                 "vibration": vibration,
                 "temperature": temperature,
+                "plant_id": pl_id,
                 "plant_name": pl_name,
                 "status": status,
             })
-        return {"machines": machines}
+        return {"machines": machines, "plant_id": plant_id or "ALL"}
     except Exception as e:
         return {"machines": [], "error": str(e)}
 

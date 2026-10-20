@@ -326,15 +326,104 @@
 
     <!-- Topbar -->
     <header class="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-canvas/85 px-4 backdrop-blur-md lg:px-6">
-      <div class="min-w-0 flex-1">
-        <div class="flex items-center gap-2">
-          <h1 class="truncate text-[14px] font-semibold text-ink">Aurora Electronics — Plant 2</h1>
-          <span class="rounded bg-accent/15 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-accent-ink uppercase">Demo</span>
+      <!-- Interactive Plant Selector Dropdown -->
+      <div class="relative min-w-0 flex-1">
+        <button onclick="togglePlantDropdown()" id="btn-plant-selector" class="group flex items-center gap-2.5 rounded-xl border border-line bg-surface/90 hover:bg-surface-2 px-3 py-1.5 transition-all text-left max-w-full shadow-sm hover:border-line-strong">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent group-hover:bg-accent group-hover:text-white transition-colors">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5">
+              <span id="topbar-plant-name" class="truncate text-[13.5px] font-bold text-ink">Apex Advanced Assembly</span>
+              <span id="topbar-plant-badge" class="shrink-0 rounded bg-amber-500/15 px-1.5 py-0.5 text-[9.5px] font-semibold tracking-wide text-amber-500 border border-amber-500/30 uppercase">Detroit</span>
+              <svg class="h-3 w-3 shrink-0 text-muted transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+            </div>
+            <p id="topbar-plant-location" class="flex items-center gap-1 truncate text-[11px] text-muted">
+              <svg class="h-2.5 w-2.5 inline text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+              Detroit, USA &bull; High-Volume Precision Milling &bull; 9 Machines
+            </p>
+          </div>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div id="plant-selector-dropdown" class="hidden absolute left-0 mt-2 w-80 sm:w-96 rounded-2xl border border-line-strong bg-shell p-2 shadow-2xl z-50 animate-in fade-in duration-150">
+          <div class="px-2.5 py-2 border-b border-line mb-1.5 flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Switch Manufacturing Plant</span>
+            <span class="text-[10px] text-accent font-medium">FalkorDB Graph</span>
+          </div>
+
+          <!-- Detroit Option -->
+          <button onclick="switchPlant('PLANT_DETROIT')" class="plant-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group" data-plant-id="PLANT_DETROIT">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500 font-bold text-xs">
+                DET
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-[13px] text-ink truncate">Apex Advanced Assembly</span>
+                  <span class="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-amber-500">1 Alert</span>
+                </div>
+                <p class="text-[11px] text-muted truncate">Detroit, USA &bull; 9 Machines &bull; Line A (M7 Alert)</p>
+              </div>
+            </div>
+            <span class="plant-check-icon text-accent font-bold text-sm" data-check="PLANT_DETROIT">✓</span>
+          </button>
+
+          <!-- Munich Option -->
+          <button onclick="switchPlant('PLANT_MUNICH')" class="plant-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group" data-plant-id="PLANT_MUNICH">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500 font-bold text-xs">
+                MUC
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-[13px] text-ink truncate">Bavaria Mechatronics</span>
+                  <span class="rounded bg-blue-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-blue-500">1 Alert</span>
+                </div>
+                <p class="text-[11px] text-muted truncate">Munich, Germany &bull; 8 Machines &bull; Line B (M12 Backup)</p>
+              </div>
+            </div>
+            <span class="plant-check-icon text-accent font-bold text-sm hidden" data-check="PLANT_MUNICH">✓</span>
+          </button>
+
+          <!-- Austin Option -->
+          <button onclick="switchPlant('PLANT_AUSTIN')" class="plant-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group" data-plant-id="PLANT_AUSTIN">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500 font-bold text-xs">
+                AUS
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-[13px] text-ink truncate">Silicon Hill Precision</span>
+                  <span class="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-emerald-500">100% OK</span>
+                </div>
+                <p class="text-[11px] text-muted truncate">Austin, USA &bull; 8 Machines &bull; Line C (Semiconductor)</p>
+              </div>
+            </div>
+            <span class="plant-check-icon text-accent font-bold text-sm hidden" data-check="PLANT_AUSTIN">✓</span>
+          </button>
+
+          <div class="my-1.5 h-px bg-line"></div>
+
+          <!-- All Plants Option -->
+          <button onclick="switchPlant('ALL')" class="plant-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group" data-plant-id="ALL">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-purple-500/10 text-purple-500 font-bold text-xs">
+                ALL
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-[13px] text-ink truncate">All Global Facilities</span>
+                  <span class="rounded bg-purple-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-purple-500">Fleet</span>
+                </div>
+                <p class="text-[11px] text-muted truncate">25 Machines Across 3 Plants &bull; Global Fleet View</p>
+              </div>
+            </div>
+            <span class="plant-check-icon text-accent font-bold text-sm hidden" data-check="ALL">✓</span>
+          </button>
         </div>
-        <p class="flex items-center gap-1 truncate text-[11.5px] text-muted">
-          <svg class="h-3 w-3 inline text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          Pune, India &bull; High-mix PCB assembly &amp; packaging
-        </p>
       </div>
 
       <!-- Plant Clock -->
@@ -425,8 +514,8 @@
         <!-- Page Title & Header Actions -->
         <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 class="text-xl font-bold tracking-tight text-ink">Connected-Graph — Production Unit</h2>
-            <p class="text-[12.5px] text-muted mt-0.5">Lines, machines, sensors, materials and customer orders, live. Select anything to inspect it; drag to rearrange.</p>
+            <h2 id="twin-page-title" class="text-xl font-bold tracking-tight text-ink">Connected-Graph — Apex Advanced Assembly</h2>
+            <p id="twin-page-subtitle" class="text-[12.5px] text-muted mt-0.5">Detroit, USA &bull; Line A (Precision CNC &amp; Articulated Robotics) &bull; FalkorDB Graph Topology</p>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="openAddAssetModal()" class="flex h-8 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[12.5px] font-medium text-ink-2 hover:bg-surface-2 hover:text-ink transition-colors">
@@ -441,16 +530,32 @@
         </div>
 
         <!-- View Mode Switcher Pill Bar & Layer Toggles -->
-        <div class="mb-3 flex flex-wrap items-center gap-2">
+        <div class="mb-3 flex flex-wrap items-center gap-2.5">
           <!-- View pill -->
           <div class="inline-flex rounded-lg border border-line bg-shell p-0.5">
-            <button onclick="setTwinView('topology')" id="tab-twin-topology" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] bg-surface-3 text-ink font-medium transition-colors">
+            <button onclick="setTwinView('topology')" id="tab-twin-topology" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12px] bg-surface-3 text-ink font-medium transition-colors">
               <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
               <span>Topology</span>
             </button>
-            <button onclick="setTwinView('floor')" id="tab-twin-floor" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] text-muted hover:text-ink transition-colors">
+            <button onclick="setTwinView('floor')" id="tab-twin-floor" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12px] text-muted hover:text-ink transition-colors">
               <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
               <span>Floor plan</span>
+            </button>
+          </div>
+
+          <!-- Plant Switcher Toolbar Pills -->
+          <div class="inline-flex rounded-lg border border-line bg-shell p-0.5" id="twin-plant-pills">
+            <button onclick="switchPlant('PLANT_DETROIT')" id="pill-plant-PLANT_DETROIT" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors bg-surface-3 text-ink shadow-sm">
+              <span>🏭 Detroit (Apex)</span>
+            </button>
+            <button onclick="switchPlant('PLANT_MUNICH')" id="pill-plant-PLANT_MUNICH" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink">
+              <span>🏭 Munich (Bavaria)</span>
+            </button>
+            <button onclick="switchPlant('PLANT_AUSTIN')" id="pill-plant-PLANT_AUSTIN" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink">
+              <span>🏭 Austin (Silicon Hill)</span>
+            </button>
+            <button onclick="switchPlant('ALL')" id="pill-plant-ALL" class="flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink">
+              <span>🌐 All Plants</span>
             </button>
           </div>
 
@@ -462,19 +567,19 @@
           <!-- Status Counts Legend -->
           <div class="ml-auto flex flex-wrap items-center gap-3 text-[11.5px] text-ink-2">
             <span class="flex items-center gap-1">
-              <span class="h-2 w-2 rounded-full bg-healthy"></span> Healthy <span class="font-mono font-semibold text-ink">11</span>
+              <span class="h-2 w-2 rounded-full bg-healthy"></span> Healthy <span id="count-healthy" class="font-mono font-semibold text-ink">8</span>
             </span>
             <span class="flex items-center gap-1">
-              <span class="h-2 w-2 rounded-full bg-warning"></span> Warning <span class="font-mono font-semibold text-ink">1</span>
+              <span class="h-2 w-2 rounded-full bg-warning"></span> Warning <span id="count-warning" class="font-mono font-semibold text-ink">1</span>
             </span>
             <span class="flex items-center gap-1">
-              <span class="h-2 w-2 rounded-full bg-critical"></span> Critical <span class="font-mono font-semibold text-ink">0</span>
+              <span class="h-2 w-2 rounded-full bg-critical"></span> Critical <span id="count-critical" class="font-mono font-semibold text-ink">0</span>
             </span>
             <span class="flex items-center gap-1">
-              <span class="h-2 w-2 rounded-full bg-offline"></span> Offline <span class="font-mono font-semibold text-ink">0</span>
+              <span class="h-2 w-2 rounded-full bg-offline"></span> Offline <span id="count-offline" class="font-mono font-semibold text-ink">0</span>
             </span>
             <span class="flex items-center gap-1">
-              <span class="h-2 w-2 rounded-full bg-maint"></span> Maintenance <span class="font-mono font-semibold text-ink">0</span>
+              <span class="h-2 w-2 rounded-full bg-maint"></span> Maintenance <span id="count-maint" class="font-mono font-semibold text-ink">0</span>
             </span>
           </div>
         </div>
@@ -661,13 +766,14 @@
                 </div>
               </div>
 
-              <!-- Line A Container -->
-              <div class="rounded-2xl border border-line-strong bg-deep/80 pb-4 shadow-xl">
+              <!-- Line A Container (Detroit Plant - Apex) -->
+              <div id="line-container-a" class="rounded-2xl border border-line-strong bg-deep/80 pb-4 shadow-xl transition-all duration-300">
                 <!-- Header -->
                 <div class="flex h-10 items-center justify-between gap-2 px-4 border-b border-line/40">
                   <div class="flex min-w-0 items-center gap-2">
                     <span class="h-2 w-2 rounded-full bg-[#3987e5]"></span>
                     <span class="truncate text-[12px] font-semibold text-ink">Assembly Line A</span>
+                    <span class="truncate text-[10px] font-medium text-amber-500 rounded bg-amber-500/10 px-1 py-0.2">Detroit (Apex)</span>
                     <span class="truncate text-[11px] text-muted">ECU-200</span>
                   </div>
                   <span class="flex items-center gap-1.5 text-[11px] text-muted">
@@ -823,13 +929,14 @@
                 </div>
               </div>
 
-              <!-- Line B Container -->
-              <div class="rounded-2xl border border-line-strong bg-deep/80 pb-4 shadow-xl">
+              <!-- Line B Container (Munich Plant - Bavaria) -->
+              <div id="line-container-b" class="rounded-2xl border border-line-strong bg-deep/80 pb-4 shadow-xl transition-all duration-300">
                 <!-- Header -->
                 <div class="flex h-10 items-center justify-between gap-2 px-4 border-b border-line/40">
                   <div class="flex min-w-0 items-center gap-2">
                     <span class="h-2 w-2 rounded-full bg-[#d95926]"></span>
                     <span class="truncate text-[12px] font-semibold text-ink">Assembly Line B</span>
+                    <span class="truncate text-[10px] font-medium text-blue-500 rounded bg-blue-500/10 px-1 py-0.2">Munich (Bavaria)</span>
                     <span class="truncate text-[11px] text-muted">SH-40</span>
                   </div>
                   <span class="flex items-center gap-1.5 text-[11px] text-muted">
@@ -976,13 +1083,14 @@
                 </div>
               </div>
 
-              <!-- Line C Container (Vertical Column) -->
-              <div class="rounded-2xl border border-line-strong bg-deep/80 pb-4 shadow-xl">
+              <!-- Line C Container (Austin Plant - Silicon Hill) -->
+              <div id="line-container-c" class="rounded-2xl border border-line-strong bg-deep/80 pb-4 shadow-xl transition-all duration-300">
                 <!-- Header -->
                 <div class="flex h-10 items-center justify-between gap-2 px-4 border-b border-line/40">
                   <div class="flex min-w-0 items-center gap-2">
                     <span class="h-2 w-2 rounded-full bg-[#199e70]"></span>
                     <span class="truncate text-[12px] font-semibold text-ink">Pkg Line C</span>
+                    <span class="truncate text-[10px] font-medium text-emerald-500 rounded bg-emerald-500/10 px-1 py-0.2">Austin (Silicon Hill)</span>
                   </div>
                   <span class="flex items-center gap-1 text-[11px] font-medium text-healthy">
                     <span class="h-1.5 w-1.5 rounded-full bg-healthy"></span>
@@ -1566,8 +1674,8 @@
         <!-- Dashboard Header -->
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-xl font-bold tracking-tight text-ink">Factory Command Center</h2>
-            <p class="text-[12.5px] text-muted mt-0.5">Live overview of Aurora Electronics — Plant 2: production, machine health, energy, quality, materials and deliveries in one place.</p>
+            <h2 id="dashboard-plant-title" class="text-xl font-bold tracking-tight text-ink">Apex Advanced Assembly — Command Center</h2>
+            <p id="dashboard-plant-subtitle" class="text-[12.5px] text-muted mt-0.5">Live overview of Detroit Facility: production, machine health, energy, quality, materials and deliveries in one place.</p>
           </div>
           <div class="flex gap-2">
             <button onclick="navigatePage('twin')" class="rounded-lg border border-line bg-surface px-3 py-1.5 text-[12.5px] font-medium text-ink-2 hover:bg-surface-2 hover:text-ink transition-colors">
@@ -2698,9 +2806,218 @@
       }
     }
 
-    async function loadKpis() {
+    // =========================================================================
+    // PLANT SWITCHER & MULTI-FACILITY FLEET MANAGER
+    // Synchronized with FalkorDB Graph Topology: PLANT_DETROIT, PLANT_MUNICH, PLANT_AUSTIN
+    // =========================================================================
+    const PLANTS_DATA = {
+      'PLANT_DETROIT': {
+        id: 'PLANT_DETROIT',
+        name: 'Apex Advanced Assembly',
+        city: 'Detroit, USA',
+        type: 'High-Volume Precision Milling & Final Assembly',
+        badge: 'Detroit',
+        badgeColor: 'text-amber-500 bg-amber-500/15 border-amber-500/30',
+        machinesCount: 9,
+        line: 'Line A (Precision CNC & Articulated Robotics)',
+        status: 'WARNING',
+        statusText: '1 Machine Alert (M7)',
+        healthyCount: 8,
+        warningCount: 1,
+        criticalCount: 0,
+        highlightLine: 'a'
+      },
+      'PLANT_MUNICH': {
+        id: 'PLANT_MUNICH',
+        name: 'Bavaria Mechatronics',
+        city: 'Munich, Germany',
+        type: 'Mechatronic Drives, Cryogenic Valves & Sensor Integration',
+        badge: 'Munich',
+        badgeColor: 'text-blue-500 bg-blue-500/15 border-blue-500/30',
+        machinesCount: 8,
+        line: 'Line B (Mechatronics & Automated Stamping)',
+        status: 'WARNING',
+        statusText: '1 Machine Alert (M12 Backup Online)',
+        healthyCount: 7,
+        warningCount: 1,
+        criticalCount: 0,
+        highlightLine: 'b'
+      },
+      'PLANT_AUSTIN': {
+        id: 'PLANT_AUSTIN',
+        name: 'Silicon Hill Precision',
+        city: 'Austin, USA',
+        type: 'Semiconductor Tooling, Micro-Machining & Cleanroom Systems',
+        badge: 'Austin',
+        badgeColor: 'text-emerald-500 bg-emerald-500/15 border-emerald-500/30',
+        machinesCount: 8,
+        line: 'Line C (Semiconductor Tooling & Cleanroom Machining)',
+        status: 'HEALTHY',
+        statusText: '100% Nominal Operations',
+        healthyCount: 8,
+        warningCount: 0,
+        criticalCount: 0,
+        highlightLine: 'c'
+      },
+      'ALL': {
+        id: 'ALL',
+        name: 'All Global Facilities',
+        city: 'Global Network (Detroit, Munich, Austin)',
+        type: 'Enterprise Connected Graph • 3 Manufacturing Facilities',
+        badge: 'Global Fleet',
+        badgeColor: 'text-purple-500 bg-purple-500/15 border-purple-500/30',
+        machinesCount: 25,
+        line: 'All Production Lines (Line A, Line B, Line C)',
+        status: 'WARNING',
+        statusText: '2 Flagged Assets Across Fleet',
+        healthyCount: 23,
+        warningCount: 2,
+        criticalCount: 0,
+        highlightLine: 'all'
+      }
+    };
+
+    let currentPlantId = localStorage.getItem('twinforge_active_plant') || 'PLANT_DETROIT';
+    window.currentPlantId = currentPlantId;
+
+    function togglePlantDropdown() {
+      const dropdown = document.getElementById('plant-selector-dropdown');
+      if (dropdown) dropdown.classList.toggle('hidden');
+    }
+
+    function switchPlant(plantId) {
+      if (!PLANTS_DATA[plantId]) plantId = 'PLANT_DETROIT';
+      currentPlantId = plantId;
+      window.currentPlantId = plantId;
       try {
-        const res = await fetch(API_BASE + '/api/kpis');
+        localStorage.setItem('twinforge_active_plant', plantId);
+      } catch (e) {}
+
+      const p = PLANTS_DATA[plantId];
+
+      // 1. Update Topbar Header
+      const nameEl = document.getElementById('topbar-plant-name');
+      const badgeEl = document.getElementById('topbar-plant-badge');
+      const locEl = document.getElementById('topbar-plant-location');
+      if (nameEl) nameEl.innerText = p.name;
+      if (badgeEl) {
+        badgeEl.innerText = p.badge;
+        badgeEl.className = `shrink-0 rounded px-1.5 py-0.5 text-[9.5px] font-semibold tracking-wide border uppercase ${p.badgeColor}`;
+      }
+      if (locEl) {
+        locEl.innerHTML = `
+          <svg class="h-2.5 w-2.5 inline text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+          ${p.city} &bull; ${p.type} &bull; ${p.machinesCount} Machines
+        `;
+      }
+
+      // 2. Update Topbar Dropdown Active Checks
+      const checkIcons = document.querySelectorAll('.plant-check-icon');
+      checkIcons.forEach(ic => {
+        if (ic.getAttribute('data-check') === plantId) {
+          ic.classList.remove('hidden');
+        } else {
+          ic.classList.add('hidden');
+        }
+      });
+      const optionBtns = document.querySelectorAll('.plant-option-btn');
+      optionBtns.forEach(btn => {
+        if (btn.getAttribute('data-plant-id') === plantId) {
+          btn.classList.add('bg-surface-2');
+        } else {
+          btn.classList.remove('bg-surface-2');
+        }
+      });
+
+      // Close dropdown
+      const dropdown = document.getElementById('plant-selector-dropdown');
+      if (dropdown) dropdown.classList.add('hidden');
+
+      // 3. Update Twin View Toolbar Pills
+      const plantKeys = ['PLANT_DETROIT', 'PLANT_MUNICH', 'PLANT_AUSTIN', 'ALL'];
+      plantKeys.forEach(key => {
+        const pill = document.getElementById('pill-plant-' + key);
+        if (pill) {
+          if (key === plantId) {
+            pill.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-semibold transition-colors bg-surface-3 text-ink shadow-sm";
+          } else {
+            pill.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium transition-colors text-muted hover:text-ink";
+          }
+        }
+      });
+
+      // 4. Update Twin Title & Status Counts
+      const twinTitle = document.getElementById('twin-page-title');
+      const twinSub = document.getElementById('twin-page-subtitle');
+      if (twinTitle) twinTitle.innerText = `Connected-Graph — ${p.name}`;
+      if (twinSub) twinSub.innerHTML = `${p.city} &bull; ${p.line} &bull; FalkorDB Graph Topology`;
+
+      const cntHealthy = document.getElementById('count-healthy');
+      const cntWarning = document.getElementById('count-warning');
+      const cntCritical = document.getElementById('count-critical');
+      if (cntHealthy) cntHealthy.innerText = p.healthyCount;
+      if (cntWarning) cntWarning.innerText = p.warningCount;
+      if (cntCritical) cntCritical.innerText = p.criticalCount;
+
+      // 5. Visual focus in Topology Canvas
+      const lineA = document.getElementById('line-container-a');
+      const lineB = document.getElementById('line-container-b');
+      const lineC = document.getElementById('line-container-c');
+      if (lineA && lineB && lineC) {
+        if (p.highlightLine === 'a') {
+          lineA.classList.remove('opacity-40');
+          lineA.classList.add('ring-2', 'ring-amber-500/40');
+          lineB.classList.add('opacity-40');
+          lineB.classList.remove('ring-2', 'ring-blue-500/40');
+          lineC.classList.add('opacity-40');
+          lineC.classList.remove('ring-2', 'ring-emerald-500/40');
+        } else if (p.highlightLine === 'b') {
+          lineA.classList.add('opacity-40');
+          lineA.classList.remove('ring-2', 'ring-amber-500/40');
+          lineB.classList.remove('opacity-40');
+          lineB.classList.add('ring-2', 'ring-blue-500/40');
+          lineC.classList.add('opacity-40');
+          lineC.classList.remove('ring-2', 'ring-emerald-500/40');
+        } else if (p.highlightLine === 'c') {
+          lineA.classList.add('opacity-40');
+          lineA.classList.remove('ring-2', 'ring-amber-500/40');
+          lineB.classList.add('opacity-40');
+          lineB.classList.remove('ring-2', 'ring-blue-500/40');
+          lineC.classList.remove('opacity-40');
+          lineC.classList.add('ring-2', 'ring-emerald-500/40');
+        } else {
+          lineA.classList.remove('opacity-40', 'ring-2', 'ring-amber-500/40');
+          lineB.classList.remove('opacity-40', 'ring-2', 'ring-blue-500/40');
+          lineC.classList.remove('opacity-40', 'ring-2', 'ring-emerald-500/40');
+        }
+      }
+
+      // 6. Update Dashboard
+      const dashTitle = document.getElementById('dashboard-plant-title');
+      const dashSub = document.getElementById('dashboard-plant-subtitle');
+      if (dashTitle) dashTitle.innerText = `${p.name} — Command Center`;
+      if (dashSub) dashSub.innerText = `Live overview of ${p.name} (${p.city}): production, machine health, and materials in one place.`;
+
+      // 7. Load Filtered KPIs
+      loadKpis(plantId);
+    }
+
+    // Outside click listener to dismiss plant selector dropdown
+    window.addEventListener('click', function(e) {
+      const dropdown = document.getElementById('plant-selector-dropdown');
+      const btn = document.getElementById('btn-plant-selector');
+      if (dropdown && !dropdown.classList.contains('hidden')) {
+        if (btn && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.classList.add('hidden');
+        }
+      }
+    });
+
+    async function loadKpis(plantId) {
+      try {
+        const targetPlant = plantId !== undefined ? plantId : (window.currentPlantId || 'PLANT_DETROIT');
+        const queryParam = (targetPlant && targetPlant !== 'ALL') ? `?plant_id=${targetPlant}` : '';
+        const res = await fetch(API_BASE + '/api/kpis' + queryParam);
         const data = await res.json();
         if (data.status === 'online') {
           const atRiskEl = document.getElementById('kpi-machine-risk');
@@ -2712,8 +3029,6 @@
         console.error('loadKpis error:', e);
       }
     }
-
-
 
     // Theme Manager (Light default, persistent in localStorage)
     const THEME_KEY = "twinforge-connected-graph-theme";
@@ -2742,7 +3057,7 @@
       updateThemeUI(next);
     }
 
-    // Handle initial route & theme
+    // Handle initial route, plant & theme
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     updateThemeUI(currentTheme);
 
@@ -2753,7 +3068,7 @@
       setTimeout(() => centerCanvasTopology(true), 60);
     }
     checkHealth();
-    loadKpis();
+    switchPlant(currentPlantId);
   </script>
 </body>
 </html>
