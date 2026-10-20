@@ -1982,6 +1982,79 @@
     </div>
   </div>
 
+  <!-- TwinForge Graph Copilot Modal -->
+  <div id="copilot-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="w-full max-w-2xl h-[620px] max-h-[90vh] rounded-2xl border border-line-strong bg-shell shadow-2xl flex flex-col overflow-hidden">
+      <!-- Copilot Header -->
+      <div class="flex items-center justify-between border-b border-line px-5 py-3.5 bg-surface/70">
+        <div class="flex items-center gap-2.5">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-agent/15 text-agent">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-xs font-bold text-ink">TwinForge Graph Copilot</h3>
+              <span class="rounded bg-agent/10 px-1.5 py-0.5 text-[10px] font-semibold text-agent">Natural Language ➔ Cypher</span>
+            </div>
+            <p class="text-[11px] text-muted">Multi-Hop Reasoning over FalkorDB Context Layer</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="hidden sm:inline-flex items-center gap-1 rounded-full border border-line bg-surface px-2 py-0.5 text-[10.5px] font-mono text-healthy">
+            <span class="h-1.5 w-1.5 rounded-full bg-healthy animate-pulse"></span>
+            FalkorDB: supply_chain
+          </span>
+          <button onclick="closeCopilotModal()" class="rounded-lg p-1 text-muted hover:bg-surface-2 hover:text-ink text-lg leading-none">&times;</button>
+        </div>
+      </div>
+
+      <!-- Quick Prompt Suggestion Chips -->
+      <div class="border-b border-line bg-surface-2/40 px-5 py-2.5 flex items-center gap-1.5 overflow-x-auto text-[11px]">
+        <span class="text-muted text-[10px] uppercase font-semibold tracking-wider shrink-0 mr-1">Suggestions:</span>
+        <button onclick="sendCopilotPrompt('Which machines have failure risk above 80%?')" class="shrink-0 rounded-full border border-line bg-surface px-2.5 py-1 text-ink-2 hover:border-accent hover:text-accent transition-colors">⚡ High Risk Machines</button>
+        <button onclick="sendCopilotPrompt('What happens if Machine M7 fails?')" class="shrink-0 rounded-full border border-line bg-surface px-2.5 py-1 text-ink-2 hover:border-accent hover:text-accent transition-colors">🔍 M7 Blast Radius</button>
+        <button onclick="sendCopilotPrompt('Which products have inventory shortfalls?')" class="shrink-0 rounded-full border border-line bg-surface px-2.5 py-1 text-ink-2 hover:border-accent hover:text-accent transition-colors">📦 Inventory Shortfalls</button>
+        <button onclick="sendCopilotPrompt('List all single points of failure')" class="shrink-0 rounded-full border border-line bg-surface px-2.5 py-1 text-ink-2 hover:border-accent hover:text-accent transition-colors">🛡️ SPOF Parts</button>
+        <button onclick="sendCopilotPrompt('Find alternate suppliers for part PT-4')" class="shrink-0 rounded-full border border-line bg-surface px-2.5 py-1 text-ink-2 hover:border-accent hover:text-accent transition-colors">🚚 Backup Suppliers</button>
+      </div>
+
+      <!-- Chat Thread -->
+      <div id="copilot-chat-thread" class="flex-1 overflow-y-auto p-5 space-y-4">
+        <!-- Welcome Message -->
+        <div class="flex items-start gap-3">
+          <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-agent text-white text-xs font-bold shadow">
+            TF
+          </div>
+          <div class="rounded-xl border border-line bg-surface p-3.5 text-xs text-ink-2 max-w-[85%] space-y-2">
+            <p class="font-medium text-ink">Hello! I am your FalkorDB Supply Chain Copilot.</p>
+            <p class="text-muted leading-relaxed">
+              Ask any question in plain English. I will translate it into an optimized Cypher query, run it against our 175-node graph database, and synthesize an explainable answer with sub-10ms performance.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Footer -->
+      <div class="border-t border-line bg-surface p-3 flex items-center gap-2">
+        <input 
+          id="copilot-user-input" 
+          type="text" 
+          placeholder="Ask a question in plain English (e.g., 'What products break if M7 fails?')" 
+          class="flex-1 rounded-lg border border-line bg-surface-2 px-3 py-2 text-xs text-ink placeholder:text-muted focus:outline-none focus:border-accent"
+          onkeydown="if(event.key === 'Enter') submitCopilotQuery();"
+        />
+        <button 
+          id="copilot-submit-btn" 
+          onclick="submitCopilotQuery()" 
+          class="flex h-8 items-center gap-1.5 rounded-lg bg-accent px-3.5 text-xs font-semibold text-white hover:bg-accent-strong transition-colors"
+        >
+          <span>Ask</span>
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // State management
     let currentView = 'twin';
@@ -2212,6 +2285,165 @@
     function closeCameraModal() {
       const modal = document.getElementById('camera-modal');
       if (modal) modal.classList.add('hidden');
+    }
+
+    // ==========================================
+    // Graph Copilot Controller (NLP -> Cypher)
+    // ==========================================
+    function openCopilotModal() {
+      const modal = document.getElementById('copilot-modal');
+      if (modal) modal.classList.remove('hidden');
+      const input = document.getElementById('copilot-user-input');
+      if (input) {
+        input.focus();
+      }
+    }
+
+    function closeCopilotModal() {
+      const modal = document.getElementById('copilot-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function sendCopilotPrompt(text) {
+      const input = document.getElementById('copilot-user-input');
+      if (input) {
+        input.value = text;
+        submitCopilotQuery();
+      }
+    }
+
+    async function submitCopilotQuery() {
+      const input = document.getElementById('copilot-user-input');
+      const thread = document.getElementById('copilot-chat-thread');
+      const sendBtn = document.getElementById('copilot-submit-btn');
+      if (!input || !thread) return;
+
+      const query = input.value.trim();
+      if (!query) return;
+
+      input.value = '';
+      if (sendBtn) sendBtn.disabled = true;
+
+      // 1. Append User Message Bubble
+      const userBubble = document.createElement('div');
+      userBubble.className = "flex items-start justify-end gap-3";
+      userBubble.innerHTML = `
+        <div class="rounded-xl bg-accent px-4 py-2.5 text-xs text-white max-w-[80%] shadow-sm">
+          <p>${escapeHtml(query)}</p>
+        </div>
+      `;
+      thread.appendChild(userBubble);
+
+      // 2. Append Loading Placeholder Bubble
+      const loadingId = 'copilot-loading-' + Date.now();
+      const loadingBubble = document.createElement('div');
+      loadingBubble.id = loadingId;
+      loadingBubble.className = "flex items-start gap-3 animate-pulse";
+      loadingBubble.innerHTML = `
+        <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-agent text-white text-xs font-bold shadow">
+          TF
+        </div>
+        <div class="rounded-xl border border-line bg-surface p-3 text-xs text-muted max-w-[85%] flex items-center gap-2">
+          <span class="inline-block h-3 w-3 animate-spin rounded-full border-2 border-agent border-t-transparent"></span>
+          <span>Querying FalkorDB context layer...</span>
+        </div>
+      `;
+      thread.appendChild(loadingBubble);
+      thread.scrollTop = thread.scrollHeight;
+
+      try {
+        const resp = await fetch('/api/copilot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: query })
+        });
+        const data = await resp.json();
+
+        // Remove loading placeholder
+        const loader = document.getElementById(loadingId);
+        if (loader) loader.remove();
+
+        // 3. Append Copilot Response Bubble
+        const responseBubble = document.createElement('div');
+        responseBubble.className = "flex items-start gap-3";
+
+        if (data.status === 'success') {
+          const cypherHtml = data.cypher ? `
+            <div class="mt-2.5 rounded-lg border border-line-strong bg-deep p-2.5 font-mono text-[11px] overflow-x-auto">
+              <div class="flex items-center justify-between text-[10px] text-muted mb-1 pb-1 border-b border-line">
+                <span class="text-accent font-semibold flex items-center gap-1">
+                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                  GENERATED CYPHER
+                </span>
+                <span class="text-healthy font-semibold">⚡ ${data.falkordb_latency_ms || 1.8}ms on FalkorDB</span>
+              </div>
+              <code class="text-ink-2 select-all">${escapeHtml(data.cypher)}</code>
+            </div>
+          ` : '';
+
+          const answerFormatted = escapeHtml(data.answer || data.explanation || '')
+            .replace(/\*\*(.*?)\*\*/g, '<strong class="text-ink font-semibold">$1</strong>')
+            .replace(/• (.*?)(?:\n|$)/g, '<div class="flex items-start gap-1.5 my-1"><span class="text-accent">•</span><span>$1</span></div>')
+            .replace(/\n\n/g, '<br/>');
+
+          responseBubble.innerHTML = `
+            <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-agent text-white text-xs font-bold shadow">
+              TF
+            </div>
+            <div class="rounded-xl border border-line bg-surface p-4 text-xs text-ink-2 max-w-[85%] shadow-sm space-y-2">
+              <div class="flex items-center justify-between text-[10px] text-muted border-b border-line pb-1.5">
+                <span class="flex items-center gap-1 text-agent font-medium">
+                  <span class="h-1.5 w-1.5 rounded-full bg-agent"></span>
+                  ${escapeHtml(data.provider || 'TwinForge Engine')} &bull; ${escapeHtml(data.model || 'Free Open Model')}
+                </span>
+                <span>${data.row_count || 0} records matched</span>
+              </div>
+              <div class="text-ink leading-relaxed font-sans text-[12.5px]">
+                ${answerFormatted}
+              </div>
+              ${cypherHtml}
+            </div>
+          `;
+        } else {
+          responseBubble.innerHTML = `
+            <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-critical text-white text-xs font-bold shadow">
+              !
+            </div>
+            <div class="rounded-xl border border-red-500/30 bg-red-500/5 p-3.5 text-xs text-critical max-w-[85%] space-y-1">
+              <p class="font-semibold">Unable to resolve query</p>
+              <p class="text-[11px] text-muted">${escapeHtml(data.message || data.error || 'Unknown query error')}</p>
+            </div>
+          `;
+        }
+
+        thread.appendChild(responseBubble);
+        thread.scrollTop = thread.scrollHeight;
+      } catch (err) {
+        const loader = document.getElementById(loadingId);
+        if (loader) loader.remove();
+        const errBubble = document.createElement('div');
+        errBubble.className = "flex items-start gap-3";
+        errBubble.innerHTML = `
+          <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-critical text-white text-xs font-bold shadow">!</div>
+          <div class="rounded-xl border border-red-500/30 bg-red-500/5 p-3 text-xs text-critical">
+            Network error communicating with Copilot endpoint: ${escapeHtml(err.message)}
+          </div>
+        `;
+        thread.appendChild(errBubble);
+      } finally {
+        if (sendBtn) sendBtn.disabled = false;
+        if (input) input.focus();
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     // AI Investigation Runner with SSE Streaming

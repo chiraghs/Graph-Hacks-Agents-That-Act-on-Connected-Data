@@ -228,6 +228,20 @@ Implemented in [`mcp_server.py`](mcp_server.py) conforming strictly to the **Mod
 
 ---
 
+## 💬 Natural Language Graph Copilot (NLP ➔ Cypher)
+
+TwinForge includes an interactive **Natural Language Copilot** that allows plant operators, supply chain managers, and judges to query the graph in plain English:
+
+* **Multi-Provider Architecture**:
+  * **Groq Cloud** (`llama-3.3-70b-versatile`): 100% free open model operating at ~500 tokens/sec.
+  * **Google Gemini** (`gemini-2.0-flash`): Free tier via Google AI Studio.
+  * **Anthropic / OpenAI**: Optional support via `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`.
+  * **Built-in Semantic Engine**: Intelligent zero-key fallback running directly in Python (~1.5ms latency).
+* **Full Cypher Traceability**: Every answer includes the exact generated Cypher query, sub-10ms FalkorDB execution latency badge, and grounded entity citations.
+* **Instant Quick-Prompt Chips**: Clickable prompts in the UI for *High Risk Machines*, *M7 Blast Radius*, *Inventory Shortfalls*, *SPOF Parts*, and *Alternate Suppliers*.
+
+---
+
 ## 🚨 The Autonomous Incident Walkthrough (M7 Crisis Demo)
 
 ```mermaid

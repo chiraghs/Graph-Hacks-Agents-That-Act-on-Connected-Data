@@ -517,6 +517,21 @@ async def reset_graph():
         return {"status": "error", "message": str(e)}
 
 
+@app.post("/api/copilot")
+async def copilot_query(request: Request):
+    """Natural Language to Cypher Graph Copilot endpoint."""
+    try:
+        from copilot import ask_copilot
+        body = await request.json()
+        query = body.get("query", "").strip()
+        if not query:
+            return JSONResponse(status_code=400, content={"status": "error", "message": "Query cannot be empty"})
+        result = ask_copilot(query)
+        return result
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"status": "error", "message": str(e)})
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
