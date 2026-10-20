@@ -3,9 +3,7 @@
 Supports:
 1. Groq (Meta Llama 3.3 70B) via `GROQ_API_KEY` (Free, 500 t/s)
 2. Google Gemini (Gemini 2.0 Flash / 1.5 Flash) via `GEMINI_API_KEY` or `GOOGLE_API_KEY` (Free tier)
-3. Anthropic (Claude 3.5 Sonnet) via `ANTHROPIC_API_KEY`
-4. OpenAI (GPT-4o / GPT-4o-mini) via `OPENAI_API_KEY`
-5. TwinForge Built-in Semantic Graph Engine (Zero-Key Fallback, always available, <5ms)
+3. TwinForge Built-in Semantic Graph Engine (Zero-Key Fallback, always available, <5ms)
 """
 
 import os
@@ -111,56 +109,6 @@ def _call_gemini(prompt: str, api_key: str) -> Tuple[str, str]:
         res_data = json.loads(resp.read().decode("utf-8"))
         text = res_data["candidates"][0]["content"]["parts"][0]["text"]
         parsed = json.loads(text)
-        return parsed.get("cypher", ""), parsed.get("explanation", "")
-
-
-def _call_claude(prompt: str, api_key: str) -> Tuple[str, str]:
-    """Call Anthropic Claude 3.5 Sonnet."""
-    url = "https://api.anthropic.com/v1/messages"
-    headers = {
-        "x-api-key": api_key,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-    }
-    payload = {
-        "model": "claude-3-5-sonnet-20241022",
-        "max_tokens": 1024,
-        "system": SYSTEM_PROMPT,
-        "messages": [{"role": "user", "content": prompt}],
-    }
-    req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
-    with urllib.request.urlopen(req, timeout=12) as resp:
-        res_data = json.loads(resp.read().decode("utf-8"))
-        text = res_data["content"][0]["text"]
-        # extract json block
-        match = re.search(r"\{.*\}", text, re.DOTALL)
-        if match:
-            parsed = json.loads(match.group(0))
-            return parsed.get("cypher", ""), parsed.get("explanation", "")
-        return "", text
-
-
-def _call_openai(prompt: str, api_key: str) -> Tuple[str, str]:
-    """Call OpenAI GPT-4o-mini."""
-    url = "https://api.openai.com/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
-    payload = {
-        "model": "gpt-4o-mini",
-        "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": prompt},
-        ],
-        "temperature": 0.1,
-        "response_format": {"type": "json_object"},
-    }
-    req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
-    with urllib.request.urlopen(req, timeout=10) as resp:
-        res_data = json.loads(resp.read().decode("utf-8"))
-        content = res_data["choices"][0]["message"]["content"]
-        parsed = json.loads(content)
         return parsed.get("cypher", ""), parsed.get("explanation", "")
 
 
@@ -356,7 +304,7 @@ def _synthesize_answer(question: str, cypher: str, results: List[List[Any]], col
 
 def ask_copilot(question: str) -> Dict[str, Any]:
     """Top-level entrypoint for Natural Language Graph Copilot.
-    Auto-detects active provider: Groq -> Gemini -> Claude -> OpenAI -> Built-in Engine.
+    Auto-detects active provider: Groq (Llama 3.3) -> Gemini (2.0 Flash) -> Built-in Engine.
     """
     start_time = time.perf_counter()
     question = question.strip()
@@ -365,8 +313,6 @@ def ask_copilot(question: str) -> Dict[str, Any]:
 
     groq_key = os.getenv("GROQ_API_KEY", "").strip()
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip() or os.getenv("GOOGLE_API_KEY", "").strip()
-    claude_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
-    openai_key = os.getenv("OPENAI_API_KEY", "").strip()
 
     provider = "TwinForge Semantic Engine (Zero-Key Built-in)"
     model_name = "Rule-Grounded Graph Parser"
@@ -391,25 +337,7 @@ def ask_copilot(question: str) -> Dict[str, Any]:
         except Exception as e:
             print(f"[Copilot Warning] Gemini call failed: {e}. Falling back...")
 
-    # 3. Try Claude 3.5 Sonnet
-    if not cypher_query and claude_key and claude_key.startswith("sk-ant"):
-        try:
-            cypher_query, explanation = _call_claude(question, claude_key)
-            provider = "Anthropic"
-            model_name = "Claude 3.5 Sonnet"
-        except Exception as e:
-            print(f"[Copilot Warning] Claude call failed: {e}. Falling back...")
-
-    # 4. Try OpenAI
-    if not cypher_query and openai_key and openai_key.startswith("sk-"):
-        try:
-            cypher_query, explanation = _call_openai(question, openai_key)
-            provider = "OpenAI"
-            model_name = "GPT-4o-mini"
-        except Exception as e:
-            print(f"[Copilot Warning] OpenAI call failed: {e}. Falling back...")
-
-    # 5. Built-in Fallback (Always Works!)
+    # 3. Built-in Fallback (Always Works!)
     if not cypher_query:
         cypher_query, explanation = _semantic_engine_fallback(question)
         provider = "TwinForge Semantic Engine"

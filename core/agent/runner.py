@@ -16,15 +16,12 @@ System Prompt & Protocol:
 import os
 import json
 import asyncio
-from typing import AsyncGenerator, Dict, Any, List
-import anthropic
 import time
 from dotenv import load_dotenv
 
 from core.db import get_graph
 from core.mcp.server import (
     TOOL_DISPATCH,
-    CLAUDE_TOOLS,
     at_risk_machines,
     downstream_impact,
     shortfall_check,
@@ -348,115 +345,12 @@ async def run_autonomous_investigation() -> AsyncGenerator[Dict[str, Any], None]
     }
 
 
-async def run_claude_investigation(api_key: str) -> AsyncGenerator[Dict[str, Any], None]:
-    """Claude tool-use loop with Anthropic API."""
-    client = anthropic.AsyncAnthropic(api_key=api_key)
-
-    messages = [
-        {
-            "role": "user",
-            "content": (
-                "Please run an investigation across the FalkorDB supply chain graph. "
-                "Identify high-risk machines, trace downstream impact, evaluate shortfall gaps, "
-                "verify graph evidence, and commit necessary actions with schedule_action."
-            ),
-        }
-    ]
-
-    yield {
-        "event": "agent_start",
-        "data": {
-            "message": "Connected to Claude 3.5 via Anthropic SDK with FalkorDB MCP tools.",
-            "model": "claude-3-5-sonnet-20241022",
-        },
-    }
-
-    max_turns = 12
-    turn = 0
-
-    while turn < max_turns:
-        turn += 1
-        response = await client.messages.create(
-            model="claude-3-5-sonnet-20241022",
-            max_tokens=2048,
-            system=SYSTEM_PROMPT,
-            tools=CLAUDE_TOOLS,
-            messages=messages,
-        )
-
-        tool_calls = [c for c in response.content if c.type == "tool_use"]
-        text_blocks = [c.text for c in response.content if c.type == "text"]
-
-        if text_blocks:
-            full_text = "\n".join(text_blocks)
-            yield {
-                "event": "agent_thought",
-                "data": {"text": full_text},
-            }
-
-        if not tool_calls:
-            # Finished investigation
-            break
-
-        # Process tool calls
-        tool_results_content = []
-        for tc in tool_calls:
-            tool_name = tc.name
-            tool_input = tc.input
-            tool_use_id = tc.id
-
-            yield {
-                "event": "tool_call",
-                "data": {
-                    "tool": tool_name,
-                    "input": tool_input,
-                },
-            }
-
-            handler = TOOL_DISPATCH.get(tool_name)
-            if handler:
-                try:
-                    res = handler(**tool_input)
-                except Exception as e:
-                    res = {"error": str(e)}
-            else:
-                res = {"error": f"Tool '{tool_name}' not implemented"}
-
-            yield {
-                "event": "tool_result",
-                "data": {
-                    "tool": tool_name,
-                    "result": res,
-                },
-            }
-
-            tool_results_content.append({
-                "type": "tool_result",
-                "tool_use_id": tool_use_id,
-                "content": json.dumps(res),
-            })
-
-        # Append assistant message and tool responses
-        messages.append({"role": "assistant", "content": response.content})
-        messages.append({"role": "user", "content": tool_results_content})
-
-    # Finally yield report event from autonomous aggregator
-    async for item in run_autonomous_investigation():
-        if item["event"] == "agent_report":
-            yield item
-
-
 async def stream_investigation() -> AsyncGenerator[Dict[str, Any], None]:
-    """Top-level streaming generator that uses Claude API if key exists,
-    otherwise executes the autonomous graph reasoning loop.
+    """Top-level streaming generator executing the multi-hop graph investigation
+    across FalkorDB using MCP tools and autonomous reasoning.
     """
-    api_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
-    if api_key and api_key.startswith("sk-"):
-        async for evt in run_claude_investigation(api_key):
-            yield evt
-    else:
-        async for evt in run_autonomous_investigation():
-            yield evt
+    async for evt in run_autonomous_investigation():
+        yield evt
 
 
 if __name__ == "__main__":

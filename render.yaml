@@ -20,5 +20,7 @@ services:
         value: "false"
       - key: FALKORDB_GRAPH
         value: "supply_chain"
-      - key: ANTHROPIC_API_KEY
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
         sync: false

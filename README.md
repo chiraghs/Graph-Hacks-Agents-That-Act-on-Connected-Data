@@ -235,7 +235,6 @@ TwinForge includes an interactive **Natural Language Copilot** that allows plant
 * **Multi-Provider Architecture**:
   * **Groq Cloud** (`llama-3.3-70b-versatile`): 100% free open model operating at ~500 tokens/sec.
   * **Google Gemini** (`gemini-2.0-flash`): Free tier via Google AI Studio.
-  * **Anthropic / OpenAI**: Optional support via `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`.
   * **Built-in Semantic Engine**: Intelligent zero-key fallback running directly in Python (~1.5ms latency).
 * **Full Cypher Traceability**: Every answer includes the exact generated Cypher query, sub-10ms FalkorDB execution latency badge, and grounded entity citations.
 * **Instant Quick-Prompt Chips**: Clickable prompts in the UI for *High Risk Machines*, *M7 Blast Radius*, *Inventory Shortfalls*, *SPOF Parts*, and *Alternate Suppliers*.
@@ -360,9 +359,10 @@ Set the connection variables according to your environment:
 | `FALKORDB_PORT` | `6379` | `6379` | Database connection port |
 | `FALKORDB_USERNAME` | *(empty)* | `default` | ACL username (if applicable) |
 | `FALKORDB_PASSWORD` | *(empty)* | `your_cloud_password` | Database authentication token |
-| `FALKORDB_SSL` | `false` | `true` | Enables TLS encryption for Cloud |
+| `FALKORDB_SSL` | `false` | `false` | Enables TLS encryption (false on Free Tier) |
 | `FALKORDB_GRAPH` | `supply_chain` | `supply_chain` | Active graph name |
-| `ANTHROPIC_API_KEY`| *(optional)* | *(optional)* | For Claude tool-use loop (autonomous graph fallback if omitted) |
+| `GEMINI_API_KEY` | *(optional)* | *(optional)* | Google Gemini 2.0 Flash for NL Cypher Copilot |
+| `GROQ_API_KEY` | *(optional)* | *(optional)* | Groq Meta Llama 3.3 70B for NL Cypher Copilot |
 
 > [!NOTE]
 > **No credentials or secrets are committed to this repository**. All secrets are loaded via `python-dotenv` from `.env`, which is ignored by git. Judges and evaluators can connect the agent to their own FalkorDB Cloud or local Docker database in seconds.
@@ -441,9 +441,9 @@ This repository includes a [`Dockerfile`](Dockerfile) (built on `python:3.14-sli
    - `FALKORDB_HOST`: your FalkorDB Cloud cluster host
    - `FALKORDB_PORT`: `6379`
    - `FALKORDB_PASSWORD`: your FalkorDB Cloud password
-   - `FALKORDB_SSL`: `true`
+   - `FALKORDB_SSL`: `false`
    - `FALKORDB_GRAPH`: `supply_chain`
-   - *(Optional)* `ANTHROPIC_API_KEY`: your Claude API key
+   - *(Optional)* `GEMINI_API_KEY` or `GROQ_API_KEY`: free LLM keys for the Copilot
 6. Click **Apply / Deploy**. The service will build and go live with zero downtime!
 
 ---
@@ -454,7 +454,7 @@ This repository includes a [`Dockerfile`](Dockerfile) (built on `python:3.14-sli
 ├── Dockerfile             # Production container for Render / Cloud deployment
 ├── render.yaml            # Render Blueprint one-click deployment spec
 ├── docker-compose.yml     # Local FalkorDB engine (port 6379) + Web UI (port 3000)
-├── requirements.txt       # Pinned dependencies (falkordb, mcp, anthropic, fastapi, uvicorn)
+├── requirements.txt       # Pinned dependencies (falkordb, mcp, fastapi, uvicorn)
 ├── .env.example           # Documented configuration template (Cloud & Local)
 ├── app.py                 # Clean FastAPI entrypoint (~50 lines) mounting core.api routers
 ├── test_scenarios.py      # 5/5 automated parity & scenario verification suite
