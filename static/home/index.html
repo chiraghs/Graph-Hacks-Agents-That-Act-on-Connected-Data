@@ -485,7 +485,7 @@
         <div id="twin-canvas-viewport" class="relative flex-1 h-[calc(100vh-250px)] min-h-[580px] overflow-hidden rounded-[12px] border border-line bg-deep grid-bg cursor-grab active:cursor-grabbing">
 
           <!-- 1. TOPOLOGY VIEW LAYER (Draggable & Zoomable Canvas Stage) -->
-          <div id="stage-topology" class="absolute inset-0 h-full w-full origin-top-left transition-transform duration-75" style="transform: translate(10px, 15px) scale(0.80);">
+          <div id="stage-topology" class="absolute inset-0 h-full w-full origin-top-left transition-transform duration-75" style="transform: translate(44px, 120px) scale(0.80);">
 
             <!-- SVG Connecting Edges Layer -->
             <svg id="canvas-edges-svg" class="absolute inset-0 pointer-events-none" style="width: 1400px; height: 600px; z-index: 1;">
@@ -2060,8 +2060,8 @@
     let currentView = 'twin';
     let currentTwinMode = 'topology';
     let canvasZoom = 0.80;
-    let canvasPanX = 10;
-    let canvasPanY = 15;
+    let canvasPanX = 44;
+    let canvasPanY = 120;
     let isDraggingCanvas = false;
     let dragStartX = 0;
     let dragStartY = 0;
@@ -2089,6 +2089,7 @@
       currentView = viewName;
       window.history.pushState({}, '', '/' + viewName);
 
+      if (viewName === 'twin') requestAnimationFrame(() => centerCanvasTopology(false));
       if (viewName === 'agents') loadSubgraph();
       if (viewName === 'integrations') checkHealth();
       if (viewName === 'dashboard') loadKpis();
@@ -2109,6 +2110,7 @@
       const activeStage = document.getElementById('stage-' + mode);
       if (activeBtn) activeBtn.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] bg-surface-3 text-ink font-medium transition-colors";
       if (activeStage) activeStage.classList.remove('hidden');
+      if (mode === 'topology') requestAnimationFrame(() => centerCanvasTopology(false));
     }
 
     // Interactive Canvas Pan & Zoom
@@ -2146,12 +2148,39 @@
       updateCanvasTransform();
     }
 
-    function resetCanvasTransform() {
-      canvasZoom = 0.96;
-      canvasPanX = 20;
-      canvasPanY = 20;
+    function centerCanvasTopology(fitZoom = false) {
+      const vp = document.getElementById('twin-canvas-viewport');
+      if (!vp) return;
+      const vpWidth = vp.clientWidth;
+      const vpHeight = vp.clientHeight;
+      if (!vpWidth || !vpHeight) return;
+
+      const contentCenterX = 665;
+      const contentCenterY = 278;
+
+      if (fitZoom) {
+        const padX = 70;
+        const padY = 70;
+        const zoomX = (vpWidth - padX) / 1320;
+        const zoomY = (vpHeight - padY) / 580;
+        const ideal = Math.min(zoomX, zoomY);
+        canvasZoom = Math.min(0.92, Math.max(0.55, Math.round(ideal * 100) / 100));
+      }
+
+      canvasPanX = Math.round(vpWidth / 2 - contentCenterX * canvasZoom);
+      canvasPanY = Math.round(vpHeight / 2 - contentCenterY * canvasZoom);
       updateCanvasTransform();
     }
+
+    function resetCanvasTransform() {
+      centerCanvasTopology(true);
+    }
+
+    window.addEventListener('resize', () => {
+      if (currentView === 'twin' && currentTwinMode === 'topology' && !isDraggingCanvas) {
+        centerCanvasTopology(false);
+      }
+    });
 
     function updateCanvasTransform() {
       if (stageTopology) {
@@ -2705,6 +2734,9 @@
     const rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '');
     const path = (!rawPath || rawPath === 'home' || rawPath === 'index.html') ? 'twin' : rawPath;
     navigatePage(path);
+    if (path === 'twin') {
+      setTimeout(() => centerCanvasTopology(true), 60);
+    }
     checkHealth();
     loadKpis();
   </script>
