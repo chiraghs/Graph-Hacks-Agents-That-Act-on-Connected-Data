@@ -456,17 +456,45 @@ This repository includes a [`Dockerfile`](Dockerfile) (built on `python:3.14-sli
 ├── docker-compose.yml     # Local FalkorDB engine (port 6379) + Web UI (port 3000)
 ├── requirements.txt       # Pinned dependencies (falkordb, mcp, anthropic, fastapi, uvicorn)
 ├── .env.example           # Documented configuration template (Cloud & Local)
-├── db.py                  # Unified FalkorDB connection helper with TLS & auto-retry
+├── app.py                 # Clean FastAPI entrypoint (~50 lines) mounting core.api routers
 ├── check_connection.py    # Diagnostic connectivity test tool
 ├── test_scenarios.py      # 5/5 automated parity & scenario verification suite
 ├── reset_decisions.py     # Clean-slate reset utility for live demos
-├── scoring.py             # Sensor z-score drift & exponential smoothing demand forecast
-├── seed.py                # High-speed idempotent UNWIND batch graph generator (175 nodes, 465 edges)
-├── mcp_server.py          # 7 Cypher-backed MCP tools with evidence traceability
-├── agent.py               # Autonomous graph reasoning loop with per-tool latency tracking
-├── app.py                 # FastAPI backend with /health, SSE streaming & subgraph endpoints
-├── static/
-│   ├── index.html         # Enterprise Control Tower UI (TwinForge Connected Graph theme)
+├── db.py                  # Backward-compatible wrapper for core.db
+├── scoring.py             # Backward-compatible wrapper for core.graph.scoring
+├── seed.py                # Backward-compatible wrapper for core.graph.seed
+├── mcp_server.py          # Backward-compatible wrapper for core.mcp.server
+├── agent.py               # Backward-compatible wrapper for core.agent.runner
+├── copilot.py             # Backward-compatible wrapper for core.copilot.service
+├── core/                  # Clean modular backend package
+│   ├── db.py              # Unified FalkorDB connection pool with TLS & auto-retry
+│   ├── graph/             # Graph domain logic
+│   │   ├── scoring.py     # Sensor z-score drift & exponential smoothing demand forecast
+│   │   └── seed.py        # High-speed idempotent UNWIND batch graph generator
+│   ├── mcp/               # Model Context Protocol tools
+│   │   └── server.py      # 7 Cypher-backed MCP tools with evidence traceability
+│   ├── agent/             # Autonomous agentic reasoning
+│   │   └── runner.py      # Multi-hop graph reasoning loop with per-tool latency tracking
+│   ├── copilot/           # Natural language to Cypher Copilot
+│   │   └── service.py     # Multi-provider NL-to-Cypher engine (Groq, Gemini, built-in)
+│   └── api/               # Modular FastAPI routers
+│       ├── routes_telemetry.py   # Health, live sensor telemetry, KPIs, inventory
+│       ├── routes_simulation.py  # Blast radius ripple simulation & full graph
+│       ├── routes_agent.py       # Live SSE investigation stream & evidence subgraph
+│       ├── routes_decisions.py   # Prescriptive approvals & graph reset
+│       └── routes_copilot.py     # /api/copilot NL-to-Cypher endpoint
+├── static/                # Pure vanilla zero-build web frontend
+│   ├── index.html         # Clean semantic HTML layout (1,929 lines, zero inline clutter)
+│   ├── css/
+│   │   └── theme.css      # Design tokens, light/dark mode variables, animations
+│   ├── js/
+│   │   ├── theme.js       # Light/dark mode toggle & persistent storage
+│   │   ├── navigation.js  # Client-side router & view switcher
+│   │   ├── twin.js        # Interactive SVG canvas pan/zoom & machine drawer
+│   │   ├── copilot.js     # NL-to-Cypher Ask Copilot modal & chat thread
+│   │   ├── agent_console.js # Live SSE streaming & tool latency tracker
+│   │   ├── vis_graph.js   # Vis.js evidence network graph renderer
+│   │   └── app.js         # Main application bootstrapper & global actions
 │   └── twinforge_connected_graph_walkthrough_demo.mp4 # Direct streamable 3.4-min walkthrough video
 ├── video_build/           # Video synthesis pipeline (edge-tts natural voiceover, Playwright tour)
 ├── queries.md             # Cypher query catalog & SQL multi-join comparison
