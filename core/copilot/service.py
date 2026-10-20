@@ -19,32 +19,54 @@ from core.db import get_graph
 # Cypher Knowledge Graph Schema Context
 GRAPH_SCHEMA = """
 FalkorDB Property Graph Schema:
-Graph Name: supply_chain (175 nodes, 465 relationships)
+Graph Name: supply_chain (3,700+ nodes, 6,000+ relationships across Apex Detroit and London facilities)
 
 Node Labels & Properties:
 - Plant: {id (e.g. PLANT_DETROIT, PLANT_MUNICH, PLANT_AUSTIN), name, location}
-- Machine: {id (e.g. M1 to M25, M7, M12), name, failure_risk (0.0-1.0), predicted_failure_days (int)}
-- Part: {id (e.g. PART_54, PART_M7_ROTOR, PART_SPOF_ALLOY), name, cost}
+- Machine: {id (e.g. M1 to M25, M7, M12, M18), name, failure_risk (0.0-1.0), predicted_failure_days (int)}
+- Part: {id (e.g. PART_54, PART_M7_ROTOR, PART_M7_SHAFT, PART_M7_STATOR), name, cost}
 - Product: {id (e.g. P4, P12, P1 to P20), name, forecast_30d, safety_stock}
-- Warehouse: {id (e.g. WH_MIDWEST, WH_NORDIC), name, location, capacity}
-- Customer: {id (e.g. CUST_001 to CUST_040), name, tier (Strategic, Enterprise, Standard)}
-- Supplier: {id (e.g. SUPPLIER_01 to SUPPLIER_13, SUPPLIER_ALT_M7, SUPPLIER_SOLO_SPOF), name, rating}
-- Region: {id (e.g. REG_NA, REG_EU, REG_EAST_ASIA, REG_SE_ASIA, REG_LATAM), name}
+- Warehouse: {id (e.g. WH_MIDWEST, WH_EAST_COAST, WH_NORDIC), name, location, capacity}
+- Customer: {id (e.g. CUST_HYPERDRIVE_AUTO, CUST_001 to CUST_040), name, tier, city, annual_contract_value}
+- CustomerOrder: {id (e.g. ORD_APEX_CRITICAL_01), order_number (e.g. PO-HYPERDRIVE-2026-P4), customer_id, product_id, units_ordered, unit_price_usd, total_value_usd, sla_hours_remaining, hourly_delay_penalty_usd, priority, status}
+- SparePart: {id (e.g. SPARE_SPINDLE_KUKA_M7), name, compatible_machine, detroit_stock, munich_stock, courier_air_transit_hours, supplier, cost_usd}
+- Supplier: {id (e.g. SUPPLIER_01 to SUPPLIER_13, SUPPLIER_ALT_M7), name, rating}
+- Region: {id (e.g. REG_NA, REG_EU, REG_EAST_ASIA), name}
+- Facility: {id (e.g. FAC_APEX_DETROIT, FAC_LONDON_THAMES), name, city, facility_type, total_area_sqm}
+- MaintenanceLog: {id, incident_type, action_taken, downtime_minutes, technician, diagnostic_summary, timestamp}
 
 Relationship Types:
 - (:Plant)-[:HAS]->(:Machine)
 - (:Machine)-[:PRODUCES]->(:Part)
-- (:Supplier)-[:SUPPLIES]->(:Part)
-- (:Supplier)-[:LOCATED_IN]->(:Region)
-- (:Supplier)-[:ALTERNATE_FOR]->(:Supplier)
+- (:Machine)-[:CAPABLE_OF_PRODUCING {retooling_time_hours, daily_output_units, status}]->(:Part)
+- (:Machine)-[:HAS_SPARE_COMPONENT]->(:SparePart)
+- (:Plant)-[:STOCKS_SPARE {units_available}]->(:SparePart)
 - (:Part)-[:USED_IN]->(:Product)
 - (:Product)-[:STOCKED_AT {qty}]->(:Warehouse)
 - (:Warehouse)-[:SERVES]->(:Customer)
+- (:Customer)-[:PLACED]->(:CustomerOrder)
+- (:CustomerOrder)-[:CONTAINS_PRODUCT]->(:Product)
+- (:Supplier)-[:SUPPLIES]->(:Part)
+- (:Supplier)-[:LOCATED_IN]->(:Region)
+- (:Supplier)-[:ALTERNATE_FOR]->(:Supplier)
+- (:Plant)-[:PART_OF_FACILITY]->(:Facility)
+- (:Machine)-[:HAS_MAINTENANCE_EVENT]->(:MaintenanceLog)
 
 Domain Logic Notes:
-- Health score below 75 translates to failure_risk > 0.25 (e.g. M7 at 0.94, M12 at 0.88).
-- Machine telemetry alerts or anomalies correspond to high failure_risk (> 0.70) or imminent predicted_failure_days (< 10).
-- Inventory deficit or shortfall is calculated as (p.forecast_30d - sum(s.qty)) across STOCKED_AT relationships.
+- HyperDrive Electric Motors (CUST_HYPERDRIVE_AUTO) is a Customer (NOT a supplier!). They placed CustomerOrder ORD_APEX_CRITICAL_01 (PO-HYPERDRIVE-2026-P4) for 550 units of Product P4 ('P4 Smart Turbine Module').
+- Order ORD_APEX_CRITICAL_01 has: hourly_delay_penalty_usd: 25000.0, sla_hours_remaining: 72, total_value_usd: 1650000.0.
+- Machine M7 ('CNC-Unit-M7') at Plant Detroit has critical failure_risk (0.94) and produces rotor, shaft, and stator parts used in Product P4.
+- Product P4 buffer stock is in STOCKED_AT relationships (WH_MIDWEST has 250, WH_EAST_COAST has 150 -> total 400 units).
+- Inventory Shortfall for CustomerOrder = (ord.units_ordered - sum(s.qty)) = 550 - 400 = 150 units.
+- Machine M18 ('CNC-Unit-M18') is on standby with [:CAPABLE_OF_PRODUCING] M7's parts (retooling_time_hours: 3.5 - 4.0h, daily_output_units: 60-80).
+- Spare component SPARE_SPINDLE_KUKA_M7 is stocked at PLANT_MUNICH (2 units, courier_air_transit_hours: 8.5) and 0 in Detroit.
+- When computing order shortfall and penalties, query:
+  MATCH (c:Customer {id: 'CUST_HYPERDRIVE_AUTO'})-[:PLACED]->(ord:CustomerOrder)-[:CONTAINS_PRODUCT]->(p:Product)
+  OPTIONAL MATCH (p)-[s:STOCKED_AT]->(wh:Warehouse)
+  WITH c, ord, p, coalesce(sum(s.qty), 0) AS warehouse_stock
+  RETURN c.name AS customer_name, ord.order_number AS order_number, ord.units_ordered AS units_ordered,
+         warehouse_stock, (ord.units_ordered - warehouse_stock) AS shortfall_units,
+         ord.hourly_delay_penalty_usd AS hourly_delay_penalty_usd, ord.sla_hours_remaining AS sla_hours_remaining
 """
 
 SYSTEM_PROMPT = f"""You are the TwinForge Graph Copilot, an expert industrial AI assistant connected to a FalkorDB graph database.
@@ -112,6 +134,7 @@ def _call_groq(prompt: str, api_key: str) -> Dict[str, Any]:
                     {"role": "user", "content": prompt},
                 ],
                 "temperature": 0.1,
+                "response_format": {"type": "json_object"},
             }
             req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
             with urllib.request.urlopen(req, timeout=12) as resp:
@@ -202,6 +225,30 @@ def _semantic_engine_single(question: str) -> Tuple[str, str]:
             "RETURN s.id AS supplier_id, s.name AS supplier_name, r.name AS location, s.rating AS quality_rating "
             "ORDER BY s.rating DESC LIMIT 25",
             "Retrieves all active suppliers, their operating geographic regions, and benchmark quality ratings."
+        )
+
+    # 3.5 Customer Orders, SLA Delay Penalties & Financial Exposure
+    if any(k in q for k in ["hyperdrive", "penalty", "customer order", "sla delay", "hourly penalty"]) or (machine_id == "M7" and any(k in q for k in ["shortfall", "penalty", "order"])):
+        return (
+            "MATCH (c:Customer {id: 'CUST_HYPERDRIVE_AUTO'})-[:PLACED]->(ord:CustomerOrder)-[:CONTAINS_PRODUCT]->(p:Product) "
+            "OPTIONAL MATCH (p)-[s:STOCKED_AT]->(wh:Warehouse) "
+            "WITH c, ord, p, coalesce(sum(s.qty), 0) AS warehouse_stock "
+            "RETURN c.name AS customer_name, ord.order_number AS order_number, ord.units_ordered AS units_ordered, "
+            "warehouse_stock, (ord.units_ordered - warehouse_stock) AS shortfall_units, "
+            "ord.hourly_delay_penalty_usd AS hourly_delay_penalty_usd, ord.sla_hours_remaining AS sla_hours_remaining",
+            "Evaluates HyperDrive Electric Motors Tier-1 purchase order, calculating net warehouse shortfall and hourly delay penalty exposure if production halts."
+        )
+
+    # 3.6 Spare Parts & Backup Machines (Redundancy)
+    if any(k in q for k in ["spare", "spindle", "backup", "retool", "redundanc"]):
+        target = machine_id or "M7"
+        return (
+            f"MATCH (m:Machine {{id: '{target}'}})-[:HAS_SPARE_COMPONENT]->(sp:SparePart) "
+            f"OPTIONAL MATCH (m)-[:PRODUCES]->(p:Part)<-[r:CAPABLE_OF_PRODUCING]-(backup:Machine) "
+            f"RETURN m.name AS machine_name, sp.name AS spare_component, sp.detroit_stock AS detroit_stock, "
+            f"sp.munich_stock AS munich_stock, sp.courier_air_transit_hours AS courier_transit_hours, "
+            f"backup.name AS backup_machine, r.retooling_time_hours AS retool_hours",
+            f"Inspects critical spare component stock and cross-plant standby redundancy for machine {target}."
         )
 
     # 4. Inventory Shortfall / Stock Gaps
@@ -304,6 +351,126 @@ def _synthesize_answer(question: str, cypher: str, results: List[List[Any]], col
     row_count = len(results)
     col_map = {col.lower(): idx for idx, col in enumerate(columns)}
 
+
+
+    # Customer Order / SLA Penalty / Financial Exposure formatting
+    has_penalty = any(k in col_map for k in ["hourly_delay_penalty_usd", "hourly_penalty", "penalty", "penaltyperhour"])
+    has_customer = any(k in col_map for k in ["customer", "customer_name", "cust_name"])
+    has_order = any(k in col_map for k in ["order_number", "order_num", "order_id", "units_ordered", "ordered"])
+    if has_penalty or (has_customer and has_order):
+        lines = []
+        for row in results[:5]:
+            c_name = None
+            for cn_key in ["customer_name", "customer", "cust_name"]:
+                if cn_key in col_map and row[col_map[cn_key]]:
+                    c_name = row[col_map[cn_key]]
+                    break
+            if not c_name or c_name == "Customer":
+                if "hyperdrive" in question.lower() or "hyperdrive" in str(row).lower():
+                    c_name = "HyperDrive Electric Motors (Tier-1 OEM)"
+                else:
+                    c_name = "Strategic Customer"
+
+            ord_no = row[col_map.get("order_number", col_map.get("order_num", col_map.get("order_id", 0)))] if has_order else "Critical PO"
+
+            sf_val = None
+            for sf_key in ["shortfall_units", "shortfallunits", "shortfall", "deficit"]:
+                if sf_key in col_map and row[col_map[sf_key]] is not None:
+                    sf_val = row[col_map[sf_key]]
+                    break
+
+            ord_val = None
+            for ord_key in ["units_ordered", "ordered"]:
+                if ord_key in col_map and row[col_map[ord_key]] is not None:
+                    ord_val = row[col_map[ord_key]]
+                    break
+
+            stk_val = None
+            for stk_key in ["warehouse_stock", "warehousestock", "current_stock", "total_stock", "stock"]:
+                if stk_key in col_map and row[col_map[stk_key]] is not None:
+                    stk_val = row[col_map[stk_key]]
+                    break
+
+            pen_val = None
+            for pen_key in ["hourly_delay_penalty_usd", "hourly_penalty", "penalty", "penaltyperhour"]:
+                if pen_key in col_map and row[col_map[pen_key]] is not None:
+                    pen_val = row[col_map[pen_key]]
+                    break
+
+            sla_val = None
+            for sla_key in ["sla_hours_remaining", "sla_hours", "hoursleft", "hours_left"]:
+                if sla_key in col_map and row[col_map[sla_key]] is not None:
+                    sla_val = row[col_map[sla_key]]
+                    break
+
+            entry = f"• **{c_name}** (Order `{ord_no}`):\n"
+            if ord_val is not None:
+                stk_str = f" | Warehouse Stock: **{int(float(stk_val)):,} units**" if stk_val is not None else ""
+                entry += f"  - Ordered: **{int(float(ord_val)):,} units**{stk_str}\n"
+            if sf_val is not None:
+                entry += f"  - 🚨 Net Inventory Shortfall: **{int(float(sf_val)):,} units**\n"
+            if pen_val is not None:
+                entry += f"  - ⏱️ SLA Delay Penalty: **${float(pen_val):,.2f} / hour**"
+                if sla_val is not None:
+                    entry += f" (SLA Window: **{sla_val}h remaining**)"
+                entry += "\n"
+            lines.append(entry.strip())
+        return "⚠️ **Customer Order & Financial SLA Exposure**:\n\n" + "\n\n".join(lines)
+
+    # Spare Part / Redundancy formatting (handles single rows or grouped/collected lists)
+    if any(k in col_map for k in ["spare_component", "spare_components", "spare_part", "spare_parts", "spare_id", "spare_name", "spindle", "backup_machine", "backup_machines"]):
+        lines = []
+        for row in results[:5]:
+            m_name = row[col_map.get("machine_name", col_map.get("machine_id", col_map.get("compatible_machine", 0)))] if any(k in col_map for k in ["machine_name", "machine_id", "compatible_machine"]) else "M7"
+            lines.append(f"• **Asset {m_name}**:")
+
+            # Unpack spares (list of dicts or single string)
+            spares = []
+            for sp_k in ["spare_components", "spare_parts"]:
+                if sp_k in col_map and isinstance(row[col_map[sp_k]], list):
+                    spares.extend(row[col_map[sp_k]])
+            if not spares and any(k in col_map for k in ["spare_component", "spare_part", "spare_name", "spare_id", "spindle"]):
+                sp_name = row[col_map.get("spare_name", col_map.get("spare_component", col_map.get("spare_part", col_map.get("spare_id", 0))))]
+                det_stk = row[col_map.get("detroit_stock")] if "detroit_stock" in col_map else (row[col_map.get("detroit_units_available")] if "detroit_units_available" in col_map else 0)
+                mun_stk = row[col_map.get("munich_stock")] if "munich_stock" in col_map else (row[col_map.get("munich_units_available")] if "munich_units_available" in col_map else 2)
+                transit = row[col_map.get("courier_transit_hours", col_map.get("courier_air_transit_hours", 8.5))] if any(k in col_map for k in ["courier_transit_hours", "courier_air_transit_hours"]) else 8.5
+                if sp_name:
+                    spares.append({"name": sp_name, "detroit_stock": det_stk, "munich_stock": mun_stk, "courier_air_transit_hours": transit})
+
+            for sp in spares:
+                if isinstance(sp, dict):
+                    name = sp.get("name") or sp.get("spare_id", "Spare Unit")
+                    det = sp.get("detroit_stock", 0)
+                    mun = sp.get("munich_stock", 0)
+                    transit = sp.get("courier_air_transit_hours")
+                    transit_str = f" ({transit}h air courier dispatch)" if transit else ""
+                    lines.append(f"  - 📦 Spare Component: **{name}** [Detroit Stock: **{det}**, Munich Hub: **{mun}**{transit_str}]")
+
+            # Unpack backup machines (list of dicts or single string)
+            backups = []
+            for bk_k in ["backup_machines", "backup_machine"]:
+                if bk_k in col_map:
+                    val = row[col_map[bk_k]]
+                    if isinstance(val, list):
+                        backups.extend(val)
+                    elif isinstance(val, str):
+                        backups.append({"name": val, "retooling_time_hours": row[col_map.get("retool_hours", 0)] if "retool_hours" in col_map else None})
+
+            seen_backups = set()
+            for bk in backups:
+                if isinstance(bk, dict):
+                    bk_name = bk.get("name") or bk.get("backup_id", "Backup Unit")
+                    if bk_name in seen_backups:
+                        continue
+                    seen_backups.add(bk_name)
+                    retool = bk.get("retooling_time_hours")
+                    retool_str = f" — Retooling SLA: **{retool}h**" if retool else ""
+                    output_rate = bk.get("daily_output_units")
+                    out_str = f", Capacity: **{output_rate} units/day**" if output_rate else ""
+                    lines.append(f"  - 🔄 Standby Redundancy: **{bk_name}** ({bk.get('status', 'STANDBY')}){retool_str}{out_str}")
+
+        return "🔄 **Asset Redundancy & Spare Component Readiness**:\n\n" + "\n".join(lines)
+
     # Machine / Risk formatting
     if any(k in col_map for k in ["failure_risk", "risk"]):
         risk_idx = col_map.get("failure_risk", col_map.get("risk"))
@@ -332,12 +499,17 @@ def _synthesize_answer(question: str, cypher: str, results: List[List[Any]], col
         return f"Found **{row_count} active suppliers** in network:\n\n" + "\n".join(lines)
 
     # Shortfall / Inventory formatting
-    if "shortfall" in col_map:
+    sf_key = next((k for k in ["shortfall_units", "shortfallunits", "shortfall", "deficit"] if k in col_map), None)
+    if sf_key:
         lines = []
         for row in results[:5]:
-            p_name = row[col_map.get("product_name", col_map.get("name", 0))]
-            sf = row[col_map["shortfall"]]
-            lines.append(f"• **{p_name}**: Projected deficit of **{int(sf):,} units**")
+            p_name = row[col_map.get("product_name", col_map.get("name", col_map.get("product", 0)))]
+            sf = row[col_map[sf_key]]
+            try:
+                sf_int = int(float(sf)) if sf is not None else 0
+            except (ValueError, TypeError):
+                sf_int = 0
+            lines.append(f"• **{p_name}**: Projected deficit of **{sf_int:,} units**")
         return f"Identified **{row_count} products** with inventory buffer deficits:\n\n" + "\n".join(lines)
 
     # Plant formatting
