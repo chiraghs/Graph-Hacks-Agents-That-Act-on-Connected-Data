@@ -480,18 +480,8 @@ This repository includes a [`Dockerfile`](Dockerfile) (built on `python:3.14-sli
 │   ├── seed.py            # Graph database seeder CLI
 │   ├── reset_decisions.py # Clean-slate decision reset utility for live demos
 │   └── run_agent.py       # Terminal runner for autonomous investigation loop
-├── static/                # Pure vanilla zero-build web frontend
-│   ├── index.html         # Clean semantic HTML layout (1,929 lines, zero inline clutter)
-│   ├── css/
-│   │   └── theme.css      # Design tokens, light/dark mode variables, animations
-│   ├── js/
-│   │   ├── theme.js       # Light/dark mode toggle & persistent storage
-│   │   ├── navigation.js  # Client-side router & view switcher
-│   │   ├── twin.js        # Interactive SVG canvas pan/zoom & machine drawer
-│   │   ├── copilot.js     # NL-to-Cypher Ask Copilot modal & chat thread
-│   │   ├── agent_console.js # Live SSE streaming & tool latency tracker
-│   │   ├── vis_graph.js   # Vis.js evidence network graph renderer
-│   │   └── app.js         # Main application bootstrapper & global actions
+├── static/                # Self-contained web frontend (Zero external build dependencies)
+│   ├── index.html         # Complete TwinForge Connected Graph Studio SPA
 │   └── twinforge_connected_graph_walkthrough_demo.mp4 # Direct streamable 3.4-min walkthrough video
 ├── video_build/           # Video synthesis pipeline (edge-tts natural voiceover, Playwright tour)
 ├── queries.md             # Cypher query catalog & SQL multi-join comparison

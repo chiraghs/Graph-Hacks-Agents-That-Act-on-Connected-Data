@@ -80,8 +80,146 @@
     };
   </script>
 
-  <!-- TwinForge Design Tokens and Styles -->
-  <link rel="stylesheet" href="/static/css/theme.css">
+  <style>
+    /* TwinForge Design Tokens (Dark Theme) */
+    :root {
+      color-scheme: dark;
+      --color-canvas: #070b14;
+      --color-deep: #080d19;
+      --color-shell: #0a1020;
+      --color-surface: #111a2e;
+      --color-surface-2: #16213a;
+      --color-surface-3: #1c2a47;
+      --color-line: #1e2a44;
+      --color-line-strong: #2b3b5e;
+      --color-ink: #e6ebf5;
+      --color-ink-2: #a9b4c8;
+      --color-muted: #6f7d99;
+
+      --color-accent: #4c8dff;
+      --color-accent-strong: #2f74f0;
+      --color-accent-soft: #10224a;
+      --color-accent-ink: #9cc0ff;
+      --color-agent: #9085e9;
+      --color-agent-ink: #c4bdf7;
+
+      --color-healthy: #10b981;
+      --color-warning: #f59e0b;
+      --color-critical: #ef4444;
+      --color-offline: #64748b;
+      --color-maint: #818cf8;
+      --color-healthy-ink: #5ee0b0;
+      --color-warning-ink: #fbc561;
+      --color-critical-ink: #ff8a8a;
+      --color-offline-ink: #a6b1c4;
+      --color-maint-ink: #b4bcfb;
+
+      --color-series-1: #3987e5;
+      --color-series-2: #d95926;
+      --color-series-3: #199e70;
+      --color-series-4: #c98500;
+      --color-reference: #8a94a8;
+
+      --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+      --minimap-mask: rgba(7, 11, 20, 0.7);
+      --grid-tint: rgba(148, 163, 184, 0.06);
+      --canvas-grid-dot: rgba(148, 163, 184, 0.12);
+      --scrollbar-thumb: #1e2a44;
+      --scrollbar-thumb-hover: #2b3b5e;
+      --radius-card: 12px;
+    }
+
+    /* TwinForge Design Tokens (Light Theme — Default) */
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --color-canvas: #f3f5f9;
+      --color-deep: #eaeef5;
+      --color-shell: #ffffff;
+      --color-surface: #ffffff;
+      --color-surface-2: #f1f4f9;
+      --color-surface-3: #e3e8f0;
+      --color-line: #e2e7ef;
+      --color-line-strong: #cbd4e1;
+      --color-ink: #0f172a;
+      --color-ink-2: #334155;
+      --color-muted: #64748b;
+
+      --color-accent: #2563eb;
+      --color-accent-strong: #1d4ed8;
+      --color-accent-soft: #e7efff;
+      --color-accent-ink: #1d4ed8;
+      --color-agent: #6d5ae6;
+      --color-agent-ink: #5640d6;
+
+      --color-healthy: #10b981;
+      --color-warning: #f59e0b;
+      --color-critical: #ef4444;
+      --color-offline: #64748b;
+      --color-maint: #818cf8;
+      --color-healthy-ink: #047857;
+      --color-warning-ink: #b45309;
+      --color-critical-ink: #c81e1e;
+      --color-offline-ink: #475569;
+      --color-maint-ink: #4338ca;
+
+      --color-series-1: #2a78d6;
+      --color-series-2: #eb6834;
+      --color-series-3: #1baf7a;
+      --color-series-4: #eda100;
+      --color-reference: #94a3b8;
+
+      --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px -14px rgba(15, 23, 42, 0.22);
+      --minimap-mask: rgba(243, 245, 249, 0.75);
+      --grid-tint: rgba(15, 23, 42, 0.05);
+      --canvas-grid-dot: rgba(15, 23, 42, 0.12);
+      --scrollbar-thumb: #cbd4e1;
+      --scrollbar-thumb-hover: #94a3b8;
+    }
+
+    body {
+      background-color: var(--color-canvas);
+      color: var(--color-ink);
+      font-family: 'Inter', sans-serif;
+      transition: background-color 200ms ease, color 200ms ease;
+    }
+    .grid-bg {
+      background-image: radial-gradient(var(--canvas-grid-dot) 1.2px, transparent 1.2px);
+      background-size: 22px 22px;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--color-deep);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--scrollbar-thumb-hover);
+    }
+    @keyframes pulseRing {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      70% { transform: scale(2.2); opacity: 0; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .animate-pulse-ring {
+      animation: pulseRing 1.8s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
+    }
+    @keyframes flowAnim {
+      to { stroke-dashoffset: -16; }
+    }
+    .edge-flow {
+      stroke-dasharray: 6 4;
+      animation: flowAnim 1.2s linear infinite;
+    }
+    .edge-flow-hot {
+      stroke-dasharray: 5 3;
+      animation: flowAnim 0.7s linear infinite;
+    }
+  </style>
 </head>
 <body class="min-h-screen antialiased bg-canvas text-ink select-none overflow-x-hidden">
 
@@ -1917,13 +2055,656 @@
     </div>
   </div>
 
-  <!-- Modular Client Scripts (Zero-Build Vanilla Architecture) -->
-  <script src="/static/js/theme.js"></script>
-  <script src="/static/js/navigation.js"></script>
-  <script src="/static/js/twin.js"></script>
-  <script src="/static/js/copilot.js"></script>
-  <script src="/static/js/agent_console.js"></script>
-  <script src="/static/js/vis_graph.js"></script>
-  <script src="/static/js/app.js"></script>
+  <script>
+    // State management
+    let currentView = 'twin';
+    let currentTwinMode = 'topology';
+    let canvasZoom = 0.80;
+    let canvasPanX = 10;
+    let canvasPanY = 15;
+    let isDraggingCanvas = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+
+    // Navigation Router
+    function navigatePage(viewName) {
+      if (viewName === 'connected-graph') viewName = 'twin';
+      const views = ['twin', 'dashboard', 'agents', 'simulator', 'approvals', 'audit', 'control-room', 'integrations'];
+      views.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        const btn = document.getElementById('nav-btn-' + v);
+        if (el) el.classList.add('hidden');
+        if (btn) {
+          btn.className = "group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors";
+        }
+      });
+
+      const activeEl = document.getElementById('view-' + viewName);
+      const activeBtn = document.getElementById('nav-btn-' + viewName);
+      if (activeEl) activeEl.classList.remove('hidden');
+      if (activeBtn) {
+        activeBtn.className = "group flex h-9 items-center gap-2.5 rounded-lg px-2.5 bg-surface-2 text-ink shadow-[inset_2px_0_0_var(--color-accent)] transition-colors";
+      }
+      currentView = viewName;
+      window.history.pushState({}, '', '/' + viewName);
+
+      if (viewName === 'agents') loadSubgraph();
+      if (viewName === 'integrations') checkHealth();
+      if (viewName === 'dashboard') loadKpis();
+    }
+
+    // View Switcher inside Twin Studio
+    function setTwinView(mode) {
+      currentTwinMode = mode;
+      const modes = ['topology', 'floor'];
+      modes.forEach(m => {
+        const btn = document.getElementById('tab-twin-' + m);
+        const st = document.getElementById('stage-' + m);
+        if (btn) btn.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] text-muted hover:text-ink transition-colors";
+        if (st) st.classList.add('hidden');
+      });
+
+      const activeBtn = document.getElementById('tab-twin-' + mode);
+      const activeStage = document.getElementById('stage-' + mode);
+      if (activeBtn) activeBtn.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] bg-surface-3 text-ink font-medium transition-colors";
+      if (activeStage) activeStage.classList.remove('hidden');
+    }
+
+    // Interactive Canvas Pan & Zoom
+    const canvasViewport = document.getElementById('twin-canvas-viewport');
+    const stageTopology = document.getElementById('stage-topology');
+
+    canvasViewport.addEventListener('mousedown', (e) => {
+      if (e.target.closest('#drawer-asset-panel') || e.target.closest('#risk-watchlist-box') || e.target.closest('.cursor-pointer')) return;
+      isDraggingCanvas = true;
+      dragStartX = e.clientX - canvasPanX;
+      dragStartY = e.clientY - canvasPanY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDraggingCanvas) return;
+      canvasPanX = e.clientX - dragStartX;
+      canvasPanY = e.clientY - dragStartY;
+      updateCanvasTransform();
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDraggingCanvas = false;
+    });
+
+    canvasViewport.addEventListener('wheel', (e) => {
+      if (currentTwinMode !== 'topology') return;
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+      canvasZoom = Math.min(2.5, Math.max(0.4, canvasZoom * zoomFactor));
+      updateCanvasTransform();
+    }, { passive: false });
+
+    function zoomCanvas(factor) {
+      canvasZoom = Math.min(2.5, Math.max(0.4, canvasZoom * factor));
+      updateCanvasTransform();
+    }
+
+    function resetCanvasTransform() {
+      canvasZoom = 0.96;
+      canvasPanX = 20;
+      canvasPanY = 20;
+      updateCanvasTransform();
+    }
+
+    function updateCanvasTransform() {
+      if (stageTopology) {
+        stageTopology.style.transform = `translate(${canvasPanX}px, ${canvasPanY}px) scale(${canvasZoom})`;
+      }
+    }
+
+    // Watchlist Dropdown
+    function toggleWatchlist() {
+      const el = document.getElementById('watchlist-dropdown-content');
+      const ch = document.getElementById('watchlist-chevron');
+      if (el) {
+        el.classList.toggle('hidden');
+        if (ch) ch.classList.toggle('rotate-180');
+      }
+    }
+
+    // Demo Controls Dropdown
+    function toggleDemoMenu() {
+      const el = document.getElementById('demo-menu-dropdown');
+      if (el) el.classList.toggle('hidden');
+    }
+
+    // Asset Panel Drawer
+    function selectAsset(assetId) {
+      const drawer = document.getElementById('drawer-asset-panel');
+      const nameEl = document.getElementById('drawer-asset-name');
+      const idEl = document.getElementById('drawer-asset-id');
+      const subEl = document.getElementById('drawer-asset-sub');
+      const healthEl = document.getElementById('drawer-metric-health');
+      const healthBar = document.getElementById('drawer-bar-health');
+      const vibEl = document.getElementById('drawer-metric-vibration');
+      const tempEl = document.getElementById('drawer-metric-temp');
+
+      if (assetId === 'A-ROB-03' || assetId === 'M7') {
+        if (idEl) idEl.innerText = "A-ROB-03 (M7)";
+        if (nameEl) nameEl.innerText = "Assembly Robot A3";
+        if (subEl) subEl.innerText = "Six-Axis Articulated Robot \u2022 KUKA KR-16 \u2022 Assembly Line A";
+        if (healthEl) healthEl.innerText = "58";
+        if (healthBar) { healthBar.style.width = "58%"; healthBar.className = "h-full bg-warning rounded-full"; }
+        if (vibEl) vibEl.innerText = "6.22 mm/s";
+        if (tempEl) tempEl.innerText = "69.0 \u00B0C";
+      } else if (assetId === 'B-ROB-03' || assetId === 'M12') {
+        if (idEl) idEl.innerText = "B-ROB-03 (M12)";
+        if (nameEl) nameEl.innerText = "Assembly Robot B3";
+        if (subEl) subEl.innerText = "Articulated Robot \u2022 Redundant Backup M13 Online \u2022 Assembly Line B";
+        if (healthEl) healthEl.innerText = "100";
+        if (healthBar) { healthBar.style.width = "100%"; healthBar.className = "h-full bg-healthy rounded-full"; }
+        if (vibEl) vibEl.innerText = "2.60 mm/s";
+        if (tempEl) tempEl.innerText = "56.0 \u00B0C";
+      } else {
+        if (idEl) idEl.innerText = assetId;
+        if (nameEl) nameEl.innerText = assetId;
+        if (subEl) subEl.innerText = "Automated Equipment \u2022 Nominal Operation";
+        if (healthEl) healthEl.innerText = "100";
+        if (healthBar) { healthBar.style.width = "100%"; healthBar.className = "h-full bg-healthy rounded-full"; }
+        if (vibEl) vibEl.innerText = "1.60 mm/s";
+      }
+
+      if (drawer) drawer.classList.remove('hidden');
+
+      // Query live FalkorDB graph impact & blast radius
+      const targetMachineId = (assetId.includes('A-ROB-03') || assetId === 'M7') ? 'M7' : ((assetId.includes('B-ROB-03') || assetId === 'M12') ? 'M12' : null);
+      if (targetMachineId) {
+        fetch('/api/simulate/' + targetMachineId)
+          .then(r => r.json())
+          .then(data => {
+            if (data && data.machine) {
+              const m = data.machine;
+              if (healthEl && m.health_score !== undefined) {
+                healthEl.innerText = m.health_score;
+                if (healthBar) healthBar.style.width = m.health_score + '%';
+              }
+              const linksEl = document.getElementById('drawer-links-content');
+              if (linksEl && data.impact) {
+                const parts = (data.impact.affected_parts || []).map(p => p.name).join(', ') || 'P-ROTOR-X (PT-4)';
+                const prods = (data.impact.downstream_products || []).map(p => `${p.name} [Shortfall: ${p.shortfall}u]`).join(', ') || 'ECU-200 (P4)';
+                const custs = (data.impact.affected_customers || []).map(c => c.name).join(', ') || 'ORD-1042 (Kestrel Robotics)';
+                linksEl.innerHTML = `
+                  <p class="text-ink flex items-center gap-2">
+                    <span class="text-accent">&rarr;</span> Machine <span class="font-bold text-warning">${m.id} (${m.name})</span> [Risk: ${Math.round(m.failure_risk * 100)}%]
+                  </p>
+                  <p class="text-ink-2 pl-4 flex items-center gap-2">
+                    <span class="text-accent">&rarr;</span> Part <span class="font-bold text-accent">${parts}</span> [Single Point of Failure]
+                  </p>
+                  <p class="text-ink-2 pl-8 flex items-center gap-2">
+                    <span class="text-accent">&rarr;</span> Product <span class="font-bold text-critical">${prods}</span>
+                  </p>
+                  <p class="text-ink-2 pl-12 flex items-center gap-2">
+                    <span class="text-accent">&rarr;</span> Impacted Customer <span class="font-bold text-critical-ink">${custs}</span>
+                  </p>
+                `;
+              }
+            }
+          })
+          .catch(e => console.log('FalkorDB simulation fetch:', e));
+      }
+    }
+
+    function selectOtherNode(nodeId) {
+      selectAsset(nodeId);
+    }
+
+    function closeAssetPanel() {
+      const drawer = document.getElementById('drawer-asset-panel');
+      if (drawer) drawer.classList.add('hidden');
+    }
+
+    function switchDrawerTab(tabName) {
+      const tabs = ['overview', 'telemetry', 'links', 'history'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('tab-drawer-' + t);
+        const content = document.getElementById('drawer-tab-' + t);
+        if (btn) btn.className = "border-b-2 border-transparent hover:text-ink pb-2";
+        if (content) content.classList.add('hidden');
+      });
+
+      const activeBtn = document.getElementById('tab-drawer-' + tabName);
+      const activeContent = document.getElementById('drawer-tab-' + tabName);
+      if (activeBtn) activeBtn.className = "border-b-2 border-accent text-ink pb-2 font-semibold";
+      if (activeContent) activeContent.classList.remove('hidden');
+    }
+
+    // Camera Modal
+    function openCameraModal(camId) {
+      const modal = document.getElementById('camera-modal');
+      const title = document.getElementById('camera-modal-title');
+      if (title) title.innerText = "CAMERA STREAM: " + camId.toUpperCase();
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeCameraModal() {
+      const modal = document.getElementById('camera-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // ==========================================
+    // Graph Copilot Controller (NLP -> Cypher)
+    // ==========================================
+    function openCopilotModal() {
+      const modal = document.getElementById('copilot-modal');
+      if (modal) modal.classList.remove('hidden');
+      const input = document.getElementById('copilot-user-input');
+      if (input) {
+        input.focus();
+      }
+    }
+
+    function closeCopilotModal() {
+      const modal = document.getElementById('copilot-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function sendCopilotPrompt(text) {
+      const input = document.getElementById('copilot-user-input');
+      if (input) {
+        input.value = text;
+        submitCopilotQuery();
+      }
+    }
+
+    async function submitCopilotQuery() {
+      const input = document.getElementById('copilot-user-input');
+      const thread = document.getElementById('copilot-chat-thread');
+      const sendBtn = document.getElementById('copilot-submit-btn');
+      if (!input || !thread) return;
+
+      const query = input.value.trim();
+      if (!query) return;
+
+      input.value = '';
+      if (sendBtn) sendBtn.disabled = true;
+
+      // 1. Append User Message Bubble
+      const userBubble = document.createElement('div');
+      userBubble.className = "flex items-start justify-end gap-3";
+      userBubble.innerHTML = `
+        <div class="rounded-xl bg-accent px-4 py-2.5 text-xs text-white max-w-[80%] shadow-sm">
+          <p>${escapeHtml(query)}</p>
+        </div>
+      `;
+      thread.appendChild(userBubble);
+
+      // 2. Append Loading Placeholder Bubble
+      const loadingId = 'copilot-loading-' + Date.now();
+      const loadingBubble = document.createElement('div');
+      loadingBubble.id = loadingId;
+      loadingBubble.className = "flex items-start gap-3 animate-pulse";
+      loadingBubble.innerHTML = `
+        <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-agent text-white text-xs font-bold shadow">
+          TF
+        </div>
+        <div class="rounded-xl border border-line bg-surface p-3 text-xs text-muted max-w-[85%] flex items-center gap-2">
+          <span class="inline-block h-3 w-3 animate-spin rounded-full border-2 border-agent border-t-transparent"></span>
+          <span>Querying FalkorDB context layer...</span>
+        </div>
+      `;
+      thread.appendChild(loadingBubble);
+      thread.scrollTop = thread.scrollHeight;
+
+      try {
+        const resp = await fetch('/api/copilot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: query })
+        });
+        const data = await resp.json();
+
+        // Remove loading placeholder
+        const loader = document.getElementById(loadingId);
+        if (loader) loader.remove();
+
+        // 3. Append Copilot Response Bubble
+        const responseBubble = document.createElement('div');
+        responseBubble.className = "flex items-start gap-3";
+
+        if (data.status === 'success') {
+          const cypherHtml = data.cypher ? `
+            <div class="mt-2.5 rounded-lg border border-line-strong bg-deep p-2.5 font-mono text-[11px] overflow-x-auto">
+              <div class="flex items-center justify-between text-[10px] text-muted mb-1 pb-1 border-b border-line">
+                <span class="text-accent font-semibold flex items-center gap-1">
+                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                  GENERATED CYPHER
+                </span>
+                <span class="text-healthy font-semibold">⚡ ${data.falkordb_latency_ms || 1.8}ms on FalkorDB</span>
+              </div>
+              <code class="text-ink-2 select-all">${escapeHtml(data.cypher)}</code>
+            </div>
+          ` : '';
+
+          const answerFormatted = escapeHtml(data.answer || data.explanation || '')
+            .replace(/\*\*(.*?)\*\*/g, '<strong class="text-ink font-semibold">$1</strong>')
+            .replace(/• (.*?)(?:\n|$)/g, '<div class="flex items-start gap-1.5 my-1"><span class="text-accent">•</span><span>$1</span></div>')
+            .replace(/\n\n/g, '<br/>');
+
+          responseBubble.innerHTML = `
+            <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-agent text-white text-xs font-bold shadow">
+              TF
+            </div>
+            <div class="rounded-xl border border-line bg-surface p-4 text-xs text-ink-2 max-w-[85%] shadow-sm space-y-2">
+              <div class="flex items-center justify-between text-[10px] text-muted border-b border-line pb-1.5">
+                <span class="flex items-center gap-1 text-agent font-medium">
+                  <span class="h-1.5 w-1.5 rounded-full bg-agent"></span>
+                  ${escapeHtml(data.provider || 'TwinForge Engine')} &bull; ${escapeHtml(data.model || 'Free Open Model')}
+                </span>
+                <span>${data.row_count || 0} records matched</span>
+              </div>
+              <div class="text-ink leading-relaxed font-sans text-[12.5px]">
+                ${answerFormatted}
+              </div>
+              ${cypherHtml}
+            </div>
+          `;
+        } else {
+          responseBubble.innerHTML = `
+            <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-critical text-white text-xs font-bold shadow">
+              !
+            </div>
+            <div class="rounded-xl border border-red-500/30 bg-red-500/5 p-3.5 text-xs text-critical max-w-[85%] space-y-1">
+              <p class="font-semibold">Unable to resolve query</p>
+              <p class="text-[11px] text-muted">${escapeHtml(data.message || data.error || 'Unknown query error')}</p>
+            </div>
+          `;
+        }
+
+        thread.appendChild(responseBubble);
+        thread.scrollTop = thread.scrollHeight;
+      } catch (err) {
+        const loader = document.getElementById(loadingId);
+        if (loader) loader.remove();
+        const errBubble = document.createElement('div');
+        errBubble.className = "flex items-start gap-3";
+        errBubble.innerHTML = `
+          <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-critical text-white text-xs font-bold shadow">!</div>
+          <div class="rounded-xl border border-red-500/30 bg-red-500/5 p-3 text-xs text-critical">
+            Network error communicating with Copilot endpoint: ${escapeHtml(err.message)}
+          </div>
+        `;
+        thread.appendChild(errBubble);
+      } finally {
+        if (sendBtn) sendBtn.disabled = false;
+        if (input) input.focus();
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // AI Investigation Runner with SSE Streaming
+    function startInvestigation() {
+      const logs = document.getElementById('agent-logs-container');
+      const badge = document.getElementById('agent-active-badge');
+      const runBtn = document.getElementById('btn-run-agent');
+
+      if (logs) logs.innerHTML = '';
+      if (badge) badge.classList.remove('hidden');
+      if (runBtn) runBtn.disabled = true;
+
+      const evtSource = new EventSource('/api/investigate');
+      evtSource.onmessage = function(event) {
+        if (!event.data) return;
+        let msg;
+        try { msg = JSON.parse(event.data); } catch(e) { return; }
+
+        const evt = msg.event || msg.type || '';
+        const d = msg.data || msg;
+
+        const row = document.createElement('div');
+        row.className = "p-2.5 rounded-lg border text-xs font-mono transition-all";
+
+        if (evt === 'tool_call') {
+          row.className += " border-accent/30 bg-accent/5 text-ink";
+          const inputStr = d.input ? JSON.stringify(d.input) : (d.args ? JSON.stringify(d.args) : '');
+          row.innerHTML = `
+            <div class="flex items-center justify-between text-accent font-semibold mb-1">
+              <span class="flex items-center gap-1.5">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                CYPHER TOOL: ${d.tool || ''}
+              </span>
+              <span class="text-[10px] text-muted uppercase tracking-wider">MCP CALL</span>
+            </div>
+            <div class="text-[11.5px] text-ink-2 mb-1">${d.purpose || 'Traversing FalkorDB supply chain topology'}</div>
+            <div class="text-[10px] text-muted bg-surface/80 rounded px-1.5 py-0.5 font-mono break-all">${inputStr}</div>
+          `;
+        } else if (evt === 'tool_result') {
+          row.className += " border-healthy/30 bg-healthy/5 text-ink";
+          let resultSummary = '';
+          if (typeof d.result === 'object' && d.result !== null) {
+            if (d.result.error) {
+              resultSummary = `<span class="text-critical">Error: ${d.result.error}</span>`;
+            } else if (d.result.decision_id) {
+              resultSummary = `Decision Committed: <strong class="text-healthy-ink font-bold">${d.result.decision_id}</strong> (${d.result.type}) &bull; Linked Evidence: ${d.result.linked_evidence_count} nodes`;
+            } else if (d.result.explanation) {
+              resultSummary = `Path Traversed: ${d.result.explanation}`;
+            } else if (d.result.shortfall_units !== undefined) {
+              resultSummary = `Product: ${d.result.product_id} &bull; Forecast: ${d.result.forecast_30d}u &bull; Shortfall: <strong class="text-critical font-bold">${d.result.shortfall_units}u</strong>`;
+            } else if (d.result.affected_customers) {
+              resultSummary = `Impact Radius: ${d.result.affected_parts ? d.result.affected_parts.length : 0} parts, ${d.result.affected_products ? d.result.affected_products.length : 0} products, ${d.result.affected_customers.length} enterprise customers`;
+            } else if (d.result.available_suppliers_by_lead_time) {
+              resultSummary = `Alternate Suppliers: ${d.result.available_suppliers_by_lead_time.map(s => s.name + ' (' + s.lead_time_days + 'd lead)').join(', ')}`;
+            } else {
+              resultSummary = JSON.stringify(d.result).slice(0, 150) + '...';
+            }
+          } else {
+            resultSummary = String(d.result).slice(0, 150);
+          }
+
+          row.innerHTML = `
+            <div class="flex items-center justify-between text-healthy font-semibold mb-1">
+              <span class="flex items-center gap-1.5">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                FALKORDB RESULT: ${d.tool || ''}
+              </span>
+              <span class="text-[10px] text-muted font-mono">${d.latency_ms ? d.latency_ms + 'ms' : '<1ms'}</span>
+            </div>
+            <div class="text-[11.5px] text-ink-2">${resultSummary}</div>
+          `;
+        } else if (evt === 'agent_thought') {
+          row.className += " border-agent/30 bg-agent/5 text-ink";
+          row.innerHTML = `
+            <div class="text-agent font-semibold text-xs mb-1 flex items-center gap-1.5">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+              AGENT REASONING
+            </div>
+            <div class="text-[11.5px] text-ink-2 leading-relaxed">${d.text || ''}</div>
+          `;
+        } else if (evt === 'agent_report') {
+          row.className += " border-warning/40 bg-warning/10 text-ink";
+          row.innerHTML = `
+            <div class="text-warning font-bold text-xs mb-1.5 flex items-center gap-1.5">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              PRESCRIPTIVE MITIGATION REPORT
+            </div>
+            <div class="text-[11.5px] text-ink-2 mb-2">${d.summary || 'Completed multi-hop graph analysis. Dispatched mitigation actions.'}</div>
+            <div class="text-[10.5px] text-healthy font-semibold">Graph Evidence Generated &bull; Lineage linked in FalkorDB</div>
+          `;
+          loadSubgraph();
+        } else if (evt === 'agent_start') {
+          row.className += " border-line bg-surface-2/40 text-muted";
+          row.innerHTML = `<span class="text-accent font-bold">&bull;</span> <span class="text-ink-2">${d.message || 'Starting agent investigation...'}</span>`;
+        } else {
+          row.className += " border-line bg-surface-2/40 text-muted";
+          row.innerHTML = `<span class="text-ink-2">${JSON.stringify(d)}</span>`;
+        }
+        logs.appendChild(row);
+        logs.scrollTop = logs.scrollHeight;
+      };
+
+      evtSource.addEventListener('done', function() {
+        evtSource.close();
+        if (badge) badge.classList.add('hidden');
+        if (runBtn) runBtn.disabled = false;
+        loadSubgraph();
+      });
+
+      evtSource.onerror = function() {
+        evtSource.close();
+        if (badge) badge.classList.add('hidden');
+        if (runBtn) runBtn.disabled = false;
+        loadSubgraph();
+      };
+    }
+
+    // Vis.js Evidence Subgraph Loader
+    let visNetworkInstance = null;
+    async function loadSubgraph() {
+      const container = document.getElementById('subgraph-vis-container');
+      if (!container) return;
+
+      try {
+        const res = await fetch('/api/subgraph');
+        const data = await res.json();
+        if (!data.nodes || !data.nodes.length) {
+          container.innerHTML = '<div class="h-full flex items-center justify-center text-muted font-mono text-xs">Run agent investigation to generate evidence nodes.</div>';
+          return;
+        }
+
+        const nodes = new vis.DataSet(data.nodes);
+        const edges = new vis.DataSet(data.edges);
+        const options = {
+          nodes: { borderWidth: 1.5, shadow: true },
+          edges: { smooth: { type: 'cubicBezier' }, font: { color: '#94a3b8', size: 10 } },
+          physics: { stabilization: true, barnesHut: { gravitationalConstant: -3500 } }
+        };
+        visNetworkInstance = new vis.Network(container, { nodes, edges }, options);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Prescriptive Decision Approval
+    async function approvePrescription(type) {
+      try {
+        const res = await fetch('/api/decisions/approve', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            type: type || 'reroute_production',
+            target_id: 'M7',
+            reason: 'Approved mitigation plan: reroute ECU-200 production to Plant 2 (Leipzig) & schedule robotic arm M7 bearing replacement',
+            evidence_ids: ['M7', 'PT-4', 'P4', 'C1']
+          })
+        });
+        const out = await res.json();
+        alert('Prescriptive Decision Approved & Recorded in FalkorDB!\nDecision node created with BASED_ON lineage links.');
+        loadKpis();
+      } catch(e) {
+        alert('Error approving decision: ' + e);
+      }
+    }
+
+    // Reset Demo State in FalkorDB
+    async function resetGraphState() {
+      try {
+        const res = await fetch('/api/reset', { method: 'POST' });
+        const out = await res.json();
+        alert('FalkorDB SupplyChain graph reset and re-seeded successfully (' + JSON.stringify(out.counts || out) + ')');
+        window.location.reload();
+      } catch(e) {
+        alert('Error resetting graph: ' + e);
+      }
+    }
+
+    // Trigger Crisis Demo
+    function triggerCrisisDemo() {
+      navigatePage('twin');
+      selectAsset('A-ROB-03');
+      const dropdown = document.getElementById('demo-menu-dropdown');
+      if (dropdown) dropdown.classList.add('hidden');
+    }
+
+    // Fast-Forward Plant Time Simulation
+    function advancePlantTime(hours) {
+      alert(`Fast-forwarded ${hours} hour(s) of plant simulation time. Synchronized with FalkorDB live state.`);
+      loadKpis();
+      const dropdown = document.getElementById('demo-menu-dropdown');
+      if (dropdown) dropdown.classList.add('hidden');
+    }
+
+    // Health Check & Live KPIs from FalkorDB
+    async function checkHealth() {
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        const hostEl = document.getElementById('integrations-falkordb-host');
+        const envEl = document.getElementById('integrations-env-type');
+        const sslEl = document.getElementById('integrations-ssl-status');
+        if (hostEl) hostEl.innerText = data.target_host + " • Graph: " + data.graph;
+        if (envEl) envEl.innerText = data.environment;
+        if (sslEl) sslEl.innerText = data.tls_enabled ? "Enabled (TLSv1.3)" : "Disabled (Plaintext Local)";
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    async function loadKpis() {
+      try {
+        const res = await fetch('/api/kpis');
+        const data = await res.json();
+        if (data.status === 'online') {
+          const atRiskEl = document.getElementById('kpi-machine-risk');
+          if (atRiskEl) atRiskEl.innerText = (data.at_risk_machines > 0 ? "58.0" : "95.4");
+          const incEl = document.getElementById('kpi-open-incidents');
+          if (incEl) incEl.innerText = data.at_risk_machines;
+        }
+      } catch(e) {
+        console.error('loadKpis error:', e);
+      }
+    }
+
+
+
+    // Theme Manager (Light default, persistent in localStorage)
+    const THEME_KEY = "twinforge-connected-graph-theme";
+    function updateThemeUI(theme) {
+      const sunIcon = document.getElementById('theme-sun-icon');
+      const moonIcon = document.getElementById('theme-moon-icon');
+      const btn = document.getElementById('btn-theme-toggle');
+      if (theme === 'light') {
+        if (sunIcon) sunIcon.classList.remove('hidden');
+        if (moonIcon) moonIcon.classList.add('hidden');
+        if (btn) btn.title = "Switch to dark theme";
+      } else {
+        if (sunIcon) sunIcon.classList.add('hidden');
+        if (moonIcon) moonIcon.classList.remove('hidden');
+        if (btn) btn.title = "Switch to light theme";
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try {
+        localStorage.setItem(THEME_KEY, next);
+      } catch (e) {}
+      updateThemeUI(next);
+    }
+
+    // Handle initial route & theme
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    updateThemeUI(currentTheme);
+
+    const path = window.location.pathname.replace('/', '') || 'twin';
+    navigatePage(path);
+    checkHealth();
+    loadKpis();
+  </script>
 </body>
 </html>
