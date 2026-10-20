@@ -2894,7 +2894,8 @@
     if (_initNodesEl) defaultExpandedTopologyHtml = _initNodesEl.innerHTML;
     if (_initSvgEl) defaultExpandedSvgHtml = _initSvgEl.innerHTML;
 
-    let currentPlantId = localStorage.getItem('twinforge_active_plant') || 'PLANT_DETROIT';
+    let activeBlueprintSeq = 0;
+    let currentPlantId = localStorage.getItem('twinforge_active_plant') || 'ALL';
     window.currentPlantId = currentPlantId;
 
     function togglePlantDropdown() {
@@ -2903,9 +2904,11 @@
     }
 
     function switchPlant(plantId) {
-      if (!PLANTS_DATA[plantId]) plantId = 'PLANT_DETROIT';
+      if (!PLANTS_DATA[plantId]) plantId = 'ALL';
       currentPlantId = plantId;
       window.currentPlantId = plantId;
+      activeBlueprintSeq++;
+      const currentReqSeq = activeBlueprintSeq;
       try {
         localStorage.setItem('twinforge_active_plant', plantId);
       } catch (e) {}
@@ -2996,13 +2999,10 @@
         if (lineB) lineB.classList.remove('opacity-40', 'ring-2', 'ring-blue-500/40');
         if (lineC) lineC.classList.remove('opacity-40', 'ring-2', 'ring-emerald-500/40');
 
-        canvasPanX = 44;
-        canvasPanY = 40;
-        canvasZoom = 0.74;
-        if (typeof updateCanvasTransform === 'function') updateCanvasTransform();
+        centerCanvasTopology(true);
       } else {
         // Single plant: load distinct CAD blueprint layout from SQLite
-        loadPlantBlueprint(plantId);
+        loadPlantBlueprint(plantId, currentReqSeq);
       }
 
       // 6. Update Dashboard
@@ -3016,10 +3016,15 @@
     }
 
     // Dynamic Blueprint Topology Loader (Fetches CAD Layout from SQLite + Live Graph Telemetry)
-    async function loadPlantBlueprint(plantId) {
+    async function loadPlantBlueprint(plantId, reqSeq) {
+      if (plantId === 'ALL') return;
       try {
         const res = await fetch(API_BASE + '/api/factories/' + plantId + '/blueprint');
         const data = await res.json();
+        // Guard against race conditions: abort if user switched plants while request was in-flight
+        if (reqSeq !== activeBlueprintSeq || window.currentPlantId !== plantId) {
+          return;
+        }
         if (data.status === 'success' && data.blueprint) {
           renderBlueprintTopology(data.blueprint);
         }
@@ -3210,9 +3215,6 @@
     const rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '');
     const path = (!rawPath || rawPath === 'home' || rawPath === 'index.html') ? 'twin' : rawPath;
     navigatePage(path);
-    if (path === 'twin') {
-      setTimeout(() => centerCanvasTopology(true), 60);
-    }
     checkHealth();
     switchPlant(currentPlantId);
   </script>
