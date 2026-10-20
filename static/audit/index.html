@@ -329,16 +329,16 @@
       <!-- Main Facility Filter (Simpler Top-Level Dropdown) -->
       <div class="relative">
         <button onclick="toggleFacilityDropdown()" id="btn-facility-selector" class="group flex items-center gap-2.5 rounded-xl border border-line-strong bg-surface hover:bg-surface-2 px-3 py-1.5 transition-all text-left shadow-sm hover:border-accent cursor-pointer">
-          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-500/15 text-cyan-400 font-bold text-sm" id="topbar-facility-icon">
-            🔬
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-500 font-bold text-sm" id="topbar-facility-icon">
+            🏭
           </div>
           <div class="min-w-0 pr-1">
             <div class="flex items-center gap-2">
               <span class="text-[9px] uppercase font-bold text-muted tracking-wider leading-none">Facility</span>
-              <span id="topbar-facility-badge" class="rounded bg-cyan-500/15 px-1.5 py-0.2 text-[9px] font-semibold text-cyan-400 border border-cyan-500/30">London • Class 10</span>
+              <span id="topbar-facility-badge" class="rounded bg-amber-500/15 px-1.5 py-0.2 text-[9px] font-semibold text-amber-500 border border-amber-500/30">Global Automotive</span>
             </div>
             <div class="flex items-center gap-1.5 mt-0.5">
-              <span id="topbar-facility-name" class="font-bold text-[13px] text-ink truncate max-w-[240px] sm:max-w-[360px]">London Semiconductor Foundry</span>
+              <span id="topbar-facility-name" class="font-bold text-[13px] text-ink truncate max-w-[240px] sm:max-w-[360px]">Apex Global Manufacturing Network</span>
               <svg class="h-3.5 w-3.5 shrink-0 text-muted transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </div>
           </div>
@@ -348,8 +348,25 @@
         <div id="facility-selector-dropdown" class="hidden absolute left-0 mt-2 w-80 sm:w-96 rounded-2xl border border-line-strong bg-shell p-2 shadow-2xl z-50 animate-in fade-in duration-150">
           <div class="px-2.5 py-2 border-b border-line mb-1.5 flex items-center justify-between">
             <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Select Facility</span>
-            <span class="text-[10px] text-cyan-400 font-medium">Enterprise Unit</span>
+            <span class="text-[10px] text-accent font-medium">Enterprise Unit</span>
           </div>
+
+          <!-- Apex Automotive Option -->
+          <button onclick="switchFacility('FACILITY_APEX')" class="facility-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left bg-surface-2 hover:bg-surface-2 transition-colors group cursor-pointer" data-facility-id="FACILITY_APEX">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/20 text-amber-500 font-bold text-xs">
+                APX
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-[13px] text-ink truncate">Apex Automotive Network</span>
+                  <span class="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-amber-500">Global</span>
+                </div>
+                <p class="text-[11px] text-muted truncate">Detroit, Munich, Austin &bull; 3 Plants &bull; Powertrain & Robotics</p>
+              </div>
+            </div>
+            <span class="facility-check-icon text-amber-500 font-bold text-sm" data-fac-check="FACILITY_APEX">✓</span>
+          </button>
 
           <!-- London Semiconductor Option -->
           <button onclick="switchFacility('FACILITY_LONDON')" class="facility-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group cursor-pointer" data-facility-id="FACILITY_LONDON">
@@ -365,24 +382,7 @@
                 <p class="text-[11px] text-muted truncate">London, UK &bull; 2 Lines Leading to 1 Shared Unit Facility</p>
               </div>
             </div>
-            <span class="facility-check-icon text-cyan-400 font-bold text-sm" data-fac-check="FACILITY_LONDON">✓</span>
-          </button>
-
-          <!-- Apex Automotive Option -->
-          <button onclick="switchFacility('FACILITY_APEX')" class="facility-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group cursor-pointer" data-facility-id="FACILITY_APEX">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/20 text-amber-500 font-bold text-xs">
-                APX
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold text-[13px] text-ink truncate">Apex Automotive Network</span>
-                  <span class="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-amber-500">Global</span>
-                </div>
-                <p class="text-[11px] text-muted truncate">Detroit, Munich, Austin &bull; 3 Plants &bull; Powertrain & Robotics</p>
-              </div>
-            </div>
-            <span class="facility-check-icon text-amber-500 font-bold text-sm hidden" data-fac-check="FACILITY_APEX">✓</span>
+            <span class="facility-check-icon text-cyan-400 font-bold text-sm hidden" data-fac-check="FACILITY_LONDON">✓</span>
           </button>
         </div>
       </div>
@@ -503,8 +503,8 @@
             <button onclick="togglePlantDropdown()" id="btn-plant-selector" class="flex h-7 items-center gap-2 rounded-lg border border-line bg-shell hover:bg-surface-2 px-2.5 text-[12px] font-medium text-ink transition-colors cursor-pointer shadow-sm hover:border-line-strong">
               <span id="twin-plant-icon" class="text-xs">🌐</span>
               <span class="text-muted text-[11px] hidden sm:inline">Plant / Line:</span>
-              <span id="twin-selected-plant-name" class="font-semibold text-ink truncate max-w-[180px] sm:max-w-[280px]">Thames Semiconductor Foundry (Full Unit)</span>
-              <span id="twin-selected-plant-badge" class="rounded px-1.5 py-0.2 text-[9.5px] font-semibold text-cyan-400 bg-cyan-500/15 border border-cyan-500/30 uppercase">London Unit</span>
+              <span id="twin-selected-plant-name" class="font-semibold text-ink truncate max-w-[180px] sm:max-w-[280px]">Apex Global Enterprise Network (All Plants)</span>
+              <span id="twin-selected-plant-badge" class="rounded px-1.5 py-0.2 text-[9.5px] font-semibold text-accent bg-accent/15 border border-accent/30 uppercase">Global Enterprise</span>
               <svg class="h-3 w-3 shrink-0 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
 
@@ -512,7 +512,7 @@
             <div id="plant-selector-dropdown" class="hidden absolute left-0 mt-1.5 w-80 sm:w-96 rounded-2xl border border-line-strong bg-shell p-2 shadow-2xl z-50 animate-in fade-in duration-150">
               <div class="px-2.5 py-2 border-b border-line mb-1.5 flex items-center justify-between">
                 <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Select Plant / Line</span>
-                <span id="plant-dropdown-facility-label" class="text-[10px] text-accent font-medium">London Facility</span>
+                <span id="plant-dropdown-facility-label" class="text-[10px] text-accent font-medium">Apex Automotive Network</span>
               </div>
               <div id="plant-options-list" class="space-y-1">
                 <!-- Dynamically populated by renderFacilityPlantsUI -->
@@ -2968,8 +2968,8 @@
     if (_initSvgEl) defaultExpandedSvgHtml = _initSvgEl.innerHTML;
 
     let activeBlueprintSeq = 0;
-    let currentFacilityId = localStorage.getItem('twinforge_active_facility') || 'FACILITY_LONDON';
-    let currentPlantId = localStorage.getItem('twinforge_active_plant') || 'PLANT_LONDON_ALL';
+    let currentFacilityId = localStorage.getItem('twinforge_active_facility') || 'FACILITY_APEX';
+    let currentPlantId = localStorage.getItem('twinforge_active_plant') || 'ALL';
     window.currentFacilityId = currentFacilityId;
     window.currentPlantId = currentPlantId;
 
@@ -2979,7 +2979,7 @@
     }
 
     function switchFacility(facilityId, targetPlantOverride) {
-      if (!FACILITIES_DATA[facilityId]) facilityId = 'FACILITY_LONDON';
+      if (!FACILITIES_DATA[facilityId]) facilityId = 'FACILITY_APEX';
       currentFacilityId = facilityId;
       window.currentFacilityId = facilityId;
       try {
@@ -3074,7 +3074,7 @@
     }
 
     function switchPlant(plantId) {
-      if (!PLANTS_DATA[plantId]) plantId = 'PLANT_LONDON_ALL';
+      if (!PLANTS_DATA[plantId]) plantId = 'ALL';
       currentPlantId = plantId;
       window.currentPlantId = plantId;
       activeBlueprintSeq++;
