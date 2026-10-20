@@ -35,6 +35,7 @@ subprocess.run(cmd, check=True)
 
 import shutil
 shutil.copy(output_mp4, os.path.join("static", output_mp4))
+shutil.copy(output_mp4, os.path.join("static", "twinforge_demo.mp4"))
 
 # Probe final MP4
 probe_cmd = [

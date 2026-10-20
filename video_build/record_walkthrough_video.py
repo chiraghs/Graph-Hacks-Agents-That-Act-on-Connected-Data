@@ -99,9 +99,52 @@ with sync_playwright() as p:
     wait_until(s2['end'])
 
     # -------------------------------------------------------------
-    # SCENE 3: Command Center & FalkorDB KPIs (62.2s -> ~90.2s)
+    # SCENE COPILOT: TwinForge Graph Copilot & NL Cypher
     # -------------------------------------------------------------
-    s3 = scenes[2]
+    s_copilot = scenes[2]
+    print(f"Executing {s_copilot['id']}: {s_copilot['title']} ({s_copilot['start']:.1f}s - {s_copilot['end']:.1f}s)")
+
+    # 1. Close asset drawer
+    page.evaluate("const d = document.getElementById('drawer-asset-panel'); if (d) d.classList.add('hidden');")
+    time.sleep(1.0)
+
+    # 2. Open Copilot Modal
+    page.evaluate("openCopilotModal();")
+    time.sleep(2.0)
+
+    # 3. Conversational Greeting: "Hi"
+    page.click("#copilot-user-input")
+    page.keyboard.type("Hi", delay=80)
+    time.sleep(0.6)
+    page.click("#copilot-submit-btn")
+    time.sleep(5.0)
+
+    # 4. Multi-hop Operational Cypher Question
+    q = "If Machine M7 in Detroit fails, what is the inventory shortfall and hourly penalty for HyperDrive Electric Motors order of P4 Smart Turbines?"
+    page.click("#copilot-user-input")
+    page.keyboard.type(q, delay=22)
+    time.sleep(0.8)
+    page.click("#copilot-submit-btn")
+    time.sleep(4.0)
+
+    # 5. Scroll chat thread to reveal Cypher query and answer cards
+    page.evaluate("const ct = document.getElementById('copilot-chat-thread'); if (ct) ct.scrollTop = ct.scrollHeight;")
+    time.sleep(2.0)
+    page.mouse.move(960, 550)
+    time.sleep(3.0)
+    page.mouse.move(960, 680)
+    time.sleep(4.0)
+
+    # 6. Close Copilot Modal before switching to Command Center
+    wait_until(s_copilot['end'] - 2.0)
+    page.evaluate("closeCopilotModal();")
+    time.sleep(1.5)
+    wait_until(s_copilot['end'])
+
+    # -------------------------------------------------------------
+    # SCENE 3: Command Center & FalkorDB KPIs
+    # -------------------------------------------------------------
+    s3 = scenes[3]
     print(f"Executing {s3['id']}: {s3['title']} ({s3['start']:.1f}s - {s3['end']:.1f}s)")
     
     page.evaluate("navigatePage('dashboard');")
@@ -125,7 +168,7 @@ with sync_playwright() as p:
     # -------------------------------------------------------------
     # SCENE 4: Autonomous AI Agent Investigation
     # -------------------------------------------------------------
-    s4 = scenes[3]
+    s4 = scenes[4]
     print(f"Executing {s4['id']}: {s4['title']} ({s4['start']:.1f}s - {s4['end']:.1f}s)")
     
     page.evaluate("navigatePage('agents');")
@@ -149,9 +192,9 @@ with sync_playwright() as p:
     wait_until(s4['end'])
 
     # -------------------------------------------------------------
-    # SCENE 5: Multi-Echelon Supply Chain Simulator (119.7s -> ~146.7s)
+    # SCENE 5: Multi-Echelon Supply Chain Simulator
     # -------------------------------------------------------------
-    s5 = scenes[4]
+    s5 = scenes[5]
     print(f"Executing {s5['id']}: {s5['title']} ({s5['start']:.1f}s - {s5['end']:.1f}s)")
     
     page.evaluate("navigatePage('simulator');")
@@ -167,9 +210,9 @@ with sync_playwright() as p:
     wait_until(s5['end'])
 
     # -------------------------------------------------------------
-    # SCENE 6: Prescriptive Approvals & Graph Lineage (146.7s -> ~172.6s)
+    # SCENE 6: Prescriptive Approvals & Graph Lineage
     # -------------------------------------------------------------
-    s6 = scenes[5]
+    s6 = scenes[6]
     print(f"Executing {s6['id']}: {s6['title']} ({s6['start']:.1f}s - {s6['end']:.1f}s)")
     
     page.evaluate("navigatePage('approvals');")
@@ -187,9 +230,9 @@ with sync_playwright() as p:
     wait_until(s6['end'])
 
     # -------------------------------------------------------------
-    # SCENE 7: Audit Trail, Integrations & Hero Finale (172.6s -> ~201s)
+    # SCENE 7: Audit Trail, Integrations & Hero Finale
     # -------------------------------------------------------------
-    s7 = scenes[6]
+    s7 = scenes[7]
     print(f"Executing {s7['id']}: {s7['title']} ({s7['start']:.1f}s - {s7['end']:.1f}s)")
     
     # 1. Audit Trail

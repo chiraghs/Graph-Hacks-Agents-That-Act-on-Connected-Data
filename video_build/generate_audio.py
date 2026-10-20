@@ -16,6 +16,11 @@ SCENES = [
         "text": "In the Connected-Graph view, every physical machine is connected to its parent plant, produced parts, and downstream assemblies. When we select robotic arm A-ROB-03, also known as M7, FalkorDB instantly executes a multi-hop blast radius traversal. In milliseconds, the graph reveals that M7's bearing wear threatens part PT-4, halting production of turbine module P4 and jeopardizing high-tier customer delivery contracts."
     },
     {
+        "id": "scene_copilot",
+        "title": "TwinForge Graph Copilot & Natural Language Cypher",
+        "text": "To make this connected graph accessible to operations teams, TwinForge features the Graph Copilot. It operates dynamically in conversational chat and real-time query modes. When we greet the Copilot with 'Hi', it responds conversationally with contextual exploration suggestions. Next, we ask: If Machine M7 in Detroit fails, what is the inventory shortfall and hourly penalty for HyperDrive Electric Motors? In under forty milliseconds, FalkorDB executes the multi-hop query across customer orders and warehouse stock, revealing a 150-unit deficit and a twenty-five thousand dollar per hour delay penalty."
+    },
+    {
         "id": "scene3",
         "title": "Command Center & FalkorDB KPIs",
         "text": "Switching over to the Command Center, operations teams get a comprehensive live overview of plant health. Every metric card displayed here—including overall equipment effectiveness, machine risk scores, and inventory shortages—is computed via real-time Cypher aggregations against FalkorDB. The hourly production chart continuously benchmarks actual output against target schedules across all manufacturing lines."

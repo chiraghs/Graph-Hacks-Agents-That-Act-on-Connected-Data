@@ -1,5 +1,5 @@
 {
-  "total_duration": 203.400045,
+  "total_duration": 245.46805,
   "scenes": [
     {
       "id": "scene1",
@@ -16,39 +16,46 @@
       "end": 61.124014
     },
     {
+      "id": "scene_copilot",
+      "title": "TwinForge Graph Copilot & Natural Language Cypher",
+      "start": 61.624014,
+      "duration": 41.568005,
+      "end": 103.192019
+    },
+    {
       "id": "scene3",
       "title": "Command Center & FalkorDB KPIs",
-      "start": 61.624014,
+      "start": 103.692019,
       "duration": 27.36,
-      "end": 88.984014
+      "end": 131.052019
     },
     {
       "id": "scene4",
       "title": "Autonomous AI Agent Investigation",
-      "start": 89.484014,
+      "start": 131.552019,
       "duration": 29.52,
-      "end": 119.004014
+      "end": 161.072019
     },
     {
       "id": "scene5",
       "title": "Multi-Echelon Supply Chain Simulator",
-      "start": 119.504014,
+      "start": 161.572019,
       "duration": 25.824014,
-      "end": 145.328028
+      "end": 187.39603300000002
     },
     {
       "id": "scene6",
       "title": "Prescriptive Approvals & Graph Lineage",
-      "start": 145.828028,
+      "start": 187.89603300000002,
       "duration": 26.856009,
-      "end": 172.684037
+      "end": 214.75204200000002
     },
     {
       "id": "scene7",
       "title": "Audit Trail, Control Room & Integrations",
-      "start": 173.184037,
+      "start": 215.25204200000002,
       "duration": 30.216009,
-      "end": 203.40004599999997
+      "end": 245.468051
     }
   ]
 }

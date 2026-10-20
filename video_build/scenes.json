@@ -12,6 +12,12 @@
     "duration": 30.576009
   },
   {
+    "id": "scene_copilot",
+    "title": "TwinForge Graph Copilot & Natural Language Cypher",
+    "text": "To make this connected graph accessible to operations teams, TwinForge features the Graph Copilot. It operates dynamically in conversational chat and real-time query modes. When we greet the Copilot with 'Hi', it responds conversationally with contextual exploration suggestions. Next, we ask: If Machine M7 in Detroit fails, what is the inventory shortfall and hourly penalty for HyperDrive Electric Motors? In under forty milliseconds, FalkorDB executes the multi-hop query across customer orders and warehouse stock, revealing a 150-unit deficit and a twenty-five thousand dollar per hour delay penalty.",
+    "duration": 41.568005
+  },
+  {
     "id": "scene3",
     "title": "Command Center & FalkorDB KPIs",
     "text": "Switching over to the Command Center, operations teams get a comprehensive live overview of plant health. Every metric card displayed here\u2014including overall equipment effectiveness, machine risk scores, and inventory shortages\u2014is computed via real-time Cypher aggregations against FalkorDB. The hourly production chart continuously benchmarks actual output against target schedules across all manufacturing lines.",
