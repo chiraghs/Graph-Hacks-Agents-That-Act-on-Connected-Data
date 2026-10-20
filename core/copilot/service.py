@@ -71,28 +71,44 @@ def _clean_cypher(query: str) -> str:
 
 
 def _call_groq(prompt: str, api_key: str) -> Tuple[str, str]:
-    """Call Groq API (Meta Llama 3.3 70B)."""
+    """Call Groq API using available high-performance models."""
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
-        "User-Agent": "TwinForge-Copilot/1.0",
+        "User-Agent": "Mozilla/5.0 (compatible; TwinForge/1.0)",
     }
-    payload = {
-        "model": "llama-3.3-70b-versatile",
-        "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": prompt},
-        ],
-        "temperature": 0.1,
-        "response_format": {"type": "json_object"},
-    }
-    req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
-    with urllib.request.urlopen(req, timeout=10) as resp:
-        res_data = json.loads(resp.read().decode("utf-8"))
-        content = res_data["choices"][0]["message"]["content"]
-        parsed = json.loads(content)
-        return parsed.get("cypher", ""), parsed.get("explanation", "")
+    
+    # Try active production models on Groq
+    models_to_try = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "qwen/qwen3.8-27b", "openai/gpt-oss-20b"]
+    last_err = None
+    
+    for model in models_to_try:
+        try:
+            payload = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": 0.1,
+            }
+            req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                res_data = json.loads(resp.read().decode("utf-8"))
+                content = res_data["choices"][0]["message"]["content"]
+                match = re.search(r"\{.*\}", content, re.DOTALL)
+                if match:
+                    parsed = json.loads(match.group(0))
+                    return parsed.get("cypher", ""), parsed.get("explanation", "")
+                return "", content
+        except Exception as e:
+            last_err = e
+            continue
+            
+    if last_err:
+        raise last_err
+    return "", ""
 
 
 def _call_gemini(prompt: str, api_key: str) -> Tuple[str, str]:
@@ -108,8 +124,11 @@ def _call_gemini(prompt: str, api_key: str) -> Tuple[str, str]:
     with urllib.request.urlopen(req, timeout=10) as resp:
         res_data = json.loads(resp.read().decode("utf-8"))
         text = res_data["candidates"][0]["content"]["parts"][0]["text"]
-        parsed = json.loads(text)
-        return parsed.get("cypher", ""), parsed.get("explanation", "")
+        match = re.search(r"\{.*\}", text, re.DOTALL)
+        if match:
+            parsed = json.loads(match.group(0))
+            return parsed.get("cypher", ""), parsed.get("explanation", "")
+        return "", text
 
 
 def _semantic_engine_fallback(question: str) -> Tuple[str, str]:
