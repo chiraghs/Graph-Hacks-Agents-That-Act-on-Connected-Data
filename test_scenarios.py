@@ -10,8 +10,8 @@ Validates the 5 critical benchmark requirements on FalkorDB (Cloud or Local):
 """
 
 import sys
-from db import get_connection_config, get_graph
-from mcp_server import (
+from core.db import get_connection_config, get_graph
+from core.mcp.server import (
     at_risk_machines,
     downstream_impact,
     shortfall_check,

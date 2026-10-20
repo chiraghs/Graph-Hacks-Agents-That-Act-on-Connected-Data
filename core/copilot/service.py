@@ -14,10 +14,7 @@ import json
 import time
 import urllib.request
 import urllib.error
-try:
-    from core.db import get_graph
-except ImportError:
-    from db import get_graph
+from core.db import get_graph
 
 # Cypher Knowledge Graph Schema Context
 GRAPH_SCHEMA = """

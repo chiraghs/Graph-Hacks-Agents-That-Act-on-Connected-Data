@@ -14,7 +14,7 @@
 
 ## 🎥 3-Minute Video Walkthrough
 
-📺 **Direct Video File**: [twinforge_connected_graph_walkthrough_demo.mp4](twinforge_connected_graph_walkthrough_demo.mp4) *(or stream at `http://localhost:8000/static/twinforge_connected_graph_walkthrough_demo.mp4`)*  
+📺 **Direct Video File**: [twinforge_connected_graph_walkthrough_demo.mp4](static/twinforge_connected_graph_walkthrough_demo.mp4) *(or stream at `http://localhost:8000/static/twinforge_connected_graph_walkthrough_demo.mp4`)*  
 🎙️ **Narration**: Studio-grade natural human neural voice (`en-US-ChristopherNeural` via Azure Speech)  
 
 ```
@@ -369,13 +369,13 @@ Set the connection variables according to your environment:
 
 ### 2. Verify Database Connectivity
 ```bash
-python check_connection.py
+python scripts/check_connection.py
 ```
 Pings the target database, runs a `RETURN 1` sanity test, and outputs connection status without exposing sensitive credentials.
 
-### 3. High-Speed Batched Seeding (`seed.py`)
+### 3. High-Speed Batched Seeding (`scripts/seed.py`)
 ```bash
-python seed.py
+python scripts/seed.py
 ```
 Fully idempotent: resets the target graph and seeds 175 nodes and 465 edges using Cypher `UNWIND` batch transactions (slashing network latency over Cloud).
 
@@ -392,7 +392,7 @@ Runs 5 automated regression and parity checks against Cloud/Local FalkorDB:
 
 ### 5. Clean Demo Reset
 ```bash
-python reset_decisions.py
+python scripts/reset_decisions.py
 ```
 Deletes all `(:Decision)` nodes from the graph so evaluators can start fresh and demonstrate live autonomous decision commits.
 
@@ -415,7 +415,7 @@ pip install -r requirements.txt
 
 ### 3. Run Agent in Terminal
 ```bash
-python agent.py
+python scripts/run_agent.py
 ```
 Traces live tool executions, per-tool latency measurements, schedules action for M7, and clears M12.
 
@@ -457,16 +457,8 @@ This repository includes a [`Dockerfile`](Dockerfile) (built on `python:3.14-sli
 ├── requirements.txt       # Pinned dependencies (falkordb, mcp, anthropic, fastapi, uvicorn)
 ├── .env.example           # Documented configuration template (Cloud & Local)
 ├── app.py                 # Clean FastAPI entrypoint (~50 lines) mounting core.api routers
-├── check_connection.py    # Diagnostic connectivity test tool
 ├── test_scenarios.py      # 5/5 automated parity & scenario verification suite
-├── reset_decisions.py     # Clean-slate reset utility for live demos
-├── db.py                  # Backward-compatible wrapper for core.db
-├── scoring.py             # Backward-compatible wrapper for core.graph.scoring
-├── seed.py                # Backward-compatible wrapper for core.graph.seed
-├── mcp_server.py          # Backward-compatible wrapper for core.mcp.server
-├── agent.py               # Backward-compatible wrapper for core.agent.runner
-├── copilot.py             # Backward-compatible wrapper for core.copilot.service
-├── core/                  # Clean modular backend package
+├── core/                  # Modular backend package
 │   ├── db.py              # Unified FalkorDB connection pool with TLS & auto-retry
 │   ├── graph/             # Graph domain logic
 │   │   ├── scoring.py     # Sensor z-score drift & exponential smoothing demand forecast
@@ -483,6 +475,11 @@ This repository includes a [`Dockerfile`](Dockerfile) (built on `python:3.14-sli
 │       ├── routes_agent.py       # Live SSE investigation stream & evidence subgraph
 │       ├── routes_decisions.py   # Prescriptive approvals & graph reset
 │       └── routes_copilot.py     # /api/copilot NL-to-Cypher endpoint
+├── scripts/               # Operational CLI tools & utilities
+│   ├── check_connection.py # Diagnostic database connectivity test tool
+│   ├── seed.py            # Graph database seeder CLI
+│   ├── reset_decisions.py # Clean-slate decision reset utility for live demos
+│   └── run_agent.py       # Terminal runner for autonomous investigation loop
 ├── static/                # Pure vanilla zero-build web frontend
 │   ├── index.html         # Clean semantic HTML layout (1,929 lines, zero inline clutter)
 │   ├── css/

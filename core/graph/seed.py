@@ -9,20 +9,12 @@ Optimized for FalkorDB Cloud & Local Docker:
 
 import sys
 import random
-try:
-    from core.db import get_graph, get_connection_config
-    from core.graph.scoring import (
-        compute_machine_risk,
-        compute_demand_forecast,
-        compute_safety_stock,
-    )
-except ImportError:
-    from db import get_graph, get_connection_config
-    from scoring import (
-        compute_machine_risk,
-        compute_demand_forecast,
-        compute_safety_stock,
-    )
+from core.db import get_graph, get_connection_config
+from core.graph.scoring import (
+    compute_machine_risk,
+    compute_demand_forecast,
+    compute_safety_stock,
+)
 
 SEED = 42
 random.seed(SEED)

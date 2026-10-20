@@ -16,10 +16,7 @@ import sys
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 import uuid
-try:
-    from core.db import get_graph
-except ImportError:
-    from db import get_graph
+from core.db import get_graph
 
 # Try importing MCPServer from mcp 2.x
 try:

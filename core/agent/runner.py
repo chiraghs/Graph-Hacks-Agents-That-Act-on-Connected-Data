@@ -21,32 +21,18 @@ import anthropic
 import time
 from dotenv import load_dotenv
 
-try:
-    from core.db import get_graph
-    from core.mcp.server import (
-        TOOL_DISPATCH,
-        CLAUDE_TOOLS,
-        at_risk_machines,
-        downstream_impact,
-        shortfall_check,
-        single_points_of_failure,
-        alternate_sources,
-        shortest_path,
-        schedule_action,
-    )
-except ImportError:
-    from db import get_graph
-    from mcp_server import (
-        TOOL_DISPATCH,
-        CLAUDE_TOOLS,
-        at_risk_machines,
-        downstream_impact,
-        shortfall_check,
-        single_points_of_failure,
-        alternate_sources,
-        shortest_path,
-        schedule_action,
-    )
+from core.db import get_graph
+from core.mcp.server import (
+    TOOL_DISPATCH,
+    CLAUDE_TOOLS,
+    at_risk_machines,
+    downstream_impact,
+    shortfall_check,
+    single_points_of_failure,
+    alternate_sources,
+    shortest_path,
+    schedule_action,
+)
 
 load_dotenv()
 

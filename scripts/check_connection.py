@@ -1,11 +1,13 @@
-"""check_connection.py - Verifies connectivity to FalkorDB (Cloud or Local).
-
-Runs RETURN 1 query, prints connection target (host only, no credentials),
-active graph name, and current total node count.
-"""
+"""scripts/check_connection.py - Verifies connectivity to FalkorDB (Cloud or Local)."""
 
 import sys
-from db import get_connection_config, get_graph, get_db
+from pathlib import Path
+
+# Add project root to path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT_DIR))
+
+from core.db import get_connection_config, get_graph, get_db
 
 
 def main():
