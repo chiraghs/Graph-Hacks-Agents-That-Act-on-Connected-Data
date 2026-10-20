@@ -550,3 +550,53 @@ def get_factory_blueprint(factory_id: str) -> Optional[Dict[str, Any]]:
     del data["nodes_json"]
     del data["edges_json"]
     return data
+
+
+def create_facility(
+    facility_id: str,
+    name: str,
+    city: str,
+    country: str,
+    facility_type: str,
+    total_area_sqm: int = 50000,
+    director: str = "Facility Director",
+    description: str = "",
+) -> Dict[str, Any]:
+    """Inserts a new facility and auto-provisions its primary plant in SQLite."""
+    init_sqlite_db()
+    conn = get_sqlite_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT OR REPLACE INTO facilities (id, name, city, country, facility_type, total_area_sqm, director, description)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (facility_id, name, city, country, facility_type, total_area_sqm, director, description))
+
+    # Auto-provision primary plant for the facility
+    plant_id = f"{facility_id}_PLANT_1"
+    cursor.execute("""
+        INSERT OR REPLACE INTO factories (id, facility_id, name, location, country, facility_type, floor_area_sqm, shifts_per_day, plant_manager, operational_status, description)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (plant_id, facility_id, f"{name} (Primary Line)", city, country, facility_type, total_area_sqm, 3, director, "ACTIVE", f"Primary unit of {name}"))
+
+    # Also provision a starter blueprint layout for this plant
+    starter_nodes = [
+        {"id": f"{facility_id}_IN", "name": f"{name} Raw Infeed", "type": "Inventory", "bay": "Zone 1 • Infeed", "x": 60, "y": 140, "w": 190, "h": 96, "status": "HEALTHY", "spec": "Certified Material Supply"},
+        {"id": f"{facility_id}_M1", "name": "Primary Synthesis Unit", "type": "Machine", "bay": "Zone 2 • Core Processing", "x": 340, "y": 140, "w": 190, "h": 100, "machine_id": f"{facility_id}_M1", "status": "HEALTHY", "spec": "Automated High-Throughput Cell"},
+        {"id": f"{facility_id}_QC", "name": "Unit Quality Metrology Bay", "type": "UnitFacility", "bay": "Zone 3 • Unit Inspection", "x": 620, "y": 140, "w": 210, "h": 100, "status": "HEALTHY", "spec": "Integrated Precision QA"},
+        {"id": f"{facility_id}_OUT", "name": "Outbound Logistics Bay", "type": "Dispatch", "bay": "Zone 4 • Dispatch", "x": 920, "y": 140, "w": 190, "h": 96, "status": "HEALTHY", "spec": "Automated Dispatch Buffer"}
+    ]
+    starter_edges = [
+        {"from": f"{facility_id}_IN", "to": f"{facility_id}_M1", "path": "M 250 190 L 340 190", "color": "#06b6d4", "stroke": "2.0"},
+        {"from": f"{facility_id}_M1", "to": f"{facility_id}_QC", "path": "M 530 190 L 620 190", "color": "#a855f7", "stroke": "2.2"},
+        {"from": f"{facility_id}_QC", "to": f"{facility_id}_OUT", "path": "M 830 190 L 920 190", "color": "#10b981", "stroke": "2.2"}
+    ]
+    cursor.execute("""
+        INSERT OR REPLACE INTO factory_blueprints (factory_id, blueprint_name, layout_type, canvas_config_json, nodes_json, edges_json)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (plant_id, f"{name} Blueprint", "linear_cell", json.dumps({"panX": 60, "panY": 120, "zoom": 0.85}), json.dumps(starter_nodes), json.dumps(starter_edges)))
+
+    conn.commit()
+    conn.close()
+    return get_facility_by_id(facility_id)
+

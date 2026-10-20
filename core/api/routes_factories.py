@@ -8,7 +8,9 @@ Provides:
 - GET /api/factories/{factory_id}/blueprint: Returns distinct visual blueprint topology (nodes, SVG paths, coordinates).
 """
 
+import re
 from typing import Optional
+from pydantic import BaseModel, Field
 from fastapi import APIRouter, HTTPException, Query
 from core.db_sqlite import (
     get_all_facilities,
@@ -16,10 +18,47 @@ from core.db_sqlite import (
     get_all_factories,
     get_factory_by_id,
     get_factory_blueprint,
+    create_facility,
 )
 from core.db import get_graph
 
 router = APIRouter(tags=["factories"])
+
+
+class FacilityCreateRequest(BaseModel):
+    id: Optional[str] = None
+    name: str
+    city: str = "Detroit"
+    country: str = "United States"
+    facility_type: str = "Manufacturing & Assembly"
+    total_area_sqm: int = 50000
+    director: str = "Facility Director"
+    description: str = ""
+
+
+@router.post("/api/facilities")
+async def create_new_facility(req: FacilityCreateRequest):
+    """Registers a new enterprise facility and provisions its primary plant and starter blueprint."""
+    facility_id = req.id
+    if not facility_id or not facility_id.strip():
+        # Derive an ID from the name
+        clean_name = re.sub(r'[^A-Z0-9]+', '_', req.name.upper()).strip('_')
+        facility_id = f"FACILITY_{clean_name}" if not clean_name.startswith("FACILITY_") else clean_name
+
+    try:
+        facility = create_facility(
+            facility_id=facility_id,
+            name=req.name,
+            city=req.city,
+            country=req.country,
+            facility_type=req.facility_type,
+            total_area_sqm=req.total_area_sqm,
+            director=req.director,
+            description=req.description,
+        )
+        return {"status": "success", "message": f"Facility '{req.name}' created successfully", "facility": facility}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to create facility: {str(e)}")
 
 
 @router.get("/api/facilities")
