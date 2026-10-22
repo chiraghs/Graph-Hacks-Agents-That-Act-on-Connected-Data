@@ -70,7 +70,10 @@ Instead of waiting for a machine to trip an emergency stop, the PdM engine inges
 
 $$z_{\text{composite}} = 0.6 \cdot z_{\text{vibration}} + 0.4 \cdot z_{\text{temperature}}$$
 
-This drift score is mapped through a sigmoid transfer function centered at $2\sigma$ to calculate failure probability and Remaining Useful Life (`rul_hours`). Machine `M7` exhibits a failure risk of **94%** and an imminent breakdown horizon of **48 hours (5 days)**.
+It continuously performs Fast Fourier Transform (FFT) harmonic spectrum decomposition to detect mechanical wear long before heat spikes occur. In our live environment, Unit `M7` exhibits a sharp resonance spike at the **240 Hz cage spalling harmonic** ($8.45\text{ mm/s}$ RMS vs $4.50\text{ mm/s}$ ISO threshold), driving a Weibull failure probability of **88%** and an imminent Remaining Useful Life ($RUL$) limit of **48.0 hours**.
+
+![Predictive Maintenance Studio](assets/blog/09_predictive_maintenance_studio.png)
+*Figure 3: Predictive Maintenance Studio — live ISO 10816 vibration severity, 240 Hz FFT harmonic spectrum, and non-linear RUL degradation trajectory.*
 
 #### 2. Exponential-Smoothing Demand Forecasting Engine
 Concurrently, the demand forecasting engine computes 30-day and quarterly customer order horizons using **Single Exponential Smoothing**:
@@ -81,10 +84,13 @@ It pairs this with dynamic safety stock calculations:
 
 $$\text{Safety Stock} = 1.65 \cdot \sigma_{\text{daily}} \cdot \sqrt{\text{Lead Time}}$$
 
-In our FalkorDB instance, product `P4` is linked to a forward `DemandForecast` node projecting **1,450 units** (+28.5% growth from EV powertrain adoption), against a current warehouse buffer stock of **only 400 units**.
+In our FalkorDB instance, product `P4` is linked to a forward `DemandForecast` node projecting **1,450 units** (+28.5% growth from EV powertrain adoption), against a current warehouse buffer stock of **only 400 units**. This creates an automated **11-day stockout collision warning**.
+
+![Demand Forecasting Studio](assets/blog/10_demand_forecasting_studio.png)
+*Figure 4: Demand Forecasting Studio — Single Exponential Smoothing simulator with dynamic α tuning, stockout horizon alert, and customer SLA exposure.*
 
 ![Multi-Hop Blast Radius Drawer](assets/blog/02_m7_blast_radius_drawer.png)
-*Figure 3: Selecting Machine M7 executes an instant sub-40ms multi-hop traversal, uncovering downstream parts, warehouse stock, and SLA penalties.*
+*Figure 5: Selecting Machine M7 executes an instant sub-40ms multi-hop traversal, uncovering downstream parts, warehouse stock, and SLA penalties.*
 
 ---
 
@@ -137,7 +143,7 @@ At the same time, machine `M12` shows a **88% failure risk** (breakdown in 4 day
 * **The agent explicitly clears the alert with zero production downtime.**
 
 ![Autonomous Agent Live Investigation Console](assets/blog/05_autonomous_agent_investigation.png)
-*Figure 4: Real-time Server-Sent Events (SSE) stream showing the agent calling MCP tools and rendering the Vis.js Evidence Subgraph.*
+*Figure 6: Real-time Server-Sent Events (SSE) stream showing the agent calling MCP tools and rendering the Vis.js Evidence Subgraph.*
 
 ---
 
@@ -165,7 +171,7 @@ CREATE (d)-[:BASED_ON]->(target)
 Now, plant managers can click any historical decision and visually inspect the exact `Machine`, `Part`, `Product`, `Warehouse`, and `Customer` nodes that justified that action.
 
 ![Prescriptive Approvals and Audit Lineage](assets/blog/07_prescriptive_approvals.png)
-*Figure 5: Prescriptive mitigation approvals showing financial cost-avoidance ($140,200) and graph evidence lineage.*
+*Figure 7: Prescriptive mitigation approvals showing financial cost-avoidance ($140,200) and graph evidence lineage.*
 
 ---
 
@@ -179,7 +185,7 @@ It dynamically operates across three distinct modes:
 3. **Compound Decomposition Mode:** Decomposes complex multi-part questions into parallel Cypher operations.
 
 ![TwinForge Graph Copilot](assets/blog/03_graph_copilot_cypher.png)
-*Figure 6: The Graph Copilot executing a multi-hop operational query in 37.5ms to reveal HyperDrive's 150-unit shortfall and \$25k/hr penalty.*
+*Figure 8: The Graph Copilot executing a multi-hop operational query in 37.5ms to reveal HyperDrive's 150-unit shortfall and \$25k/hr penalty.*
 
 When asked:
 > *"If Machine M7 in Detroit fails, what is the inventory shortfall and hourly penalty for HyperDrive Electric Motors order of P4 Smart Turbines?"*
@@ -209,12 +215,15 @@ RETURN c.name AS customer_name,
 Beyond automated agent interventions, the platform provides plant operators with real-time aggregated metrics and what-if simulation capabilities:
 
 ![Command Center KPI Dashboards](assets/blog/04_command_center_kpis.png)
-*Figure 7: Command Center featuring live Cypher aggregations for OEE, fleet failure probabilities, and hourly production scheduling.*
+*Figure 9: Command Center featuring live Cypher aggregations for OEE, fleet failure probabilities, and hourly production scheduling.*
 
 In the **Multi-Echelon Simulator**, operators can inject simulated transit delays or supplier lead-time multipliers across Detroit, Munich, and Leipzig to preview supply bottlenecks before they manifest in reality.
 
 ![Multi-Echelon Supply Chain Simulator](assets/blog/06_supply_chain_simulator.png)
-*Figure 8: Simulating multi-tier lead-time multipliers and transit shocks across global supplier nodes.*
+*Figure 10: Simulating multi-tier lead-time multipliers and transit shocks across global supplier nodes.*
+
+![Cryptographic Audit Trail & Lineage](assets/blog/08_audit_trail_integrations.png)
+*Figure 11: Cryptographic Audit Trail displaying SHA-256 evidence hashes and active FalkorDB Cloud cluster telemetry.*
 
 ---
 
