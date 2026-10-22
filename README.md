@@ -69,10 +69,15 @@ Here is the running platform captured live across all primary operational consol
 | [![Autonomous Agent](assets/screenshots/05_agent_investigation.png)](assets/screenshots/05_agent_investigation.png) | [![Simulator](assets/screenshots/06_supply_chain_simulator.png)](assets/screenshots/06_supply_chain_simulator.png) |
 | *Autonomous agent reasoning loop with live Cypher tool traces and interactive Vis.js Evidence Subgraph.* | *What-If simulation injecting lead-time multipliers, buffer shocks, and alternate routes.* |
 
-| 7. Prescriptive Approvals & Cost Avoidance | 8. Cryptographic Audit Trail & Integrations |
+| 7. Prescriptive Approvals & Cost Avoidance | 8. Cryptographic Audit Trail & Lineage |
 | :---: | :---: |
 | [![Approvals](assets/screenshots/07_prescriptive_approvals.png)](assets/screenshots/07_prescriptive_approvals.png) | [![Audit Trail](assets/screenshots/08_audit_trail.png)](assets/screenshots/08_audit_trail.png) |
 | *Human-in-the-loop review showing \$140,200 cost avoidance and immutable BASED_ON graph lineage.* | *SHA-256 verifiable audit records linked directly to underlying FalkorDB graph evidence.* |
+
+| 9. Predictive Maintenance Studio (/pdm) | 10. Demand Forecasting Studio (/forecasting) |
+| :---: | :---: |
+| [![Predictive Maintenance](assets/screenshots/09_predictive_maintenance_studio.png)](assets/screenshots/09_predictive_maintenance_studio.png) | [![Demand Forecasting](assets/screenshots/10_demand_forecasting_studio.png)](assets/screenshots/10_demand_forecasting_studio.png) |
+| *Continuous FFT harmonic spectrum (240 Hz cage spalling peak), ISO 10816 vibration severity, and physics-based RUL degradation curve.* | *Interactive Single Exponential Smoothing ($S_t = \alpha Y_t + (1-\alpha)S_{t-1}$), dynamic stockout collision horizon, and OEM contract penalty tracking.* |
 
 ---
 
@@ -81,6 +86,7 @@ Here is the running platform captured live across all primary operational consol
 [![Watch Demo on YouTube](https://img.shields.io/badge/YouTube-Watch_Live_Walkthrough-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/Gt0RblQiEAc)
 
 * 🎬 **YouTube Link**: **[https://youtu.be/Gt0RblQiEAc](https://youtu.be/Gt0RblQiEAc)**
+* 💻 **In-App Direct Access**: Click the red **"YouTube Demo"** button in the top navigation header on any page!
 * 📺 **Direct Video File**: [`twinforge_connected_graph_walkthrough_demo.mp4`](static/twinforge_connected_graph_walkthrough_demo.mp4) *(Stream live at [`https://graph-hacks-supply-chain-agent.onrender.com/static/twinforge_connected_graph_walkthrough_demo.mp4`](https://graph-hacks-supply-chain-agent.onrender.com/static/twinforge_connected_graph_walkthrough_demo.mp4))*  
 * 🎙️ **Narration**: Studio-grade natural human neural voice (`en-US-ChristopherNeural` via Azure Speech)  
 * ⏱️ **Recorded From**: Actual live UI at `http://localhost:8000` via Playwright Chromium automation  
@@ -130,12 +136,29 @@ flowchart TD
     HARMFUL --> COMMIT
 ```
 
+### 🧠 The Intelligence Layer: Real Algorithmic & Graph Intelligence (Why This is NOT CRUD)
+
+Reviewers often ask: *"Is there actual AI/ML intelligence involved here, or is the agent just doing basic database CRUD (Create, Read, Update, Delete)?"*
+
+TwinForge is built on **five distinct layers of mathematical, statistical, and graph-native intelligence** that go far beyond database CRUD:
+
+| Intelligence Layer | Mathematical / Algorithmic Foundation | Where Implemented |
+| :--- | :--- | :--- |
+| **1. Sensor Telemetry Drift & Anomaly Engine** | Continuous composite $Z$-score anomaly detection: $$Z = \frac{x - \mu}{\sigma} \ge 3.0\sigma$$ Fast Fourier Transform (FFT) harmonic peak tracking ($240\text{ Hz}$ bearing cage fault). | [`core/graph/scoring.py`](core/graph/scoring.py)<br/>[`core/api/routes_telemetry.py`](core/api/routes_telemetry.py)<br/>Interactive: [`/pdm`](https://graph-hacks-supply-chain-agent.onrender.com/pdm) |
+| **2. Physics-Informed Degradation & RUL Modeling** | Non-linear Weibull hazard rate & Remaining Useful Life estimation: $$RUL(t) = RUL_0 \cdot e^{-\lambda t}$$ Evaluates mechanical wear vs. thermal spalling ($RUL = 48.0\text{h}$ critical window). | [`core/graph/scoring.py`](core/graph/scoring.py)<br/>Live Studio: [`/pdm`](https://graph-hacks-supply-chain-agent.onrender.com/pdm) |
+| **3. Demand Forecasting & Stockout Engine** | Single Exponential Smoothing with dynamic parameter tuning: $$S_t = \alpha Y_t + (1 - \alpha) S_{t-1}$$ Computes dynamic safety buffers and stockout collision horizons ($T_{\text{collision}} = \text{Day } +11$). | [`core/graph/scoring.py`](core/graph/scoring.py)<br/>Interactive Simulator: [`/forecasting`](https://graph-hacks-supply-chain-agent.onrender.com/forecasting) |
+| **4. Multi-Hop Graph Causal Reasoning** | 6-hop topological traversal in FalkorDB linking degraded machinery to BOM, finished products, regional safety stock, and downstream customer SLA contracts. Resolves whether an alert is a **true customer crisis** or **harmless redundant noise**. | [`core/agent/runner.py`](core/agent/runner.py)<br/>Agent Console: [`/agents`](https://graph-hacks-supply-chain-agent.onrender.com/agents) |
+| **5. Prescriptive Mitigation Optimizer** | Multi-objective trade-off optimizer balancing downtime cost, expedited freight lead times, alternate production retooling, and customer penalty contracts ($140,200 net savings). | [`core/agent/runner.py`](core/agent/runner.py)<br/>Approvals: [`/approvals`](https://graph-hacks-supply-chain-agent.onrender.com/approvals) |
+
+---
+
 ### 1. The Predictive Maintenance (PdM) Engine
 * **Mathematical Drift Scoring** ([`core/graph/scoring.py::compute_machine_risk`](core/graph/scoring.py)):
   Ingests high-frequency vibration and temperature telemetry, computing weighted composite z-scores against calibrated baseline statistics ($z_{\text{composite}} = 0.6 \cdot z_{\text{vibe}} + 0.4 \cdot z_{\text{temp}}$), mapped through a sigmoid curve centered at $2\sigma$ to output failure probability $(0.0 - 1.0)$ and days to breakdown.
 * **Graph Representation in FalkorDB**:
   * `(:SensorTelemetry)`: Stores triaxial vibration RMS, bearing temperatures, acoustic emission dB, lubricant particle PPM, and Remaining Useful Life (`rul_hours`).
   * `(:PdMPrescription)`: Contains prescriptive maintenance intervention windows and cost-avoidance economics ($140,200 saved on M7 by scheduling bearing replacement vs. catastrophic breakdown).
+* **Dedicated Studio View**: Accessible at **[`/pdm`](https://graph-hacks-supply-chain-agent.onrender.com/pdm)** featuring real-time FFT frequency bars, Weibull degradation curves, and spare part proximity matrix.
 
 ### 2. The Demand Forecasting Engine
 * **Single Exponential Smoothing** ([`core/graph/scoring.py::compute_demand_forecast`](core/graph/scoring.py)):

@@ -56,6 +56,8 @@ app.include_router(factories_router)
 @app.get("/simulator", response_class=HTMLResponse)
 @app.get("/audit", response_class=HTMLResponse)
 @app.get("/integrations", response_class=HTMLResponse)
+@app.get("/pdm", response_class=HTMLResponse)
+@app.get("/forecasting", response_class=HTMLResponse)
 async def serve_index():
     """Serves the TwinForge Connected Graph Digital Twin Studio SPA."""
     index_path = STATIC_DIR / "index.html"

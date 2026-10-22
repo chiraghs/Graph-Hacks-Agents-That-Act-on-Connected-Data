@@ -96,6 +96,20 @@ with sync_playwright() as p:
     time.sleep(3.0)
     page.screenshot(path=os.path.join(SCREENSHOTS_DIR, "08_audit_trail.png"))
 
+    # 9. Predictive Maintenance Studio
+    print("Capturing 09_predictive_maintenance_studio.png...")
+    page.evaluate("navigatePage('pdm');")
+    page.wait_for_load_state("networkidle")
+    time.sleep(3.5)
+    page.screenshot(path=os.path.join(SCREENSHOTS_DIR, "09_predictive_maintenance_studio.png"))
+
+    # 10. Demand Forecasting Studio
+    print("Capturing 10_demand_forecasting_studio.png...")
+    page.evaluate("navigatePage('forecasting');")
+    page.wait_for_load_state("networkidle")
+    time.sleep(3.5)
+    page.screenshot(path=os.path.join(SCREENSHOTS_DIR, "10_demand_forecasting_studio.png"))
+
     context.close()
     browser.close()
 
