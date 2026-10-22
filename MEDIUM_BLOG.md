@@ -231,7 +231,7 @@ Building **TwinForge Connected Graph** taught us three fundamental lessons about
 ### Try It Out
 
 * 💻 **GitHub Repository:** [https://github.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data](https://github.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data)
-* 🎥 **Video Demo:** Watch the 4-minute live UI walkthrough [here](static/twinforge_connected_graph_walkthrough_demo.mp4).
+* 🎥 **Video Demo:** Watch the 4-minute live UI walkthrough on **[YouTube (https://youtu.be/Gt0RblQiEAc)](https://youtu.be/Gt0RblQiEAc)** or stream the MP4 [here](https://graph-hacks-supply-chain-agent.onrender.com/static/twinforge_connected_graph_walkthrough_demo.mp4).
 * 🛠️ **Tech Stack:** FalkorDB, Model Context Protocol (MCP), Python 3.14 / FastAPI, Tailwind CSS, Vis.js, and Groq / Meta Llama 3.3 70B.
 
 *Built for **Graph Hacks: Track 01 — Agents That Act on Connected Data**.*

@@ -6,6 +6,7 @@
 > **Deployment:** Live on Render & Local Docker  
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Active_on_Render-success?logo=render&logoColor=white)](https://graph-hacks-supply-chain-agent.onrender.com)
+[![YouTube Demo](https://img.shields.io/badge/YouTube-Watch_Video-red?logo=youtube&logoColor=white)](https://youtu.be/Gt0RblQiEAc)
 [![FalkorDB](https://img.shields.io/badge/Database-FalkorDB_Cloud-red.svg)](https://www.falkordb.com/)
 [![Track](https://img.shields.io/badge/Track_01-Agents_That_Act_on_Connected_Data-purple.svg)](#-track-01-agents-that-act-on-connected-data)
 [![MCP](https://img.shields.io/badge/Protocol-Model_Context_Protocol_(MCP)-blue.svg)](https://modelcontextprotocol.io/)
@@ -17,8 +18,9 @@
 ### 🌐 Live Deployment & Submission Links
 
 * 🚀 **Live Interactive Web Application**: **[https://graph-hacks-supply-chain-agent.onrender.com](https://graph-hacks-supply-chain-agent.onrender.com)**
+* 🎬 **YouTube Demo Video (4m 05s)**: **[https://youtu.be/Gt0RblQiEAc](https://youtu.be/Gt0RblQiEAc)**
 * ⚡ **Live Health & FalkorDB Cloud Status**: **[https://graph-hacks-supply-chain-agent.onrender.com/health](https://graph-hacks-supply-chain-agent.onrender.com/health)**
-* 📺 **Direct 4-Minute Master Walkthrough Video**: **[Stream MP4 Video](https://graph-hacks-supply-chain-agent.onrender.com/static/twinforge_connected_graph_walkthrough_demo.mp4)** *(or local [`static/twinforge_connected_graph_walkthrough_demo.mp4`](static/twinforge_connected_graph_walkthrough_demo.mp4))*
+* 📺 **Direct MP4 Video Stream**: **[Stream MP4 Video](https://graph-hacks-supply-chain-agent.onrender.com/static/twinforge_connected_graph_walkthrough_demo.mp4)** *(or local [`static/twinforge_connected_graph_walkthrough_demo.mp4`](static/twinforge_connected_graph_walkthrough_demo.mp4))*
 * 💻 **GitHub Repository**: **[https://github.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data](https://github.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data)**
 * 📝 **Medium Deep-Dive Publication**: **[`MEDIUM_BLOG.md`](MEDIUM_BLOG.md)**
 
@@ -76,9 +78,12 @@ Here is the running platform captured live across all primary operational consol
 
 ## 🎥 4-Minute Video Walkthrough
 
-📺 **Direct Video File**: [`twinforge_connected_graph_walkthrough_demo.mp4`](static/twinforge_connected_graph_walkthrough_demo.mp4) *(Stream live at [`https://graph-hacks-supply-chain-agent.onrender.com/static/twinforge_connected_graph_walkthrough_demo.mp4`](https://graph-hacks-supply-chain-agent.onrender.com/static/twinforge_connected_graph_walkthrough_demo.mp4))*  
-🎙️ **Narration**: Studio-grade natural human neural voice (`en-US-ChristopherNeural` via Azure Speech)  
-⏱️ **Recorded From**: Actual live UI at `http://localhost:8000` via Playwright Chromium automation  
+[![Watch Demo on YouTube](https://img.shields.io/badge/YouTube-Watch_Live_Walkthrough-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/Gt0RblQiEAc)
+
+* 🎬 **YouTube Link**: **[https://youtu.be/Gt0RblQiEAc](https://youtu.be/Gt0RblQiEAc)**
+* 📺 **Direct Video File**: [`twinforge_connected_graph_walkthrough_demo.mp4`](static/twinforge_connected_graph_walkthrough_demo.mp4) *(Stream live at [`https://graph-hacks-supply-chain-agent.onrender.com/static/twinforge_connected_graph_walkthrough_demo.mp4`](https://graph-hacks-supply-chain-agent.onrender.com/static/twinforge_connected_graph_walkthrough_demo.mp4))*  
+* 🎙️ **Narration**: Studio-grade natural human neural voice (`en-US-ChristopherNeural` via Azure Speech)  
+* ⏱️ **Recorded From**: Actual live UI at `http://localhost:8000` via Playwright Chromium automation  
 
 ```
 00:00 ─── Scene 1: Intro & Architecture Overview (FalkorDB Property Graph Canvas)
