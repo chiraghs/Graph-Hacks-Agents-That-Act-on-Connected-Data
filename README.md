@@ -3,13 +3,24 @@
 > **Track:** *Track 01 — Agents That Act on Connected Data*  
 > **Database:** FalkorDB (Cypher Graph Engine • Local Docker & FalkorDB Cloud)  
 > **Runtime:** Python 3.14 (tested), 3.12+ compatible  
-> **Deployment:** Local Docker or One-Click Cloud on Render  
+> **Deployment:** Live on Render & Local Docker  
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Active_on_Render-success?logo=render&logoColor=white)](https://graph-hacks-supply-chain-agent.onrender.com)
 [![FalkorDB](https://img.shields.io/badge/Database-FalkorDB_Cloud-red.svg)](https://www.falkordb.com/)
 [![Track](https://img.shields.io/badge/Track_01-Agents_That_Act_on_Connected_Data-purple.svg)](#-track-01-agents-that-act-on-connected-data)
 [![MCP](https://img.shields.io/badge/Protocol-Model_Context_Protocol_(MCP)-blue.svg)](https://modelcontextprotocol.io/)
 [![FastAPI](https://img.shields.io/badge/Framework-FastAPI-green.svg)](https://fastapi.tiangolo.com/)
 [![TailwindCSS](https://img.shields.io/badge/UI-TailwindCSS_&_Vis.js-38bdf8.svg)](https://tailwindcss.com/)
+
+---
+
+### 🌐 Live Deployment & Submission Links
+
+* 🚀 **Live Interactive Web Application**: **[https://graph-hacks-supply-chain-agent.onrender.com](https://graph-hacks-supply-chain-agent.onrender.com)**
+* ⚡ **Live Health & FalkorDB Cloud Status**: **[https://graph-hacks-supply-chain-agent.onrender.com/health](https://graph-hacks-supply-chain-agent.onrender.com/health)**
+* 📺 **Direct 4-Minute Master Walkthrough Video**: **[Stream MP4 Video](https://graph-hacks-supply-chain-agent.onrender.com/static/twinforge_connected_graph_walkthrough_demo.mp4)** *(or local [`static/twinforge_connected_graph_walkthrough_demo.mp4`](static/twinforge_connected_graph_walkthrough_demo.mp4))*
+* 💻 **GitHub Repository**: **[https://github.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data](https://github.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data)**
+* 📝 **Medium Deep-Dive Publication**: **[`MEDIUM_BLOG.md`](MEDIUM_BLOG.md)**
 
 ---
 
@@ -37,9 +48,35 @@ Industrial manufacturing networks lose billions annually to unexpected machine b
 
 ---
 
+## 📸 Live UI Tour & Screenshots
+
+Here is the running platform captured live across all primary operational consoles:
+
+| 1. Connected-Graph & Digital Twin | 2. Blast Radius & Multi-Hop Traversal |
+| :---: | :---: |
+| [![Digital Twin](assets/screenshots/01_connected_graph_twin.png)](assets/screenshots/01_connected_graph_twin.png) | [![Blast Radius](assets/screenshots/02_blast_radius_drawer.png)](assets/screenshots/02_blast_radius_drawer.png) |
+| *Real-time digital twin topology spanning Detroit, Munich, Austin, and London cleanroom facilities.* | *Selecting Robotic Arm M7 executes an instant sub-40ms multi-hop blast radius traversal.* |
+
+| 3. TwinForge Graph Copilot (NL-to-Cypher) | 4. Command Center & Real-Time KPIs |
+| :---: | :---: |
+| [![Graph Copilot](assets/screenshots/03_copilot_modal.png)](assets/screenshots/03_copilot_modal.png) | [![Command Center](assets/screenshots/04_command_center.png)](assets/screenshots/04_command_center.png) |
+| *Translates natural language questions into read-only Cypher in 37.5ms with live SLA penalty calculations.* | *FalkorDB-aggregated OEE, fleet risk scores, inventory levels, and hourly production scheduling.* |
+
+| 5. Autonomous AI Agent Console (SSE & Subgraph) | 6. Multi-Echelon Supply Chain Simulator |
+| :---: | :---: |
+| [![Autonomous Agent](assets/screenshots/05_agent_investigation.png)](assets/screenshots/05_agent_investigation.png) | [![Simulator](assets/screenshots/06_supply_chain_simulator.png)](assets/screenshots/06_supply_chain_simulator.png) |
+| *Autonomous agent reasoning loop with live Cypher tool traces and interactive Vis.js Evidence Subgraph.* | *What-If simulation injecting lead-time multipliers, buffer shocks, and alternate routes.* |
+
+| 7. Prescriptive Approvals & Cost Avoidance | 8. Cryptographic Audit Trail & Integrations |
+| :---: | :---: |
+| [![Approvals](assets/screenshots/07_prescriptive_approvals.png)](assets/screenshots/07_prescriptive_approvals.png) | [![Audit Trail](assets/screenshots/08_audit_trail.png)](assets/screenshots/08_audit_trail.png) |
+| *Human-in-the-loop review showing \$140,200 cost avoidance and immutable BASED_ON graph lineage.* | *SHA-256 verifiable audit records linked directly to underlying FalkorDB graph evidence.* |
+
+---
+
 ## 🎥 4-Minute Video Walkthrough
 
-📺 **Direct Video File**: [`twinforge_connected_graph_walkthrough_demo.mp4`](static/twinforge_connected_graph_walkthrough_demo.mp4) *(Stream locally at `http://localhost:8000/static/twinforge_connected_graph_walkthrough_demo.mp4`)*  
+📺 **Direct Video File**: [`twinforge_connected_graph_walkthrough_demo.mp4`](static/twinforge_connected_graph_walkthrough_demo.mp4) *(Stream live at [`https://graph-hacks-supply-chain-agent.onrender.com/static/twinforge_connected_graph_walkthrough_demo.mp4`](https://graph-hacks-supply-chain-agent.onrender.com/static/twinforge_connected_graph_walkthrough_demo.mp4))*  
 🎙️ **Narration**: Studio-grade natural human neural voice (`en-US-ChristopherNeural` via Azure Speech)  
 ⏱️ **Recorded From**: Actual live UI at `http://localhost:8000` via Playwright Chromium automation  
 
@@ -111,7 +148,7 @@ When machinery drifts, the Autonomous Control Tower Agent ([`core/agent/runner.p
    * Emergency supplier takes 12 days (exceeds the 5-day failure window) $\rightarrow$ Agent prescribes emergency rerouting to standby `M18` (3.5h retool) and air couriering the spare spindle from Munich (8.5h transit).
 2. **Machine M12 (Harmless False Alarm / Noise)**:
    * Failure risk is 88% (breakdown in 4 days).
-   * Graph reveals sister machine `M13` is an **active redundant producer**, and warehouses hold **2,400 units of buffer stock** (0 shortfall).
+   * Graph reveals sister machine `M13` is an **active redundant producer**, and warehouses hold **2,400 units of buffer stock** (shortfall = 0).
    * The agent **explicitly logs `NO_ACTION_REQUIRED` and clears the alert**, saving thousands in unnecessary line shutdown costs.
 
 ### 4. Interactive Natural Language Graph Copilot
@@ -337,15 +374,20 @@ This repository includes a [`Dockerfile`](Dockerfile) (built on `python:3.14-sli
 │   ├── check_connection.py # Diagnostic database connectivity test tool
 │   ├── seed.py            # Graph database seeder CLI
 │   ├── seed_pdm_and_forecasting.py # Predictive Maintenance & Demand Forecasting dataset seeder
+│   ├── capture_screenshots.py # Playwright automated 1080p UI screenshot capturer
 │   ├── reset_decisions.py # Clean-slate decision reset utility for live demos
 │   └── run_agent.py       # Terminal runner for autonomous investigation loop
+├── assets/                # Visual documentation & publication media
+│   ├── screenshots/       # 8 crisp 1080p retina UI console screenshots
+│   └── blog/              # Medium publication graphics and 16:9 cinematic cover banner
 ├── static/                # Self-contained web frontend (Zero external build dependencies)
 │   ├── index.html         # Complete TwinForge Connected Graph Studio SPA
 │   ├── twinforge_connected_graph_walkthrough_demo.mp4 # Direct 4-minute demo walkthrough video
 │   └── twinforge_demo.mp4 # Backup demo walkthrough video
 ├── video_build/           # Video synthesis pipeline (edge-tts natural voiceover, Playwright tour)
 ├── queries.md             # Cypher query catalog & SQL multi-join comparison
-└── README.md              # Project overview, architecture, and verification
+├── MEDIUM_BLOG.md         # Full Medium article draft with image placements
+└── README.md              # Project overview, architecture, live links, and verification
 ```
 
 ---
