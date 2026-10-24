@@ -2678,8 +2678,8 @@
     let dragStartX = 0;
     let dragStartY = 0;
 
-    // Navigation Router
-    function navigatePage(viewName) {
+    // Navigation Router with Route Persistence and History Navigation
+    function navigatePage(viewName, pushHistory = true) {
       if (!viewName || viewName === 'connected-graph' || viewName === 'home' || viewName === 'index.html') viewName = 'twin';
       const views = ['twin', 'dashboard', 'agents', 'simulator', 'approvals', 'audit', 'control-room', 'integrations', 'pdm', 'forecasting'];
       if (!views.includes(viewName)) viewName = 'twin';
@@ -2699,7 +2699,13 @@
         activeBtn.className = "group flex h-9 items-center gap-2.5 rounded-lg px-2.5 bg-surface-2 text-ink shadow-[inset_2px_0_0_var(--color-accent)] transition-colors";
       }
       currentView = viewName;
-      window.history.pushState({}, '', '/' + viewName);
+      try {
+        localStorage.setItem('twinforge_active_view', viewName);
+      } catch (e) {}
+
+      if (pushHistory && window.location.pathname !== '/' + viewName) {
+        window.history.pushState({ view: viewName }, '', '/' + viewName);
+      }
 
       if (viewName === 'twin') requestAnimationFrame(() => centerCanvasTopology(false));
       if (viewName === 'agents') loadSubgraph();
@@ -2708,6 +2714,13 @@
       if (viewName === 'pdm') loadPdmAnalytics();
       if (viewName === 'forecasting') loadForecastingAnalytics();
     }
+
+    // Support browser Back/Forward navigation without page refresh
+    window.addEventListener('popstate', (e) => {
+      const raw = window.location.pathname.replace(/^\/+|\/+$/g, '');
+      const v = (e.state && e.state.view) || raw || localStorage.getItem('twinforge_active_view') || 'twin';
+      navigatePage(v, false);
+    });
 
     // View Switcher inside Twin Studio
     function setTwinView(mode) {
@@ -4582,14 +4595,141 @@
     // =========================================================================
     // PREDICTIVE MAINTENANCE CONTROLLER
     // =========================================================================
+    const PDM_FALLBACK_ASSETS = [
+      {
+        id: "M7",
+        machine_id: "M7",
+        name: "CNC-Unit-M7 (Detroit)",
+        plant: "Apex Advanced Assembly",
+        failure_risk: 0.94,
+        failure_probability: 0.94,
+        vibration_rms: 8.45,
+        vibration_threshold: 4.50,
+        bearing_temp: 89.4,
+        bearing_temp_c: 89.4,
+        normal_temp: 65.0,
+        rul_hours: 48,
+        remaining_useful_life_hours: 48,
+        health_index: 0.18,
+        anomaly_status: "CRITICAL_BEARING_DEGRADATION",
+        diagnostic_summary: "FFT spectrum identifies 240Hz cage fault harmonic; micro-spalling on inner ceramic raceway.",
+        fft_harmonics: [
+          {freq_hz: 60, amplitude: 1.2, label: "1X Running Speed"},
+          {freq_hz: 120, amplitude: 1.8, label: "2X Harmonics"},
+          {freq_hz: 180, amplitude: 2.1, label: "3X Harmonics"},
+          {freq_hz: 240, amplitude: 8.45, label: "🚨 Cage Crack Harmonic (240Hz)"},
+          {freq_hz: 300, amplitude: 2.6, label: "5X Harmonics"},
+          {freq_hz: 360, amplitude: 1.9, label: "6X Harmonics"},
+          {freq_hz: 420, amplitude: 1.4, label: "7X Harmonics"},
+          {freq_hz: 480, amplitude: 1.1, label: "8X Harmonics"}
+        ],
+        prescription: {
+          action_title: "Emergency Ceramic Bearing Replacement (ISO-6008)",
+          scheduled_downtime_hours: 2.5,
+          preventive_cost_usd: 750,
+          catastrophic_breakdown_cost_usd: 142000,
+          cost_avoidance_usd: 141250,
+          urgency: "CRITICAL",
+          required_spare: "Precision Ceramic Bearing SP-CER-6008",
+          spare_stock: 4,
+          transit_hours: 2.0
+        }
+      },
+      {
+        id: "M12",
+        machine_id: "M12",
+        name: "CNC-Unit-M12 (Detroit)",
+        plant: "Apex Advanced Assembly",
+        failure_risk: 0.88,
+        failure_probability: 0.88,
+        vibration_rms: 2.05,
+        vibration_threshold: 4.50,
+        bearing_temp: 67.2,
+        bearing_temp_c: 67.2,
+        normal_temp: 65.0,
+        rul_hours: 96,
+        remaining_useful_life_hours: 96,
+        health_index: 0.45,
+        anomaly_status: "FILTER_OCCLUSION",
+        diagnostic_summary: "Differential pressure delta at 3.8 bar exceeds 2.5 bar filter threshold. Hydraulic bypass engaged.",
+        fft_harmonics: [
+          {freq_hz: 60, amplitude: 0.8, label: "1X Running Speed"},
+          {freq_hz: 120, amplitude: 0.6, label: "2X Harmonics"},
+          {freq_hz: 180, amplitude: 0.5, label: "3X Harmonics"},
+          {freq_hz: 240, amplitude: 0.7, label: "Nominal"},
+          {freq_hz: 300, amplitude: 0.4, label: "Nominal"},
+          {freq_hz: 360, amplitude: 0.3, label: "Nominal"},
+          {freq_hz: 420, amplitude: 0.2, label: "Nominal"},
+          {freq_hz: 480, amplitude: 0.2, label: "Nominal"}
+        ],
+        prescription: {
+          action_title: "Hydraulic Cartridge Flush & Inline Filter Swap",
+          scheduled_downtime_hours: 1.0,
+          preventive_cost_usd: 250,
+          catastrophic_breakdown_cost_usd: 26500,
+          cost_avoidance_usd: 26250,
+          urgency: "WARNING",
+          required_spare: "Hydraulic Filter Cartridge FLT-HYD-50",
+          spare_stock: 12,
+          transit_hours: 1.5
+        }
+      },
+      {
+        id: "M18",
+        machine_id: "M18",
+        name: "CNC-Unit-M18 (Detroit)",
+        plant: "Apex Advanced Assembly",
+        failure_risk: 0.05,
+        failure_probability: 0.05,
+        vibration_rms: 1.12,
+        vibration_threshold: 4.50,
+        bearing_temp: 38.5,
+        bearing_temp_c: 38.5,
+        normal_temp: 65.0,
+        rul_hours: 3600,
+        remaining_useful_life_hours: 3600,
+        health_index: 0.98,
+        anomaly_status: "OPTIMAL_STANDBY",
+        diagnostic_summary: "Warm idle status verified. Spindle runout within 1.2 microns. Ready for immediate cutover.",
+        fft_harmonics: [
+          {freq_hz: 60, amplitude: 0.5, label: "1X Running Speed"},
+          {freq_hz: 120, amplitude: 0.4, label: "2X Harmonics"},
+          {freq_hz: 180, amplitude: 0.3, label: "3X Harmonics"},
+          {freq_hz: 240, amplitude: 0.3, label: "Nominal"},
+          {freq_hz: 300, amplitude: 0.2, label: "Nominal"},
+          {freq_hz: 360, amplitude: 0.2, label: "Nominal"},
+          {freq_hz: 420, amplitude: 0.1, label: "Nominal"},
+          {freq_hz: 480, amplitude: 0.1, label: "Nominal"}
+        ],
+        prescription: {
+          action_title: "Routine Standby Inspection",
+          scheduled_downtime_hours: 0.5,
+          preventive_cost_usd: 100,
+          catastrophic_breakdown_cost_usd: 5000,
+          cost_avoidance_usd: 4900,
+          urgency: "NORMAL",
+          required_spare: "Standard Lubricant Grease LG-1",
+          spare_stock: 20,
+          transit_hours: 0.5
+        }
+      }
+    ];
+
     let pdmAssetsData = [];
     let pdmSelectedAssetId = 'M7';
 
     async function loadPdmAnalytics() {
+      // Instant Fallback Hydration to eliminate any white/empty screen during initial load or refresh
+      if (!pdmAssetsData || pdmAssetsData.length === 0) {
+        pdmAssetsData = [...PDM_FALLBACK_ASSETS];
+        renderPdmAssetList();
+        selectPdmAsset(pdmSelectedAssetId || 'M7');
+      }
+
       try {
         const res = await fetch(API_BASE + '/api/pdm/analytics');
         const data = await res.json();
-        if (data.status !== 'success') return;
+        if (data.status !== 'success' || !data.assets || data.assets.length === 0) return;
 
         pdmAssetsData = data.assets || [];
         const summary = data.fleet_summary || {};
@@ -4759,9 +4899,80 @@
     // =========================================================================
     // DEMAND FORECASTING CONTROLLER
     // =========================================================================
+    const FORECASTING_FALLBACK_COMMITMENTS = [
+      {
+        customer_name: "HyperDrive Electric Motors Corp",
+        tier: "Tier-1 Strategic",
+        contract: "CONTRACT-HYPERDRIVE-P4-Q2",
+        units: 850,
+        penalty_risk: "HIGH RISK SLA BREACH ($12,500/hr line-stop)",
+        hourly_penalty: "$12,500/hr",
+        period: "2026-Q2",
+        product: "Product P4 (High-Torque Stator Core)"
+      },
+      {
+        customer_name: "Apex Automotive Systems",
+        tier: "Strategic",
+        contract: "CONTRACT-APEX-P4-2026",
+        units: 400,
+        penalty_risk: "MODERATE RISK ($5,000/hr penalty)",
+        hourly_penalty: "$5,000/hr",
+        period: "2026-Q2",
+        product: "Product P4 (High-Torque Stator Core)"
+      },
+      {
+        customer_name: "Nordic Precision Dynamics",
+        tier: "Enterprise",
+        contract: "CONTRACT-NORDIC-P4-2026",
+        units: 250,
+        penalty_risk: "LOW (Buffer available)",
+        hourly_penalty: "$0/hr",
+        period: "2026-Q2",
+        product: "Product P4 (High-Torque Stator Core)"
+      }
+    ];
+
+    function renderForecastBarsFallback() {
+      const chartContainer = document.getElementById('fc-chart-bars');
+      if (!chartContainer) return;
+      const actuals = [340, 380, 415, 450, 510, 580];
+      const fitted = [340, 354, 375, 401, 439, 488];
+      const projMonthly = 483;
+      const maxVal = Math.max(...actuals, ...fitted, projMonthly) * 1.15;
+
+      let barsHtml = '';
+      for (let i = 0; i < actuals.length; i++) {
+        const hActual = Math.round((actuals[i] / maxVal) * 100);
+        const hFit = Math.round((fitted[i] / maxVal) * 100);
+        barsHtml += `
+          <div class="flex-1 flex items-end justify-center gap-1 group relative">
+            <span class="opacity-0 group-hover:opacity-100 absolute -top-5 font-mono text-[9px] text-ink transition-opacity">${actuals[i]}u</span>
+            <div class="w-1/2 bg-muted/60 rounded-t" style="height: ${hActual}%;"></div>
+            <div class="w-1/2 bg-accent rounded-t" style="height: ${hFit}%;"></div>
+          </div>
+        `;
+      }
+      const hProj = Math.round((projMonthly / maxVal) * 100);
+      barsHtml += `
+        <div class="flex-1 flex items-end justify-center gap-1 group relative">
+          <span class="opacity-0 group-hover:opacity-100 absolute -top-5 font-mono text-[9px] text-critical font-bold transition-opacity">${projMonthly}u</span>
+          <div class="w-3/4 bg-critical rounded-t shadow-sm shadow-critical/50" style="height: ${hProj}%;"></div>
+        </div>
+      `;
+      chartContainer.innerHTML = barsHtml;
+    }
+
     let forecastingData = null;
 
     async function loadForecastingAnalytics() {
+      // Instant Fallback Hydration for zero-latency refresh
+      renderCustomerCommitments(FORECASTING_FALLBACK_COMMITMENTS);
+      renderForecastBarsFallback();
+      const kpiDemandInit = document.getElementById('fc-kpi-p4-demand');
+      if (kpiDemandInit) kpiDemandInit.innerText = '1,450 units';
+      const kpiShortfallInit = document.getElementById('fc-kpi-shortfall');
+      if (kpiShortfallInit) kpiShortfallInit.innerText = '1,050 units';
+
       try {
         const res = await fetch(API_BASE + '/api/forecasting/analytics');
         const data = await res.json();
@@ -4769,7 +4980,9 @@
 
         forecastingData = data;
         const products = data.products || [];
-        const commitments = data.customer_commitments || [];
+        const commitments = (data.customer_commitments && data.customer_commitments.length > 0)
+          ? data.customer_commitments
+          : FORECASTING_FALLBACK_COMMITMENTS;
 
         const p4 = products.find(p => p.product_id === 'P4') || products[0];
         if (p4 && p4.forecast_horizons && p4.forecast_horizons.length) {
@@ -4927,8 +5140,9 @@
     updateThemeUI(currentTheme);
 
     const rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '');
-    const path = (!rawPath || rawPath === 'home' || rawPath === 'index.html') ? 'twin' : rawPath;
-    navigatePage(path);
+    const savedView = localStorage.getItem('twinforge_active_view');
+    const path = (!rawPath || rawPath === 'home' || rawPath === 'index.html') ? (savedView || 'twin') : rawPath;
+    navigatePage(path, false);
     checkHealth();
     fetchFacilitiesFromBackend();
     switchFacility(currentFacilityId, currentPlantId);

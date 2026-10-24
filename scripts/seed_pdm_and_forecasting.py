@@ -342,28 +342,31 @@ def seed_pdm_and_forecasting():
         # HyperDrive Electric Motors (550 contracted units for Q2)
         {
             "customer_id": "CUST_HYPERDRIVE_AUTO",
+            "customer_name": "HyperDrive Electric Motors Corp",
             "forecast_id": "FC_P4_2026Q2",
             "contract_units": 550,
             "contract_number": "CONTRACT-HYPERDRIVE-Q2-2026",
-            "priority": "Tier-1 Mission Critical",
+            "priority": "Tier-1 Strategic",
             "penalty_risk": True,
-            "hourly_penalty_usd": 25000.0,
+            "hourly_penalty_usd": 12500.0,
             "delivery_window": "2026-05-15 to 2026-06-30"
         },
         # Client Corp 01 (Strategic OEM - 350 contracted units)
         {
             "customer_id": "CUST_001",
+            "customer_name": "Apex Automotive Systems",
             "forecast_id": "FC_P4_2026Q2",
             "contract_units": 350,
             "contract_number": "CONTRACT-APEX-CUST01-2026",
             "priority": "Strategic Partner",
             "penalty_risk": False,
-            "hourly_penalty_usd": 0.0,
+            "hourly_penalty_usd": 5000.0,
             "delivery_window": "2026-06-01 to 2026-07-15"
         },
         # Client Corp 02 (Strategic OEM - 250 contracted units)
         {
             "customer_id": "CUST_002",
+            "customer_name": "Nordic Precision Dynamics",
             "forecast_id": "FC_P4_2026Q2",
             "contract_units": 250,
             "contract_number": "CONTRACT-APEX-CUST02-2026",
@@ -376,7 +379,9 @@ def seed_pdm_and_forecasting():
 
     g.query("""
     UNWIND $batch AS c
-    MATCH (cust:Customer {id: c.customer_id})
+    MERGE (cust:Customer {id: c.customer_id})
+    ON CREATE SET cust.name = c.customer_name, cust.tier = c.priority
+    WITH cust, c
     MATCH (fc:DemandForecast {id: c.forecast_id})
     MERGE (cust)-[r:COMMITTED_DEMAND]->(fc)
     SET 

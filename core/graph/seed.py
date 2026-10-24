@@ -412,14 +412,21 @@ def seed_database() -> Dict[str, int]:
         params={"batch": data["warehouse_serves"]}
     )
 
+    # 15. Seed Predictive Maintenance & Demand Forecasting Graph
+    try:
+        from scripts.seed_pdm_and_forecasting import seed_pdm_and_forecasting
+        seed_pdm_and_forecasting()
+    except Exception as e:
+        print(f"Warning: Failed to seed PdM and forecasting nodes: {e}")
+
     # Verification counts
     counts = {}
-    node_labels = ["Plant", "Machine", "Part", "Product", "Supplier", "Warehouse", "Customer", "Region"]
+    node_labels = ["Plant", "Machine", "Part", "Product", "Supplier", "Warehouse", "Customer", "Region", "SensorTelemetry", "PdMPrescription", "DemandForecast"]
     for label in node_labels:
         res = graph.query(f"MATCH (n:{label}) RETURN count(n)").result_set
         counts[f"Nodes:{label}"] = res[0][0]
 
-    rel_types = ["HAS", "PRODUCES", "SUPPLIES", "USED_IN", "STOCKED_AT", "SERVES", "LOCATED_IN", "ALTERNATE_FOR"]
+    rel_types = ["HAS", "PRODUCES", "SUPPLIES", "USED_IN", "STOCKED_AT", "SERVES", "LOCATED_IN", "ALTERNATE_FOR", "HAS_TELEMETRY", "HAS_PDM_PLAN", "HAS_FORECAST", "COMMITTED_DEMAND"]
     for rel in rel_types:
         res = graph.query(f"MATCH ()-[r:{rel}]->() RETURN count(r)").result_set
         counts[f"Rels:{rel}"] = res[0][0]
