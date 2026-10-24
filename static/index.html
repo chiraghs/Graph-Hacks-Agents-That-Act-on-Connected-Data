@@ -219,6 +219,49 @@
       stroke-dasharray: 5 3;
       animation: flowAnim 0.7s linear infinite;
     }
+
+    /* Sidebar Minimized / Collapsed Mode */
+    #app-sidebar {
+      transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #main-content-layout {
+      transition: padding-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    body.sidebar-collapsed #app-sidebar {
+      width: 4.25rem !important; /* ~68px icon rail */
+    }
+    body.sidebar-collapsed #main-content-layout {
+      padding-left: 4.25rem !important;
+    }
+    body.sidebar-collapsed .sidebar-label,
+    body.sidebar-collapsed .sidebar-group-title,
+    body.sidebar-collapsed .sidebar-badge {
+      display: none !important;
+    }
+    body.sidebar-collapsed #app-sidebar nav ul li a {
+      justify-content: center;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+    body.sidebar-collapsed #app-sidebar nav ul li a svg {
+      margin: 0 auto;
+    }
+    body.sidebar-collapsed #sidebar-collapse-icon {
+      transform: rotate(180deg);
+    }
+
+    /* Mobile Responsive Drawer */
+    @media (max-width: 1023px) {
+      #app-sidebar {
+        transform: translateX(-100%);
+      }
+      body.mobile-sidebar-open #app-sidebar {
+        transform: translateX(0);
+      }
+      body.mobile-sidebar-open #sidebar-mobile-backdrop {
+        display: block !important;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen antialiased bg-canvas text-ink select-none overflow-x-hidden">
@@ -226,46 +269,59 @@
   <!-- ========================================================================= -->
   <!-- 1. EXACT TWINFORGE LEFT SIDEBAR                                           -->
   <!-- ========================================================================= -->
-  <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-line bg-shell transition-transform duration-200">
-    <!-- Brand Logo -->
-    <a href="/twin" onclick="navigatePage('twin'); return false;" class="flex h-14 items-center gap-2.5 border-b border-line px-4 cursor-pointer">
-      <svg viewBox="0 0 32 32" class="h-7 w-7" aria-hidden="true">
-        <rect width="32" height="32" rx="8" fill="#0f1a33" />
-        <rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="none" stroke="#2b3b5e" />
-        <path d="M8 9.5h16" stroke="#4c8dff" stroke-width="2.6" stroke-linecap="round" />
-        <path d="M16 9.5v10" stroke="#4c8dff" stroke-width="2.6" stroke-linecap="round" />
-        <path d="M16 19.5l-5 4M16 19.5l5 4" stroke="#6f7d99" stroke-width="1.6" stroke-linecap="round" />
-        <circle cx="10.5" cy="24" r="2.4" fill="#10b981" />
-        <circle cx="21.5" cy="24" r="2.4" fill="#9085e9" />
-      </svg>
-      <span class="font-semibold tracking-tight text-[15px] text-ink">
-        TwinForge<span class="text-accent"> Connected Graph</span>
-      </span>
-    </a>
+  <!-- Mobile Backdrop Overlay -->
+  <div id="sidebar-mobile-backdrop" onclick="toggleSidebarCollapse(false)" class="hidden fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity"></div>
+
+  <!-- ========================================================================= -->
+  <!-- 1. EXACT TWINFORGE LEFT SIDEBAR                                           -->
+  <!-- ========================================================================= -->
+  <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-line bg-shell shadow-xl lg:shadow-none">
+    <!-- Brand Logo & Minimize Toggle -->
+    <div class="flex h-14 items-center justify-between border-b border-line px-3.5">
+      <a href="/twin" onclick="navigatePage('twin'); return false;" class="flex items-center gap-2.5 cursor-pointer min-w-0" title="TwinForge Connected Graph">
+        <svg viewBox="0 0 32 32" class="h-7 w-7 shrink-0" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#0f1a33" />
+          <rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="none" stroke="#2b3b5e" />
+          <path d="M8 9.5h16" stroke="#4c8dff" stroke-width="2.6" stroke-linecap="round" />
+          <path d="M16 9.5v10" stroke="#4c8dff" stroke-width="2.6" stroke-linecap="round" />
+          <path d="M16 19.5l-5 4M16 19.5l5 4" stroke="#6f7d99" stroke-width="1.6" stroke-linecap="round" />
+          <circle cx="10.5" cy="24" r="2.4" fill="#10b981" />
+          <circle cx="21.5" cy="24" r="2.4" fill="#9085e9" />
+        </svg>
+        <span class="sidebar-label font-semibold tracking-tight text-[15px] text-ink truncate">
+          TwinForge<span class="text-accent"> Connected Graph</span>
+        </span>
+      </a>
+      <button onclick="toggleSidebarCollapse()" id="btn-sidebar-collapse" title="Minimize sidebar navigation" class="hidden lg:flex h-7 w-7 items-center justify-center rounded-md border border-line text-muted hover:text-ink hover:bg-surface-2 transition-colors cursor-pointer shrink-0">
+        <svg id="sidebar-collapse-icon" class="h-4 w-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+        </svg>
+      </button>
+    </div>
 
     <!-- Navigation Menu -->
-    <nav class="flex-1 overflow-y-auto px-2.5 py-3">
+    <nav class="flex-1 overflow-y-auto px-2 py-3">
       <!-- OPERATE GROUP -->
       <div class="mb-4">
-        <p class="px-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] text-muted uppercase">Operate</p>
+        <p class="sidebar-group-title px-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] text-muted uppercase">Operate</p>
         <ul class="space-y-0.5 text-[13px] font-medium">
           <li>
-            <a href="/twin" onclick="navigatePage('twin'); return false;" id="nav-btn-twin" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 bg-surface-2 text-ink shadow-[inset_2px_0_0_var(--color-accent)] transition-colors">
-              <svg class="h-4 w-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="18" cy="5" r="3" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke-width="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke-width="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke-width="2"/></svg>
-              <span class="flex-1 truncate">Connected-Graph</span>
+            <a href="/twin" onclick="navigatePage('twin'); return false;" id="nav-btn-twin" title="Connected-Graph Digital Twin" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 bg-surface-2 text-ink shadow-[inset_2px_0_0_var(--color-accent)] transition-colors">
+              <svg class="h-4 w-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="18" cy="5" r="3" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke-width="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke-width="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke-width="2"/></svg>
+              <span class="sidebar-label flex-1 truncate">Connected-Graph</span>
             </a>
           </li>
           <li>
-            <a href="/dashboard" onclick="navigatePage('dashboard'); return false;" id="nav-btn-dashboard" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              <span class="flex-1 truncate">Command Center</span>
-              <span id="nav-crit-badge" class="rounded px-1.5 py-px text-[10.5px] font-semibold bg-critical/20 text-critical-ink">1</span>
+            <a href="/dashboard" onclick="navigatePage('dashboard'); return false;" id="nav-btn-dashboard" title="Command Center" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              <span class="sidebar-label flex-1 truncate">Command Center</span>
+              <span id="nav-crit-badge" class="sidebar-badge rounded px-1.5 py-px text-[10.5px] font-semibold bg-critical/20 text-critical-ink">1</span>
             </a>
           </li>
           <li>
-            <a href="/quality" onclick="navigatePage('quality'); return false;" id="nav-btn-quality" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="3" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" /></svg>
-              <span class="flex-1 truncate">Visual Quality</span>
+            <a href="/control-room" onclick="navigatePage('control-room'); return false;" id="nav-btn-control-room" title="Visual Quality & CCTV" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="3" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" /></svg>
+              <span class="sidebar-label flex-1 truncate">Visual Quality</span>
             </a>
           </li>
         </ul>
@@ -273,46 +329,46 @@
 
       <!-- INTELLIGENCE GROUP -->
       <div class="mb-4">
-        <p class="px-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] text-muted uppercase">Intelligence</p>
+        <p class="sidebar-group-title px-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] text-muted uppercase">Intelligence</p>
         <ul class="space-y-0.5 text-[13px] font-medium">
           <li>
-            <a href="/agents" onclick="navigatePage('agents'); return false;" id="nav-btn-agents" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/><line x1="9" y1="9" x2="15" y2="9" stroke-width="2"/><line x1="9" y1="13" x2="15" y2="13" stroke-width="2"/><line x1="9" y1="17" x2="13" y2="17" stroke-width="2"/></svg>
-              <span class="flex-1 truncate">AI Operations</span>
-              <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-agent"></span>
+            <a href="/agents" onclick="navigatePage('agents'); return false;" id="nav-btn-agents" title="AI Autonomous Operations" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/><line x1="9" y1="9" x2="15" y2="9" stroke-width="2"/><line x1="9" y1="13" x2="15" y2="13" stroke-width="2"/><line x1="9" y1="17" x2="13" y2="17" stroke-width="2"/></svg>
+              <span class="sidebar-label flex-1 truncate">AI Operations</span>
+              <span class="sidebar-badge h-1.5 w-1.5 animate-pulse rounded-full bg-agent"></span>
             </a>
           </li>
           <li>
-            <a href="/pdm" onclick="navigatePage('pdm'); return false;" id="nav-btn-pdm" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              <span class="flex-1 truncate">Predictive Maintenance</span>
-              <span class="rounded px-1.5 py-px text-[9.5px] font-semibold bg-accent/15 text-accent border border-accent/30 font-mono">FFT/RUL</span>
+            <a href="/pdm" onclick="navigatePage('pdm'); return false;" id="nav-btn-pdm" title="Predictive Maintenance (FFT & RUL)" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              <span class="sidebar-label flex-1 truncate">Predictive Maint.</span>
+              <span class="sidebar-badge rounded px-1.5 py-px text-[9.5px] font-semibold bg-accent/15 text-accent border border-accent/30 font-mono">FFT/RUL</span>
             </a>
           </li>
           <li>
-            <a href="/forecasting" onclick="navigatePage('forecasting'); return false;" id="nav-btn-forecasting" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
-              <span class="flex-1 truncate">Demand Forecasting</span>
-              <span class="rounded px-1.5 py-px text-[9.5px] font-semibold bg-healthy/15 text-healthy border border-healthy/30 font-mono">Exp.Smooth</span>
+            <a href="/forecasting" onclick="navigatePage('forecasting'); return false;" id="nav-btn-forecasting" title="Demand Forecasting (Exponential Smoothing)" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
+              <span class="sidebar-label flex-1 truncate">Demand Forecast</span>
+              <span class="sidebar-badge rounded px-1.5 py-px text-[9.5px] font-semibold bg-healthy/15 text-healthy border border-healthy/30 font-mono">Exp.Smooth</span>
             </a>
           </li>
           <li>
-            <a href="/simulator" onclick="navigatePage('simulator'); return false;" id="nav-btn-simulator" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-              <span class="flex-1 truncate">What-If Simulator</span>
+            <a href="/simulator" onclick="navigatePage('simulator'); return false;" id="nav-btn-simulator" title="What-If Graph Simulator" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+              <span class="sidebar-label flex-1 truncate">What-If Simulator</span>
             </a>
           </li>
           <li>
-            <a href="/approvals" onclick="navigatePage('approvals'); return false;" id="nav-btn-approvals" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
-              <span class="flex-1 truncate">Approvals</span>
-              <span class="rounded px-1.5 py-px text-[10.5px] font-semibold bg-warning/20 text-warning-ink">1</span>
+            <a href="/approvals" onclick="navigatePage('approvals'); return false;" id="nav-btn-approvals" title="Human-in-the-Loop Approvals" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+              <span class="sidebar-label flex-1 truncate">Approvals</span>
+              <span class="sidebar-badge rounded px-1.5 py-px text-[10.5px] font-semibold bg-warning/20 text-warning-ink">1</span>
             </a>
           </li>
           <li>
-            <a href="/audit" onclick="navigatePage('audit'); return false;" id="nav-btn-audit" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <span class="flex-1 truncate">Audit Trail</span>
+            <a href="/audit" onclick="navigatePage('audit'); return false;" id="nav-btn-audit" title="Immutable Audit Trail" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span class="sidebar-label flex-1 truncate">Audit Trail</span>
             </a>
           </li>
         </ul>
@@ -320,12 +376,12 @@
 
       <!-- ADMIN GROUP -->
       <div class="mb-4">
-        <p class="px-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] text-muted uppercase">Admin</p>
+        <p class="sidebar-group-title px-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] text-muted uppercase">Admin</p>
         <ul class="space-y-0.5 text-[13px] font-medium">
           <li>
-            <a href="/integrations" onclick="navigatePage('integrations'); return false;" id="nav-btn-integrations" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              <span class="flex-1 truncate">Integrations</span>
+            <a href="/integrations" onclick="navigatePage('integrations'); return false;" id="nav-btn-integrations" title="System Integrations" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              <span class="sidebar-label flex-1 truncate">Integrations</span>
             </a>
           </li>
         </ul>
@@ -336,10 +392,17 @@
   <!-- ========================================================================= -->
   <!-- 2. MAIN VIEWPORT & TOPBAR                                                 -->
   <!-- ========================================================================= -->
-  <div class="lg:pl-60 min-h-screen flex flex-col">
+  <div id="main-content-layout" class="lg:pl-60 min-h-screen flex flex-col transition-all duration-200">
 
     <!-- Topbar -->
-    <header class="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-canvas/85 px-4 backdrop-blur-md lg:px-6">
+    <header class="sticky top-0 z-30 flex h-14 items-center gap-2.5 border-b border-line bg-canvas/85 px-3 backdrop-blur-md lg:px-6">
+      <!-- Sidebar Toggle Button (Topbar) -->
+      <button onclick="toggleSidebarCollapse()" id="btn-topbar-toggle-sidebar" title="Toggle sidebar navigation" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line bg-surface hover:bg-surface-2 text-ink transition-colors cursor-pointer">
+        <svg class="h-4.5 w-4.5 text-muted hover:text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
       <!-- Main Facility Filter (Simpler Top-Level Dropdown) -->
       <div class="relative">
         <button onclick="toggleFacilityDropdown()" id="btn-facility-selector" class="group flex items-center gap-2.5 rounded-xl border border-line-strong bg-surface hover:bg-surface-2 px-3 py-1.5 transition-all text-left shadow-sm hover:border-accent cursor-pointer">
@@ -2663,10 +2726,15 @@
 
   <script>
     // Live Backend API Routing
-    // When running on the submitted static frontend site, forward API calls to the live Render backend service.
-    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('graph-hacks-supply-chain-agent'))
-      ? ''
-      : 'https://graph-hacks-supply-chain-agent.onrender.com';
+    // When running on the live Render web service or localhost, use relative path '' to hit the same origin.
+    const API_BASE = (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname.endsWith('onrender.com') ||
+      window.location.hostname.includes('onrender') ||
+      window.location.protocol === 'http:' ||
+      window.location.protocol === 'https:'
+    ) ? '' : 'https://graph-hacks-agents-that-act-on-connected.onrender.com';
 
     // State management
     let currentView = 'twin';
@@ -2678,8 +2746,37 @@
     let dragStartX = 0;
     let dragStartY = 0;
 
+    // Sidebar Minimize / Collapse Controller
+    function toggleSidebarCollapse(forceState) {
+      const isDesktop = window.innerWidth >= 1024;
+      if (isDesktop) {
+        if (typeof forceState === 'boolean') {
+          document.body.classList.toggle('sidebar-collapsed', forceState);
+        } else {
+          document.body.classList.toggle('sidebar-collapsed');
+        }
+        const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+        try {
+          localStorage.setItem('twinforge_sidebar_collapsed', isCollapsed ? '1' : '0');
+        } catch (e) {}
+        const btn = document.getElementById('btn-sidebar-collapse');
+        if (btn) btn.title = isCollapsed ? 'Expand sidebar navigation' : 'Minimize sidebar navigation';
+      } else {
+        // Mobile drawer toggle
+        if (typeof forceState === 'boolean') {
+          document.body.classList.toggle('mobile-sidebar-open', forceState);
+        } else {
+          document.body.classList.toggle('mobile-sidebar-open');
+        }
+      }
+    }
+
     // Navigation Router with Route Persistence and History Navigation
     function navigatePage(viewName, pushHistory = true) {
+      if (window.innerWidth < 1024) {
+        document.body.classList.remove('mobile-sidebar-open');
+      }
+      if (viewName === 'quality') viewName = 'control-room';
       if (!viewName || viewName === 'connected-graph' || viewName === 'home' || viewName === 'index.html') viewName = 'twin';
       const views = ['twin', 'dashboard', 'agents', 'simulator', 'approvals', 'audit', 'control-room', 'integrations', 'pdm', 'forecasting'];
       if (!views.includes(viewName)) viewName = 'twin';
@@ -5135,9 +5232,18 @@
       updateThemeUI(next);
     }
 
-    // Handle initial route, plant & theme
+    // Handle initial route, plant, sidebar & theme
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     updateThemeUI(currentTheme);
+
+    // Restore sidebar minimize state if previously selected
+    try {
+      if (window.innerWidth >= 1024 && localStorage.getItem('twinforge_sidebar_collapsed') === '1') {
+        document.body.classList.add('sidebar-collapsed');
+        const btn = document.getElementById('btn-sidebar-collapse');
+        if (btn) btn.title = 'Expand sidebar navigation';
+      }
+    } catch (e) {}
 
     const rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '');
     const savedView = localStorage.getItem('twinforge_active_view');

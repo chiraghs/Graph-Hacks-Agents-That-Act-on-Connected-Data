@@ -47,6 +47,14 @@ app.include_router(factories_router)
 @app.get("/", response_class=HTMLResponse)
 @app.get("/home", response_class=HTMLResponse)
 @app.get("/index.html", response_class=HTMLResponse)
+NO_CACHE_HEADERS = {
+    "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+    "Pragma": "no-cache",
+    "Expires": "0",
+}
+
+
+@app.get("/", response_class=HTMLResponse)
 @app.get("/twin", response_class=HTMLResponse)
 @app.get("/connected-graph", response_class=HTMLResponse)
 @app.get("/dashboard", response_class=HTMLResponse)
@@ -59,19 +67,19 @@ app.include_router(factories_router)
 @app.get("/pdm", response_class=HTMLResponse)
 @app.get("/forecasting", response_class=HTMLResponse)
 async def serve_index():
-    """Serves the TwinForge Connected Graph Digital Twin Studio SPA."""
+    """Serves the TwinForge Connected Graph Digital Twin Studio SPA with zero-cache headers."""
     index_path = STATIC_DIR / "index.html"
-    return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content=index_path.read_text(encoding="utf-8"), headers=NO_CACHE_HEADERS)
 
 
 @app.get("/{full_path:path}", response_class=HTMLResponse)
 async def serve_spa_catchall(full_path: str):
-    """Catch-all router allowing full browser refresh on any client-side route."""
+    """Catch-all router allowing full browser refresh on any client-side route with zero-cache headers."""
     clean_path = full_path.strip("/")
     if clean_path.startswith("api") or clean_path.startswith("static") or clean_path == "health":
         raise HTTPException(status_code=404, detail="Not Found")
     index_path = STATIC_DIR / "index.html"
-    return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content=index_path.read_text(encoding="utf-8"), headers=NO_CACHE_HEADERS)
 
 
 if __name__ == "__main__":
