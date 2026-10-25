@@ -118,7 +118,7 @@ TwinForge’s core innovation is the **Supply Chain Intelligence Agent** (`core/
 
 The agent requires at least **two hops of verified graph evidence** before executing any operational action.
 
-![Autonomous Agent Investigation Logic Flowchart](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/11_agent_investigation_flowchart.png)
+![Autonomous Agent Investigation Logic Flowchart](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/fb3ab4e8fb1af18cd6670a1e9ace09bebcdca76d/assets/blog/11_agent_investigation_flowchart.png)
 *Figure 6: Two-hop verified graph traversal pipeline required by the agent before taking mitigation actions.*
 
 #### Scenario A: The Harmful Disruption (`M7`)
