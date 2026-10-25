@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 620" width="850" height="620" style="background:#0b0f19; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+    <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="decisionGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312e81"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="critGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#881337"/>
+      <stop offset="100%" stop-color="#4c0519"/>
+    </linearGradient>
+    <linearGradient id="safeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b"/>
+      <stop offset="100%" stop-color="#022c22"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowCrit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#f43f5e"/>
+    </marker>
+    <marker id="arrowSafe" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="425" y="38" text-anchor="middle" fill="#f8fafc" font-size="18" font-weight="700" letter-spacing="0.5">Autonomous Agent Investigation &amp; Resolution Loop</text>
+  <text x="425" y="58" text-anchor="middle" fill="#94a3b8" font-size="12">Two-Hop Verified Graph Evidence in FalkorDB before Execution</text>
+
+  <!-- Flow lines -->
+  <line x1="425" y1="120" x2="425" y2="145" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="425" y1="195" x2="425" y2="220" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="425" y1="270" x2="425" y2="295" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Decision splits -->
+  <!-- Left to Critical -->
+  <path d="M 310 345 L 210 345 L 210 395" fill="none" stroke="#f43f5e" stroke-width="2" marker-end="url(#arrowCrit)"/>
+  <!-- Right to Clear -->
+  <path d="M 540 345 L 640 345 L 640 395" fill="none" stroke="#10b981" stroke-width="2" marker-end="url(#arrowSafe)"/>
+
+  <line x1="210" y1="460" x2="210" y2="495" stroke="#f43f5e" stroke-width="2" marker-end="url(#arrowCrit)"/>
+
+  <!-- Node 1: at_risk_machines -->
+  <rect x="265" y="75" width="320" height="45" rx="8" fill="url(#nodeGrad)" stroke="#38bdf8" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="425" y="102" text-anchor="middle" fill="#e0f2fe" font-size="13" font-family="monospace" font-weight="600">at_risk_machines(threshold=0.70)</text>
+
+  <!-- Node 2: downstream_impact -->
+  <rect x="265" y="150" width="320" height="45" rx="8" fill="url(#nodeGrad)" stroke="#38bdf8" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="425" y="177" text-anchor="middle" fill="#e0f2fe" font-size="13" font-family="monospace" font-weight="600">downstream_impact(machine_id)</text>
+
+  <!-- Node 3: shortfall_check -->
+  <rect x="265" y="225" width="320" height="45" rx="8" fill="url(#nodeGrad)" stroke="#38bdf8" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="425" y="252" text-anchor="middle" fill="#e0f2fe" font-size="13" font-family="monospace" font-weight="600">shortfall_check(product_id)</text>
+
+  <!-- Node 4: Decision Diamond Box -->
+  <rect x="310" y="305" width="230" height="80" rx="10" fill="url(#decisionGrad)" stroke="#818cf8" stroke-width="2" filter="url(#shadow)"/>
+  <text x="425" y="338" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">Sole Producer &amp;</text>
+  <text x="425" y="358" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700">Inventory Shortfall?</text>
+
+  <!-- Branch Label Left: YES -->
+  <rect x="130" y="325" width="150" height="24" rx="4" fill="#4c0519" stroke="#f43f5e" stroke-width="1"/>
+  <text x="205" y="341" text-anchor="middle" fill="#fecdd3" font-size="11" font-weight="700">YES: Critical Disruption (M7)</text>
+
+  <!-- Branch Label Right: NO -->
+  <rect x="570" y="325" width="145" height="24" rx="4" fill="#022c22" stroke="#10b981" stroke-width="1"/>
+  <text x="642" y="341" text-anchor="middle" fill="#a7f3d0" font-size="11" font-weight="700">NO: Harmless Drift (M12)</text>
+
+  <!-- Left Action 1: alternate_sources -->
+  <rect x="55" y="405" width="310" height="55" rx="8" fill="url(#critGrad)" stroke="#f43f5e" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="210" y="428" text-anchor="middle" fill="#ffe4e6" font-size="12" font-family="monospace" font-weight="600">alternate_sources(part_id)</text>
+  <text x="210" y="446" text-anchor="middle" fill="#fda4af" font-size="11" font-family="monospace">&amp; shortest_path()</text>
+
+  <!-- Left Action 2: schedule_action -->
+  <rect x="45" y="505" width="330" height="75" rx="8" fill="url(#critGrad)" stroke="#f43f5e" stroke-width="2" filter="url(#shadow)"/>
+  <text x="210" y="530" text-anchor="middle" fill="#ffe4e6" font-size="12" font-family="monospace" font-weight="700">schedule_action('reroute_production')</text>
+  <text x="210" y="552" text-anchor="middle" fill="#fb7185" font-size="11" font-family="monospace">CREATE (:Decision)</text>
+  <text x="210" y="568" text-anchor="middle" fill="#fb7185" font-size="11" font-family="monospace">-[:BASED_ON]-&gt;(Evidence)</text>
+
+  <!-- Right Action: EXPLICITLY CLEAR ALERT -->
+  <rect x="500" y="405" width="280" height="75" rx="8" fill="url(#safeGrad)" stroke="#10b981" stroke-width="2" filter="url(#shadow)"/>
+  <text x="640" y="437" text-anchor="middle" fill="#d1fae5" font-size="13" font-weight="700">EXPLICITLY CLEAR ALERT</text>
+  <text x="640" y="458" text-anchor="middle" fill="#6ee7b7" font-size="12">Zero Line Disruption</text>
+  <text x="640" y="473" text-anchor="middle" fill="#a7f3d0" font-size="11">Sister machine active &amp; stock safe</text>
+</svg>

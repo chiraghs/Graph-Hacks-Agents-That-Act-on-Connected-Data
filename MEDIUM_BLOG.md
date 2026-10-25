@@ -118,15 +118,8 @@ TwinForge’s core innovation is the **Supply Chain Intelligence Agent** (`core/
 
 The agent requires at least **two hops of verified graph evidence** before executing any operational action.
 
-```mermaid
-flowchart TD
-    A["at_risk_machines(threshold=0.70)"] --> B["downstream_impact(machine_id)"]
-    B --> C["shortfall_check(product_id)"]
-    C --> D{"Sole Producer &<br/>Inventory Shortfall?"}
-    D -->|YES: Critical Disruption (M7)| E["alternate_sources(part_id)<br/>& shortest_path()"]
-    E --> F["schedule_action('reroute_production')<br/>CREATE (:Decision)-[:BASED_ON]->(Evidence)"]
-    D -->|NO: Harmless Drift (M12)| G["EXPLICITLY CLEAR ALERT<br/>Zero Line Disruption"]
-```
+![Autonomous Agent Investigation Logic Flowchart](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/11_agent_investigation_flowchart.png)
+*Figure 6: Two-hop verified graph traversal pipeline required by the agent before taking mitigation actions.*
 
 #### Scenario A: The Harmful Disruption (`M7`)
 When `M7` drifts:
