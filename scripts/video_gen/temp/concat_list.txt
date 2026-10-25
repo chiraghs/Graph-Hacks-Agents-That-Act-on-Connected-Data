@@ -1,0 +1,7 @@
+file '/Volumes/DiskD/HACKATHONS/Agent-SupplyChain/scripts/video_gen/temp/scene_1_intro.mp4'
+file '/Volumes/DiskD/HACKATHONS/Agent-SupplyChain/scripts/video_gen/temp/scene_2_telemetry.mp4'
+file '/Volumes/DiskD/HACKATHONS/Agent-SupplyChain/scripts/video_gen/temp/scene_3_traversal.mp4'
+file '/Volumes/DiskD/HACKATHONS/Agent-SupplyChain/scripts/video_gen/temp/scene_4_customer_sla.mp4'
+file '/Volumes/DiskD/HACKATHONS/Agent-SupplyChain/scripts/video_gen/temp/scene_5_copilot.mp4'
+file '/Volumes/DiskD/HACKATHONS/Agent-SupplyChain/scripts/video_gen/temp/scene_6_mitigation.mp4'
+file '/Volumes/DiskD/HACKATHONS/Agent-SupplyChain/scripts/video_gen/temp/scene_7_summary.mp4'

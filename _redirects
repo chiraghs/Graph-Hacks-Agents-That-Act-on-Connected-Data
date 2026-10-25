@@ -1,0 +1,2 @@
+/api/*  https://graph-hacks-supply-chain-agent.onrender.com/api/:splat  200
+/*      /index.html                                                     200

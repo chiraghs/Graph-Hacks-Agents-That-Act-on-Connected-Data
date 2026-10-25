@@ -219,6 +219,49 @@
       stroke-dasharray: 5 3;
       animation: flowAnim 0.7s linear infinite;
     }
+
+    /* Sidebar Minimized / Collapsed Mode */
+    #app-sidebar {
+      transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #main-content-layout {
+      transition: padding-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    body.sidebar-collapsed #app-sidebar {
+      width: 4.25rem !important; /* ~68px icon rail */
+    }
+    body.sidebar-collapsed #main-content-layout {
+      padding-left: 4.25rem !important;
+    }
+    body.sidebar-collapsed .sidebar-label,
+    body.sidebar-collapsed .sidebar-group-title,
+    body.sidebar-collapsed .sidebar-badge {
+      display: none !important;
+    }
+    body.sidebar-collapsed #app-sidebar nav ul li a {
+      justify-content: center;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+    body.sidebar-collapsed #app-sidebar nav ul li a svg {
+      margin: 0 auto;
+    }
+    body.sidebar-collapsed #sidebar-collapse-icon {
+      transform: rotate(180deg);
+    }
+
+    /* Mobile Responsive Drawer */
+    @media (max-width: 1023px) {
+      #app-sidebar {
+        transform: translateX(-100%);
+      }
+      body.mobile-sidebar-open #app-sidebar {
+        transform: translateX(0);
+      }
+      body.mobile-sidebar-open #sidebar-mobile-backdrop {
+        display: block !important;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen antialiased bg-canvas text-ink select-none overflow-x-hidden">
@@ -226,46 +269,59 @@
   <!-- ========================================================================= -->
   <!-- 1. EXACT TWINFORGE LEFT SIDEBAR                                           -->
   <!-- ========================================================================= -->
-  <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-line bg-shell transition-transform duration-200">
-    <!-- Brand Logo -->
-    <a href="/twin" onclick="navigatePage('twin'); return false;" class="flex h-14 items-center gap-2.5 border-b border-line px-4 cursor-pointer">
-      <svg viewBox="0 0 32 32" class="h-7 w-7" aria-hidden="true">
-        <rect width="32" height="32" rx="8" fill="#0f1a33" />
-        <rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="none" stroke="#2b3b5e" />
-        <path d="M8 9.5h16" stroke="#4c8dff" stroke-width="2.6" stroke-linecap="round" />
-        <path d="M16 9.5v10" stroke="#4c8dff" stroke-width="2.6" stroke-linecap="round" />
-        <path d="M16 19.5l-5 4M16 19.5l5 4" stroke="#6f7d99" stroke-width="1.6" stroke-linecap="round" />
-        <circle cx="10.5" cy="24" r="2.4" fill="#10b981" />
-        <circle cx="21.5" cy="24" r="2.4" fill="#9085e9" />
-      </svg>
-      <span class="font-semibold tracking-tight text-[15px] text-ink">
-        TwinForge<span class="text-accent"> Connected Graph</span>
-      </span>
-    </a>
+  <!-- Mobile Backdrop Overlay -->
+  <div id="sidebar-mobile-backdrop" onclick="toggleSidebarCollapse(false)" class="hidden fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity"></div>
+
+  <!-- ========================================================================= -->
+  <!-- 1. EXACT TWINFORGE LEFT SIDEBAR                                           -->
+  <!-- ========================================================================= -->
+  <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-line bg-shell shadow-xl lg:shadow-none">
+    <!-- Brand Logo & Minimize Toggle -->
+    <div class="flex h-14 items-center justify-between border-b border-line px-3.5">
+      <a href="/twin" onclick="navigatePage('twin'); return false;" class="flex items-center gap-2.5 cursor-pointer min-w-0" title="TwinForge Connected Graph">
+        <svg viewBox="0 0 32 32" class="h-7 w-7 shrink-0" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#0f1a33" />
+          <rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="none" stroke="#2b3b5e" />
+          <path d="M8 9.5h16" stroke="#4c8dff" stroke-width="2.6" stroke-linecap="round" />
+          <path d="M16 9.5v10" stroke="#4c8dff" stroke-width="2.6" stroke-linecap="round" />
+          <path d="M16 19.5l-5 4M16 19.5l5 4" stroke="#6f7d99" stroke-width="1.6" stroke-linecap="round" />
+          <circle cx="10.5" cy="24" r="2.4" fill="#10b981" />
+          <circle cx="21.5" cy="24" r="2.4" fill="#9085e9" />
+        </svg>
+        <span class="sidebar-label font-semibold tracking-tight text-[15px] text-ink truncate">
+          TwinForge<span class="text-accent"> Connected Graph</span>
+        </span>
+      </a>
+      <button onclick="toggleSidebarCollapse()" id="btn-sidebar-collapse" title="Minimize sidebar navigation" class="hidden lg:flex h-7 w-7 items-center justify-center rounded-md border border-line text-muted hover:text-ink hover:bg-surface-2 transition-colors cursor-pointer shrink-0">
+        <svg id="sidebar-collapse-icon" class="h-4 w-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+        </svg>
+      </button>
+    </div>
 
     <!-- Navigation Menu -->
-    <nav class="flex-1 overflow-y-auto px-2.5 py-3">
+    <nav class="flex-1 overflow-y-auto px-2 py-3">
       <!-- OPERATE GROUP -->
       <div class="mb-4">
-        <p class="px-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] text-muted uppercase">Operate</p>
+        <p class="sidebar-group-title px-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] text-muted uppercase">Operate</p>
         <ul class="space-y-0.5 text-[13px] font-medium">
           <li>
-            <a href="/twin" onclick="navigatePage('twin'); return false;" id="nav-btn-twin" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 bg-surface-2 text-ink shadow-[inset_2px_0_0_var(--color-accent)] transition-colors">
-              <svg class="h-4 w-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="18" cy="5" r="3" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke-width="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke-width="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke-width="2"/></svg>
-              <span class="flex-1 truncate">Connected-Graph</span>
+            <a href="/twin" onclick="navigatePage('twin'); return false;" id="nav-btn-twin" title="Connected-Graph Digital Twin" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 bg-surface-2 text-ink shadow-[inset_2px_0_0_var(--color-accent)] transition-colors">
+              <svg class="h-4 w-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="18" cy="5" r="3" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke-width="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke-width="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke-width="2"/></svg>
+              <span class="sidebar-label flex-1 truncate">Connected-Graph</span>
             </a>
           </li>
           <li>
-            <a href="/dashboard" onclick="navigatePage('dashboard'); return false;" id="nav-btn-dashboard" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              <span class="flex-1 truncate">Command Center</span>
-              <span id="nav-crit-badge" class="rounded px-1.5 py-px text-[10.5px] font-semibold bg-critical/20 text-critical-ink">1</span>
+            <a href="/dashboard" onclick="navigatePage('dashboard'); return false;" id="nav-btn-dashboard" title="Command Center" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              <span class="sidebar-label flex-1 truncate">Command Center</span>
+              <span id="nav-crit-badge" class="sidebar-badge rounded px-1.5 py-px text-[10.5px] font-semibold bg-critical/20 text-critical-ink">1</span>
             </a>
           </li>
           <li>
-            <a href="/quality" onclick="navigatePage('quality'); return false;" id="nav-btn-quality" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="3" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" /></svg>
-              <span class="flex-1 truncate">Visual Quality</span>
+            <a href="/control-room" onclick="navigatePage('control-room'); return false;" id="nav-btn-control-room" title="Visual Quality & CCTV" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="3" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" /></svg>
+              <span class="sidebar-label flex-1 truncate">Visual Quality</span>
             </a>
           </li>
         </ul>
@@ -273,32 +329,46 @@
 
       <!-- INTELLIGENCE GROUP -->
       <div class="mb-4">
-        <p class="px-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] text-muted uppercase">Intelligence</p>
+        <p class="sidebar-group-title px-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] text-muted uppercase">Intelligence</p>
         <ul class="space-y-0.5 text-[13px] font-medium">
           <li>
-            <a href="/agents" onclick="navigatePage('agents'); return false;" id="nav-btn-agents" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/><line x1="9" y1="9" x2="15" y2="9" stroke-width="2"/><line x1="9" y1="13" x2="15" y2="13" stroke-width="2"/><line x1="9" y1="17" x2="13" y2="17" stroke-width="2"/></svg>
-              <span class="flex-1 truncate">AI Operations</span>
-              <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-agent"></span>
+            <a href="/agents" onclick="navigatePage('agents'); return false;" id="nav-btn-agents" title="AI Autonomous Operations" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"/><line x1="9" y1="9" x2="15" y2="9" stroke-width="2"/><line x1="9" y1="13" x2="15" y2="13" stroke-width="2"/><line x1="9" y1="17" x2="13" y2="17" stroke-width="2"/></svg>
+              <span class="sidebar-label flex-1 truncate">AI Operations</span>
+              <span class="sidebar-badge h-1.5 w-1.5 animate-pulse rounded-full bg-agent"></span>
             </a>
           </li>
           <li>
-            <a href="/simulator" onclick="navigatePage('simulator'); return false;" id="nav-btn-simulator" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-              <span class="flex-1 truncate">What-If Simulator</span>
+            <a href="/pdm" onclick="navigatePage('pdm'); return false;" id="nav-btn-pdm" title="Predictive Maintenance (FFT & RUL)" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              <span class="sidebar-label flex-1 truncate">Predictive Maint.</span>
+              <span class="sidebar-badge rounded px-1.5 py-px text-[9.5px] font-semibold bg-accent/15 text-accent border border-accent/30 font-mono">FFT/RUL</span>
             </a>
           </li>
           <li>
-            <a href="/approvals" onclick="navigatePage('approvals'); return false;" id="nav-btn-approvals" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
-              <span class="flex-1 truncate">Approvals</span>
-              <span class="rounded px-1.5 py-px text-[10.5px] font-semibold bg-warning/20 text-warning-ink">1</span>
+            <a href="/forecasting" onclick="navigatePage('forecasting'); return false;" id="nav-btn-forecasting" title="Demand Forecasting (Exponential Smoothing)" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
+              <span class="sidebar-label flex-1 truncate">Demand Forecast</span>
+              <span class="sidebar-badge rounded px-1.5 py-px text-[9.5px] font-semibold bg-healthy/15 text-healthy border border-healthy/30 font-mono">Exp.Smooth</span>
             </a>
           </li>
           <li>
-            <a href="/audit" onclick="navigatePage('audit'); return false;" id="nav-btn-audit" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <span class="flex-1 truncate">Audit Trail</span>
+            <a href="/simulator" onclick="navigatePage('simulator'); return false;" id="nav-btn-simulator" title="What-If Graph Simulator" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+              <span class="sidebar-label flex-1 truncate">What-If Simulator</span>
+            </a>
+          </li>
+          <li>
+            <a href="/approvals" onclick="navigatePage('approvals'); return false;" id="nav-btn-approvals" title="Human-in-the-Loop Approvals" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+              <span class="sidebar-label flex-1 truncate">Approvals</span>
+              <span class="sidebar-badge rounded px-1.5 py-px text-[10.5px] font-semibold bg-warning/20 text-warning-ink">1</span>
+            </a>
+          </li>
+          <li>
+            <a href="/audit" onclick="navigatePage('audit'); return false;" id="nav-btn-audit" title="Immutable Audit Trail" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span class="sidebar-label flex-1 truncate">Audit Trail</span>
             </a>
           </li>
         </ul>
@@ -306,12 +376,12 @@
 
       <!-- ADMIN GROUP -->
       <div class="mb-4">
-        <p class="px-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] text-muted uppercase">Admin</p>
+        <p class="sidebar-group-title px-2 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] text-muted uppercase">Admin</p>
         <ul class="space-y-0.5 text-[13px] font-medium">
           <li>
-            <a href="/integrations" onclick="navigatePage('integrations'); return false;" id="nav-btn-integrations" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
-              <svg class="h-4 w-4 text-muted group-hover:text-ink-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              <span class="flex-1 truncate">Integrations</span>
+            <a href="/integrations" onclick="navigatePage('integrations'); return false;" id="nav-btn-integrations" title="System Integrations" class="group flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-ink-2 hover:bg-surface/70 hover:text-ink transition-colors">
+              <svg class="h-4 w-4 text-muted group-hover:text-ink-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              <span class="sidebar-label flex-1 truncate">Integrations</span>
             </a>
           </li>
         </ul>
@@ -322,10 +392,17 @@
   <!-- ========================================================================= -->
   <!-- 2. MAIN VIEWPORT & TOPBAR                                                 -->
   <!-- ========================================================================= -->
-  <div class="lg:pl-60 min-h-screen flex flex-col">
+  <div id="main-content-layout" class="lg:pl-60 min-h-screen flex flex-col transition-all duration-200">
 
     <!-- Topbar -->
-    <header class="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-canvas/85 px-4 backdrop-blur-md lg:px-6">
+    <header class="sticky top-0 z-30 flex h-14 items-center gap-2.5 border-b border-line bg-canvas/85 px-3 backdrop-blur-md lg:px-6">
+      <!-- Sidebar Toggle Button (Topbar) -->
+      <button onclick="toggleSidebarCollapse()" id="btn-topbar-toggle-sidebar" title="Toggle sidebar navigation" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line bg-surface hover:bg-surface-2 text-ink transition-colors cursor-pointer">
+        <svg class="h-4.5 w-4.5 text-muted hover:text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
       <!-- Main Facility Filter (Simpler Top-Level Dropdown) -->
       <div class="relative">
         <button onclick="toggleFacilityDropdown()" id="btn-facility-selector" class="group flex items-center gap-2.5 rounded-xl border border-line-strong bg-surface hover:bg-surface-2 px-3 py-1.5 transition-all text-left shadow-sm hover:border-accent cursor-pointer">
@@ -351,39 +428,49 @@
             <span class="text-[10px] text-accent font-medium">Enterprise Unit</span>
           </div>
 
-          <!-- Apex Automotive Option -->
-          <button onclick="switchFacility('FACILITY_APEX')" class="facility-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left bg-surface-2 hover:bg-surface-2 transition-colors group cursor-pointer" data-facility-id="FACILITY_APEX">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/20 text-amber-500 font-bold text-xs">
-                APX
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold text-[13px] text-ink truncate">Apex Automotive Network</span>
-                  <span class="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-amber-500">Global</span>
+          <div id="facility-options-list" class="space-y-1">
+            <!-- Apex Automotive Option -->
+            <button onclick="switchFacility('FACILITY_APEX')" class="facility-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left bg-surface-2 hover:bg-surface-2 transition-colors group cursor-pointer" data-facility-id="FACILITY_APEX">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/20 text-amber-500 font-bold text-xs">
+                  APX
                 </div>
-                <p class="text-[11px] text-muted truncate">Detroit, Munich, Austin &bull; 3 Plants &bull; Powertrain & Robotics</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold text-[13px] text-ink truncate">Apex Automotive Network</span>
+                    <span class="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-amber-500">Global</span>
+                  </div>
+                  <p class="text-[11px] text-muted truncate">Detroit, Munich, Austin &bull; 3 Plants &bull; Powertrain & Robotics</p>
+                </div>
               </div>
-            </div>
-            <span class="facility-check-icon text-amber-500 font-bold text-sm" data-fac-check="FACILITY_APEX">✓</span>
-          </button>
+              <span class="facility-check-icon text-amber-500 font-bold text-sm" data-fac-check="FACILITY_APEX">✓</span>
+            </button>
 
-          <!-- London Semiconductor Option -->
-          <button onclick="switchFacility('FACILITY_LONDON')" class="facility-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group cursor-pointer" data-facility-id="FACILITY_LONDON">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 font-bold text-xs">
-                LDN
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold text-[13px] text-ink truncate">London Semiconductor Foundry</span>
-                  <span class="rounded bg-cyan-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-cyan-400">Class 10</span>
+            <!-- London Semiconductor Option -->
+            <button onclick="switchFacility('FACILITY_LONDON')" class="facility-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left hover:bg-surface-2 transition-colors group cursor-pointer" data-facility-id="FACILITY_LONDON">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 font-bold text-xs">
+                  LDN
                 </div>
-                <p class="text-[11px] text-muted truncate">London, UK &bull; 2 Lines Leading to 1 Shared Unit Facility</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold text-[13px] text-ink truncate">London Semiconductor Foundry</span>
+                    <span class="rounded bg-cyan-500/15 px-1.5 py-0.5 text-[9.5px] font-medium text-cyan-400">Class 10</span>
+                  </div>
+                  <p class="text-[11px] text-muted truncate">London, UK &bull; 2 Lines Leading to 1 Shared Unit Facility</p>
+                </div>
               </div>
-            </div>
-            <span class="facility-check-icon text-cyan-400 font-bold text-sm hidden" data-fac-check="FACILITY_LONDON">✓</span>
-          </button>
+              <span class="facility-check-icon text-cyan-400 font-bold text-sm hidden" data-fac-check="FACILITY_LONDON">✓</span>
+            </button>
+          </div>
+
+          <!-- Register New Facility Action -->
+          <div class="pt-2 mt-2 border-t border-line">
+            <button onclick="openAddFacilityModal(); toggleFacilityDropdown();" class="w-full flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-[12px] font-semibold text-accent hover:bg-accent/10 border border-accent/30 transition-colors cursor-pointer">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>Add Facility</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -404,6 +491,12 @@
           <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         </button>
       </div>
+
+      <!-- YouTube Video Demo Walkthrough Link -->
+      <a href="https://youtu.be/Gt0RblQiEAc" target="_blank" rel="noopener noreferrer" class="flex h-8 items-center gap-1.5 rounded-lg border border-red-500/40 bg-red-500/10 px-2.5 text-[12px] font-semibold text-red-500 hover:bg-red-500/20 transition-all shadow-sm group" title="Watch full video walkthrough on YouTube">
+        <svg class="h-3.5 w-3.5 fill-current text-red-500 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        <span>YouTube Demo</span>
+      </a>
 
       <!-- Ask Copilot Button -->
       <button onclick="openCopilotModal()" class="flex h-8 items-center gap-1.5 rounded-lg border border-agent/40 bg-agent/12 px-2.5 text-[12px] font-medium text-agent-ink hover:bg-agent/20 transition-colors">
@@ -442,6 +535,11 @@
             </div>
           </button>
           <div class="my-1 h-px bg-line"></div>
+          <a href="https://youtu.be/Gt0RblQiEAc" target="_blank" rel="noopener noreferrer" class="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-[13px] font-semibold text-red-500 hover:bg-surface-2 transition-colors">
+            <svg class="h-4 w-4 fill-current text-red-500 shrink-0" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span>Watch Video Demo (YouTube)</span>
+          </a>
+          <div class="my-1 h-px bg-line"></div>
           <button onclick="advancePlantTime(1)" class="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-[13px] text-ink-2 hover:bg-surface-2 hover:text-ink transition-colors">
             <svg class="h-4 w-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
             <span>Fast-forward 1 h of plant time</span>
@@ -473,9 +571,9 @@
             <p id="twin-page-subtitle" class="text-[12.5px] text-muted mt-0.5">Detroit, USA &bull; Line A (Precision CNC &amp; Articulated Robotics) &bull; FalkorDB Graph Topology</p>
           </div>
           <div class="flex items-center gap-2">
-            <button onclick="openAddAssetModal()" class="flex h-8 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[12.5px] font-medium text-ink-2 hover:bg-surface-2 hover:text-ink transition-colors">
-              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              <span>Add asset</span>
+            <button id="btn-add-facility" onclick="openAddFacilityModal()" class="flex h-8 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[12.5px] font-medium text-ink-2 hover:bg-surface-2 hover:text-ink transition-colors" title="Register a new enterprise manufacturing facility">
+              <svg class="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+              <span>Add Facility</span>
             </button>
             <button onclick="toggleConnectMode()" id="btn-connect-mode" class="flex h-8 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[12.5px] font-medium text-ink-2 hover:bg-surface-2 hover:text-ink transition-colors">
               <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
@@ -1774,6 +1872,49 @@
           </button>
         </div>
 
+        <!-- Multi-Engine Intelligence Architecture Banner (Not CRUD) -->
+        <div class="rounded-xl border border-line bg-gradient-to-r from-blue-950/20 via-surface to-indigo-950/20 p-3.5">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="flex h-2 w-2 rounded-full bg-accent animate-ping"></span>
+              <span class="text-xs font-bold uppercase tracking-wider text-accent">Autonomous Agentic Reasoning Engines (Not CRUD)</span>
+            </div>
+            <span class="font-mono text-[11px] text-muted">Z-Score &bull; FFT Harmonics &bull; RUL Degradation &bull; Exp. Smoothing &bull; FalkorDB Cypher</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-2.5 text-xs">
+            <div class="rounded-lg border border-line bg-surface/80 p-2.5">
+              <div class="font-bold text-ink flex items-center gap-1.5 mb-1">
+                <span class="text-[11px] font-mono text-accent">01.</span> Statistical Drift
+              </div>
+              <p class="text-[11px] text-muted">Continuous $Z$-score anomaly calculation ($Z = 3.41\sigma$) &amp; FFT frequency tracking across 34 IoT edge sensors.</p>
+            </div>
+            <div class="rounded-lg border border-line bg-surface/80 p-2.5">
+              <div class="font-bold text-ink flex items-center gap-1.5 mb-1">
+                <span class="text-[11px] font-mono text-accent">02.</span> PdM ML &amp; RUL
+              </div>
+              <p class="text-[11px] text-muted">Physics degradation model: $P_{\text{fail}} = 0.88$, remaining useful life $RUL = 48\text{h}$ before cage seizure.</p>
+            </div>
+            <div class="rounded-lg border border-line bg-surface/80 p-2.5">
+              <div class="font-bold text-ink flex items-center gap-1.5 mb-1">
+                <span class="text-[11px] font-mono text-accent">03.</span> Demand Forecast
+              </div>
+              <p class="text-[11px] text-muted">Single Exponential Smoothing ($S_t = \alpha Y_t + (1-\alpha)S_{t-1}$) identifies 1,050-unit deficit in Day 11.</p>
+            </div>
+            <div class="rounded-lg border border-line bg-surface/80 p-2.5">
+              <div class="font-bold text-ink flex items-center gap-1.5 mb-1">
+                <span class="text-[11px] font-mono text-accent">04.</span> Multi-Hop Causal Graph
+              </div>
+              <p class="text-[11px] text-muted">FalkorDB 6-hop Cypher traversal linking degraded machine to BOM, warehouse safety stock, and OEM SLA contracts.</p>
+            </div>
+            <div class="rounded-lg border border-line bg-surface/80 p-2.5">
+              <div class="font-bold text-ink flex items-center gap-1.5 mb-1">
+                <span class="text-[11px] font-mono text-accent">05.</span> Prescriptive Action
+              </div>
+              <p class="text-[11px] text-muted">Downtime arbitrage: prevents \$25k/hr SLA penalty by scheduling 1.5h off-peak rebuild with verified stock reserve.</p>
+            </div>
+          </div>
+        </div>
+
         <!-- Live Investigation Panel -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1">
           <!-- Left: Live Streaming Tool Trace -->
@@ -2039,12 +2180,463 @@
         </div>
       </section>
 
+      <!-- ===================================================================== -->
+      <!-- VIEW 9: PREDICTIVE MAINTENANCE STUDIO (/pdm)                          -->
+      <!-- ===================================================================== -->
+      <section id="view-pdm" class="hidden flex-1 flex flex-col space-y-4">
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-[11px] font-mono text-accent mb-1.5">
+              <span>Predictive Maintenance &bull; ISO 10816 Vibration Severity &bull; FFT Harmonic Analysis &bull; RUL Degradation</span>
+            </div>
+            <h2 class="text-xl font-bold tracking-tight text-ink">Predictive Maintenance Studio</h2>
+            <p class="text-[12.5px] text-muted">Continuous FFT vibration spectrum tracking, bearing cage resonance detection, and physics-informed Remaining Useful Life (RUL) modeling.</p>
+          </div>
+          <button onclick="loadPdmAnalytics()" class="flex h-9 items-center gap-2 rounded-lg border border-line bg-surface hover:bg-surface-2 px-3.5 text-xs font-semibold text-ink transition-all">
+            <svg class="h-4 w-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>Refresh Telemetry Stream</span>
+          </button>
+        </div>
+
+        <!-- Fleet Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div class="rounded-xl border border-line bg-surface p-4 flex flex-col justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Active Telemetry Sensors</span>
+            <div class="flex items-baseline gap-2 mt-2">
+              <span id="pdm-kpi-sensors" class="font-mono text-2xl font-bold text-ink">34</span>
+              <span class="text-xs text-healthy font-medium">100% Online</span>
+            </div>
+            <span class="text-[11px] text-muted mt-1">High-frequency accelerometers &amp; thermocouples</span>
+          </div>
+
+          <div class="rounded-xl border border-line bg-surface p-4 flex flex-col justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Fleet Average Health</span>
+            <div class="flex items-baseline gap-2 mt-2">
+              <span id="pdm-kpi-health" class="font-mono text-2xl font-bold text-ink">85%</span>
+              <span class="text-xs text-warning font-medium">2 Drift Anomalies</span>
+            </div>
+            <span class="text-[11px] text-muted mt-1">Weibull cumulative reliability index</span>
+          </div>
+
+          <div class="rounded-xl border border-line bg-surface p-4 flex flex-col justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Earliest Failure Horizon</span>
+            <div class="flex items-baseline gap-2 mt-2">
+              <span id="pdm-kpi-rul" class="font-mono text-2xl font-bold text-critical">48.0 h</span>
+              <span class="text-xs text-critical font-medium">A-ROB-03 (M7)</span>
+            </div>
+            <span class="text-[11px] text-muted mt-1">Spindle cage spalling at 240 Hz harmonic</span>
+          </div>
+
+          <div class="rounded-xl border border-line bg-surface p-4 flex flex-col justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Prescriptive Cost Avoidance</span>
+            <div class="flex items-baseline gap-2 mt-2">
+              <span id="pdm-kpi-savings" class="font-mono text-2xl font-bold text-healthy">$167,550</span>
+              <span class="text-xs text-healthy font-medium">ROI 223x</span>
+            </div>
+            <span class="text-[11px] text-muted mt-1">Unplanned downtime &amp; secondary damage avoided</span>
+          </div>
+        </div>
+
+        <!-- Main Studio Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+          <!-- Left: Monitored Machines Roster (5 cols) -->
+          <div class="lg:col-span-5 rounded-xl border border-line bg-surface p-4 flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-line mb-3">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-muted">Monitored Fleet Assets (Click to Inspect)</h3>
+              <span class="text-[11px] font-mono text-accent">Select Asset</span>
+            </div>
+            <div id="pdm-asset-list" class="flex-1 overflow-y-auto space-y-2 pr-1 max-h-[520px]">
+              <!-- Populated via JS -->
+              <div class="p-3 text-xs text-muted">Loading asset fleet...</div>
+            </div>
+
+            <!-- Mathematical Model Card -->
+            <div class="mt-3 rounded-lg border border-line bg-surface-2/60 p-3 text-xs font-mono">
+              <p class="font-bold text-ink text-[11px] uppercase tracking-wider mb-1 flex items-center justify-between">
+                <span>Vibration Physics Model</span>
+                <span class="text-accent font-normal">ISO 10816-3</span>
+              </p>
+              <p class="text-muted text-[11.5px] leading-relaxed">
+                $v_{\text{rms}} = \sqrt{\frac{1}{T}\int_0^T v^2(t)\,dt}$ &bull; Anomaly trigger when $Z = \frac{\bar{v} - \mu}{\sigma} \ge 3.0$
+              </p>
+            </div>
+          </div>
+
+          <!-- Right: Deep Diagnostic Studio (7 cols) -->
+          <div class="lg:col-span-7 flex flex-col space-y-4">
+            <!-- Selected Machine Telemetry Strip -->
+            <div class="rounded-xl border border-line bg-surface p-4">
+              <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-line mb-3">
+                <div>
+                  <h3 id="pdm-sel-name" class="font-bold text-base text-ink">A-ROB-03 &bull; Articulated Assembly Robot</h3>
+                  <p id="pdm-sel-diag" class="text-xs text-critical font-medium mt-0.5">High-frequency vibration spike at 240 Hz matching inner race bearing fatigue.</p>
+                </div>
+                <span id="pdm-sel-badge" class="rounded-md px-2 py-0.5 text-xs font-bold bg-critical/20 text-critical border border-critical/30 font-mono">CRITICAL ANOMALY</span>
+              </div>
+
+              <!-- Sensor Gauges -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div class="rounded-lg border border-line bg-surface-2/60 p-2.5">
+                  <span class="text-muted block text-[10.5px] uppercase">Vibration RMS</span>
+                  <span id="pdm-gauge-vib" class="font-mono text-lg font-bold text-critical">8.45 mm/s</span>
+                  <span class="text-[10px] text-muted block">Threshold: 4.50 mm/s</span>
+                </div>
+                <div class="rounded-lg border border-line bg-surface-2/60 p-2.5">
+                  <span class="text-muted block text-[10.5px] uppercase">Bearing Temp</span>
+                  <span id="pdm-gauge-temp" class="font-mono text-lg font-bold text-critical">89.4 &deg;C</span>
+                  <span class="text-[10px] text-muted block">Normal: &lt;65.0 &deg;C</span>
+                </div>
+                <div class="rounded-lg border border-line bg-surface-2/60 p-2.5">
+                  <span class="text-muted block text-[10.5px] uppercase">Failure Prob ($P_f$)</span>
+                  <span id="pdm-gauge-pfail" class="font-mono text-lg font-bold text-critical">88.0%</span>
+                  <span class="text-[10px] text-muted block">Weibull Hazard Rate</span>
+                </div>
+                <div class="rounded-lg border border-line bg-surface-2/60 p-2.5">
+                  <span class="text-muted block text-[10.5px] uppercase">Remaining Life</span>
+                  <span id="pdm-gauge-rul" class="font-mono text-lg font-bold text-critical">48.0 h</span>
+                  <span class="text-[10px] text-muted block">Before Cage Seizure</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- FFT Harmonic Spectrum & RUL Curves -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+              <!-- FFT Harmonic Spectrum -->
+              <div class="rounded-xl border border-line bg-surface p-4 flex flex-col">
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-muted">FFT Vibration Spectrum (Frequency Domain)</h4>
+                  <span class="text-[10.5px] font-mono text-accent">Sampling 10 kHz</span>
+                </div>
+                <div class="flex-1 bg-deep rounded-lg border border-line p-2 flex flex-col justify-end min-h-[170px] relative">
+                  <div id="pdm-fft-bars" class="h-32 flex items-end justify-between gap-1 px-2">
+                    <!-- Populated via JS -->
+                  </div>
+                  <div class="flex justify-between text-[10px] font-mono text-muted pt-2 border-t border-line/60">
+                    <span>10 Hz</span>
+                    <span>60 Hz (2X)</span>
+                    <span class="text-critical font-bold">240 Hz (Fault)</span>
+                    <span>480 Hz</span>
+                    <span>1 kHz</span>
+                  </div>
+                </div>
+                <p class="text-[11px] text-muted mt-2">
+                  <strong class="text-critical">Inner Race Defect (BPFI):</strong> Sharp $240\text{ Hz}$ spectral peak indicates mechanical spalling on bearing cage.
+                </p>
+              </div>
+
+              <!-- RUL Degradation Curve -->
+              <div class="rounded-xl border border-line bg-surface p-4 flex flex-col">
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-muted">RUL Degradation Trajectory ($T_0 \to T_{\text{fail}}$)</h4>
+                  <span class="text-[10.5px] font-mono text-critical">Critical Limit: 48h</span>
+                </div>
+                <div class="flex-1 bg-deep rounded-lg border border-line p-2 flex flex-col justify-end min-h-[170px] relative">
+                  <svg id="pdm-rul-svg" class="w-full h-32" viewBox="0 0 200 100" preserveAspectRatio="none">
+                    <rect x="0" y="70" width="200" height="30" fill="rgba(239, 68, 68, 0.12)" />
+                    <line x1="0" y1="70" x2="200" y2="70" stroke="#ef4444" stroke-width="1" stroke-dasharray="3,3" />
+                    <path id="pdm-rul-path" d="M 0 15 Q 100 25, 140 70 T 200 95" fill="none" stroke="#ef4444" stroke-width="2.5" />
+                    <circle cx="140" cy="70" r="4" fill="#ef4444" />
+                  </svg>
+                  <div class="flex justify-between text-[10px] font-mono text-muted pt-2 border-t border-line/60">
+                    <span>-72h (Nominal)</span>
+                    <span>-24h (Drift)</span>
+                    <span class="text-critical font-bold">Now (+48h RUL)</span>
+                    <span>+96h (Seizure)</span>
+                  </div>
+                </div>
+                <p class="text-[11px] text-muted mt-2">
+                  <strong class="text-accent">Intervention Window:</strong> Perform planned overhaul within 48h to prevent catastrophic tooling lockup.
+                </p>
+              </div>
+            </div>
+
+            <!-- Prescriptive Action Card -->
+            <div id="pdm-prescription-card" class="rounded-xl border border-healthy/30 bg-healthy/5 p-4">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="flex h-2.5 w-2.5 rounded-full bg-healthy"></span>
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-healthy">Agentic Prescriptive Overhaul Dispatch</h4>
+                </div>
+                <span id="pdm-rx-urgency" class="font-mono text-xs font-bold text-critical bg-critical/15 border border-critical/30 rounded px-2 py-0.5">CRITICAL DISPATCH</span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs mt-2">
+                <div>
+                  <span class="text-muted block text-[11px]">Recommended Action</span>
+                  <span id="pdm-rx-action" class="font-semibold text-ink">Replace Ceramic Spindle Bearings &amp; Re-grease</span>
+                </div>
+                <div>
+                  <span class="text-muted block text-[11px]">Required Spare &amp; Proximity</span>
+                  <span id="pdm-rx-spare" class="font-semibold text-ink">SKF-6205 Bearing (4 in Detroit, 2.0h transit)</span>
+                </div>
+                <div>
+                  <span class="text-muted block text-[11px]">Cost Avoidance ROI</span>
+                  <span id="pdm-rx-roi" class="font-semibold text-healthy">$141,250 net saved ($750 fix vs $142k crash)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 10: DEMAND FORECASTING STUDIO (/forecasting)                     -->
+      <!-- ===================================================================== -->
+      <section id="view-forecasting" class="hidden flex-1 flex flex-col space-y-4">
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="inline-flex items-center gap-1.5 rounded-full border border-healthy/30 bg-healthy/10 px-2.5 py-0.5 text-[11px] font-mono text-healthy mb-1.5">
+              <span>Statistical Forecasting &bull; Single Exponential Smoothing ($S_t = \alpha Y_t + (1-\alpha)S_{t-1}$) &bull; 95% Confidence Interval</span>
+            </div>
+            <h2 class="text-xl font-bold tracking-tight text-ink">Demand Forecasting &amp; Inventory Buffer Studio</h2>
+            <p class="text-[12.5px] text-muted">Multi-quarter horizon projection, automated stockout collision warning, and enterprise customer SLA exposure tracking.</p>
+          </div>
+          <button onclick="loadForecastingAnalytics()" class="flex h-9 items-center gap-2 rounded-lg border border-line bg-surface hover:bg-surface-2 px-3.5 text-xs font-semibold text-ink transition-all">
+            <svg class="h-4 w-4 text-healthy" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>Recalculate Forecasts</span>
+          </button>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div class="rounded-xl border border-line bg-surface p-4 flex flex-col justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Forecasting Algorithm</span>
+            <div class="flex items-baseline gap-2 mt-2">
+              <span class="font-mono text-xl font-bold text-ink">Exp. Smoothing</span>
+              <span class="text-xs text-accent font-mono">&alpha; = 0.35</span>
+            </div>
+            <span class="text-[11px] text-muted mt-1">$S_t = \alpha Y_t + (1-\alpha)S_{t-1}$</span>
+          </div>
+
+          <div class="rounded-xl border border-line bg-surface p-4 flex flex-col justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">P4 Projected Demand (Q2)</span>
+            <div class="flex items-baseline gap-2 mt-2">
+              <span id="fc-kpi-p4-demand" class="font-mono text-2xl font-bold text-ink">1,450 units</span>
+              <span class="text-xs text-critical font-medium">+28.5% Growth</span>
+            </div>
+            <span class="text-[11px] text-muted mt-1">High EV Powertrain Inverter surge</span>
+          </div>
+
+          <div class="rounded-xl border border-line bg-surface p-4 flex flex-col justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Warehouse Net Deficit</span>
+            <div class="flex items-baseline gap-2 mt-2">
+              <span id="fc-kpi-shortfall" class="font-mono text-2xl font-bold text-critical">1,050 units</span>
+              <span class="text-xs text-critical font-medium">11 Days Supply</span>
+            </div>
+            <span class="text-[11px] text-muted mt-1">Stockout collision date: Day +11</span>
+          </div>
+
+          <div class="rounded-xl border border-line bg-surface p-4 flex flex-col justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-muted">Customer SLA Exposure</span>
+            <div class="flex items-baseline gap-2 mt-2">
+              <span class="font-mono text-2xl font-bold text-critical">$25,000 / hr</span>
+              <span class="text-xs text-critical font-medium">HyperDrive EV</span>
+            </div>
+            <span class="text-[11px] text-muted mt-1">Contract #HD-2026-EV penalty liability</span>
+          </div>
+        </div>
+
+        <!-- Interactive Forecasting Simulator -->
+        <div class="rounded-xl border border-line bg-surface p-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-line mb-3">
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-ink flex items-center gap-2">
+                <span>Interactive Exponential Smoothing Simulator</span>
+                <span class="rounded bg-accent/15 px-2 py-0.5 text-[10px] text-accent font-mono">Live Model Fitting</span>
+              </h3>
+              <p class="text-[11.5px] text-muted mt-0.5">Tune the smoothing weight $\alpha$ or inject demand shocks to dynamically simulate how safety buffer and stockout collision dates adapt.</p>
+            </div>
+            <button onclick="runForecastSimulation()" class="flex h-8 items-center gap-2 rounded-lg bg-accent px-3 text-xs font-semibold text-white shadow hover:brightness-110 transition-all">
+              <span>Recalculate Model</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div>
+              <label class="block text-muted font-medium mb-1">Target Product</label>
+              <select id="fc-sim-product" class="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-ink text-xs focus:outline-none">
+                <option value="P4">P4 &bull; Heavy-Duty Power Inverter</option>
+                <option value="P12">P12 &bull; Industrial Servo Actuator</option>
+                <option value="P1">P1 &bull; Integrated Power Assembly</option>
+              </select>
+            </div>
+            <div>
+              <div class="flex justify-between text-muted mb-1">
+                <span class="font-medium">Smoothing Factor ($\alpha$)</span>
+                <span id="fc-slider-val" class="font-mono text-accent font-bold">0.35</span>
+              </div>
+              <input type="range" id="fc-sim-alpha" min="0.05" max="0.95" step="0.05" value="0.35" oninput="document.getElementById('fc-slider-val').innerText = this.value" class="w-full accent-blue-600 cursor-pointer" />
+              <div class="flex justify-between text-[10px] text-muted mt-0.5">
+                <span>0.05 (Smooth Noise)</span>
+                <span>0.95 (High Drift Response)</span>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-muted mb-1">
+                <span class="font-medium">Simulated Demand Shock (%)</span>
+                <span id="fc-shock-val" class="font-mono text-accent font-bold">+15%</span>
+              </div>
+              <input type="range" id="fc-sim-shock" min="-30" max="50" step="5" value="15" oninput="document.getElementById('fc-shock-val').innerText = (this.value >= 0 ? '+' : '') + this.value + '%'" class="w-full accent-blue-600 cursor-pointer" />
+              <div class="flex justify-between text-[10px] text-muted mt-0.5">
+                <span>-30% Downturn</span>
+                <span>+50% Surge</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulation Visualization & Customer Commitments Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+          <!-- Left: Curve & Projection (7 cols) -->
+          <div class="lg:col-span-7 rounded-xl border border-line bg-surface p-4 flex flex-col">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-muted">Demand Trajectory: Historical &bull; Fitted &bull; Q2 Projection</h4>
+              <div class="flex items-center gap-3 text-[11px]">
+                <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-muted"></span> Actual Sales</span>
+                <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-accent"></span> Exponential Fit</span>
+                <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-critical"></span> Stockout Collision</span>
+              </div>
+            </div>
+
+            <!-- Historical vs Forecasted Bars & Line Chart -->
+            <div class="flex-1 bg-deep rounded-lg border border-line p-3 min-h-[220px] flex flex-col justify-between">
+              <div id="fc-chart-bars" class="h-44 flex items-end justify-between gap-3 px-3">
+                <!-- Dynamically populated via JS -->
+              </div>
+              <div class="flex justify-between text-[10px] font-mono text-muted pt-2 border-t border-line/60">
+                <span>Nov 2025</span>
+                <span>Dec 2025</span>
+                <span>Jan 2026</span>
+                <span>Feb 2026</span>
+                <span>Mar 2026</span>
+                <span>Apr 2026</span>
+                <span class="text-accent font-bold">May (Fit)</span>
+                <span class="text-critical font-bold">Jun (Projected)</span>
+              </div>
+            </div>
+
+            <!-- Dynamic Model Feedback Banner -->
+            <div id="fc-sim-result-strip" class="mt-3 rounded-lg border border-line bg-surface-2/60 p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div>
+                <span class="text-muted block text-[10.5px]">Stockout Collision Horizon</span>
+                <span id="fc-res-collision" class="font-mono font-bold text-critical text-sm">Day +11 from current shift</span>
+              </div>
+              <div>
+                <span class="text-muted block text-[10.5px]">Projected Inventory Shortfall</span>
+                <span id="fc-res-shortfall" class="font-mono font-bold text-critical text-sm">1,050 units</span>
+              </div>
+              <div>
+                <span class="text-muted block text-[10.5px]">95% Confidence Range</span>
+                <span id="fc-res-ci" class="font-mono font-bold text-ink text-sm">1,319 &ndash; 1,581 units</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Customer SLA Contracts & Causal Reasoning (5 cols) -->
+          <div class="lg:col-span-5 rounded-xl border border-line bg-surface p-4 flex flex-col space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-muted">Customer SLA Contracts &amp; Penalties</h4>
+            
+            <div id="fc-customer-contracts" class="space-y-2 overflow-y-auto max-h-[340px] pr-1">
+              <!-- Customer cards populated via JS -->
+            </div>
+
+            <!-- Graph Reasoning Link Card -->
+            <div class="rounded-lg border border-accent/30 bg-accent/5 p-3 text-xs">
+              <div class="flex items-center gap-1.5 font-bold text-accent mb-1">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                <span>Why Autonomous Graph Intelligence Matters</span>
+              </div>
+              <p class="text-muted text-[11px] leading-relaxed">
+                Relational tables show M7 failing and P4 forecast growing independently. TwinForge traverses 6 graph hops to discover that P4 inventory depletes in 11 days, while emergency supplier lead time is 14 days. The agent resolves the bottleneck 3 days before catastrophic line starve.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
   <!-- ========================================================================= -->
   <!-- MODALS & SCRIPT CONTROLLERS                                               -->
   <!-- ========================================================================= -->
+
+  <!-- Add Enterprise Facility Modal -->
+  <div id="modal-add-facility" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="relative w-full max-w-lg rounded-2xl border border-line-strong bg-shell p-6 shadow-2xl animate-in fade-in duration-150">
+      <!-- Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-line">
+        <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent text-lg">
+            🏭
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-ink">Register Enterprise Facility</h3>
+            <p class="text-[12px] text-muted">Create a multi-plant manufacturing unit, CAD blueprint & routing</p>
+          </div>
+        </div>
+        <button onclick="closeAddFacilityModal()" class="rounded-lg p-1 text-muted hover:bg-surface-2 hover:text-ink text-xl leading-none cursor-pointer">&times;</button>
+      </div>
+
+      <!-- Form Body -->
+      <form id="form-add-facility" onsubmit="event.preventDefault(); submitAddFacility();" class="mt-4 space-y-4">
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-muted mb-1">Facility Name *</label>
+          <input type="text" id="add-fac-name" required placeholder="e.g. Nordic Advanced Gigafactory" class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-[13px] text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none transition-colors" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-muted mb-1">City / Region *</label>
+            <input type="text" id="add-fac-city" required placeholder="e.g. Stockholm" class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-[13px] text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none transition-colors" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-muted mb-1">Country *</label>
+            <input type="text" id="add-fac-country" required placeholder="e.g. Sweden" class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-[13px] text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none transition-colors" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-muted mb-1">Facility Type</label>
+            <select id="add-fac-type" class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-[13px] text-ink focus:border-accent focus:outline-none transition-colors">
+              <option value="Battery Cell & Pack Manufacturing">Battery Cell &amp; Pack Manufacturing</option>
+              <option value="Advanced Semiconductor Packaging">Advanced Semiconductor Packaging</option>
+              <option value="Powertrain & Precision Mechatronics">Powertrain &amp; Precision Mechatronics</option>
+              <option value="Aerospace Composite Fabrication">Aerospace Composite Fabrication</option>
+              <option value="Biopharmaceutical Synthesis">Biopharmaceutical Synthesis</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-muted mb-1">Floor Area (sqm)</label>
+            <input type="number" id="add-fac-area" value="50000" min="1000" step="1000" class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-[13px] text-ink focus:border-accent focus:outline-none transition-colors" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-muted mb-1">Plant Director / Operations Head</label>
+          <input type="text" id="add-fac-director" placeholder="e.g. Dr. Astrid Lindgren (Director of Operations)" class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-[13px] text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none transition-colors" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-muted mb-1">Description</label>
+          <textarea id="add-fac-desc" rows="2" placeholder="Primary production focus, automated workcells, logistics buffer..." class="w-full rounded-xl border border-line bg-surface px-3 py-2 text-[12.5px] text-ink placeholder:text-muted/60 focus:border-accent focus:outline-none transition-colors"></textarea>
+        </div>
+
+        <div id="add-fac-error" class="hidden rounded-lg bg-red-500/10 border border-red-500/30 p-2 text-[12px] text-red-400"></div>
+
+        <!-- Footer Actions -->
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-line">
+          <button type="button" onclick="closeAddFacilityModal()" class="rounded-xl px-4 py-2 text-[12.5px] font-medium text-muted hover:bg-surface-2 hover:text-ink transition-colors cursor-pointer">Cancel</button>
+          <button type="submit" id="btn-submit-facility" class="flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-[12.5px] font-bold text-white shadow-md hover:bg-accent/90 transition-all cursor-pointer">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Create Facility</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Generic Camera Modal -->
   <div id="camera-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -2134,10 +2726,14 @@
 
   <script>
     // Live Backend API Routing
-    // When running on the submitted static frontend site, forward API calls to the live Render backend service.
-    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('graph-hacks-supply-chain-agent'))
-      ? ''
-      : 'https://graph-hacks-supply-chain-agent.onrender.com';
+    // When running on localhost or directly on the backend web service, use relative path ''.
+    // When running on a static frontend host, route API calls directly to the live backend service.
+    const isDirectBackend = (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname.includes('supply-chain-agent')
+    );
+    const API_BASE = isDirectBackend ? '' : 'https://graph-hacks-supply-chain-agent.onrender.com';
 
     // State management
     let currentView = 'twin';
@@ -2149,10 +2745,39 @@
     let dragStartX = 0;
     let dragStartY = 0;
 
-    // Navigation Router
-    function navigatePage(viewName) {
+    // Sidebar Minimize / Collapse Controller
+    function toggleSidebarCollapse(forceState) {
+      const isDesktop = window.innerWidth >= 1024;
+      if (isDesktop) {
+        if (typeof forceState === 'boolean') {
+          document.body.classList.toggle('sidebar-collapsed', forceState);
+        } else {
+          document.body.classList.toggle('sidebar-collapsed');
+        }
+        const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+        try {
+          localStorage.setItem('twinforge_sidebar_collapsed', isCollapsed ? '1' : '0');
+        } catch (e) {}
+        const btn = document.getElementById('btn-sidebar-collapse');
+        if (btn) btn.title = isCollapsed ? 'Expand sidebar navigation' : 'Minimize sidebar navigation';
+      } else {
+        // Mobile drawer toggle
+        if (typeof forceState === 'boolean') {
+          document.body.classList.toggle('mobile-sidebar-open', forceState);
+        } else {
+          document.body.classList.toggle('mobile-sidebar-open');
+        }
+      }
+    }
+
+    // Navigation Router with Route Persistence and History Navigation
+    function navigatePage(viewName, pushHistory = true) {
+      if (window.innerWidth < 1024) {
+        document.body.classList.remove('mobile-sidebar-open');
+      }
+      if (viewName === 'quality') viewName = 'control-room';
       if (!viewName || viewName === 'connected-graph' || viewName === 'home' || viewName === 'index.html') viewName = 'twin';
-      const views = ['twin', 'dashboard', 'agents', 'simulator', 'approvals', 'audit', 'control-room', 'integrations'];
+      const views = ['twin', 'dashboard', 'agents', 'simulator', 'approvals', 'audit', 'control-room', 'integrations', 'pdm', 'forecasting'];
       if (!views.includes(viewName)) viewName = 'twin';
       views.forEach(v => {
         const el = document.getElementById('view-' + v);
@@ -2170,13 +2795,28 @@
         activeBtn.className = "group flex h-9 items-center gap-2.5 rounded-lg px-2.5 bg-surface-2 text-ink shadow-[inset_2px_0_0_var(--color-accent)] transition-colors";
       }
       currentView = viewName;
-      window.history.pushState({}, '', '/' + viewName);
+      try {
+        localStorage.setItem('twinforge_active_view', viewName);
+      } catch (e) {}
+
+      if (pushHistory && window.location.pathname !== '/' + viewName) {
+        window.history.pushState({ view: viewName }, '', '/' + viewName);
+      }
 
       if (viewName === 'twin') requestAnimationFrame(() => centerCanvasTopology(false));
       if (viewName === 'agents') loadSubgraph();
       if (viewName === 'integrations') checkHealth();
       if (viewName === 'dashboard') loadKpis();
+      if (viewName === 'pdm') loadPdmAnalytics();
+      if (viewName === 'forecasting') loadForecastingAnalytics();
     }
+
+    // Support browser Back/Forward navigation without page refresh
+    window.addEventListener('popstate', (e) => {
+      const raw = window.location.pathname.replace(/^\/+|\/+$/g, '');
+      const v = (e.state && e.state.view) || raw || localStorage.getItem('twinforge_active_view') || 'twin';
+      navigatePage(v, false);
+    });
 
     // View Switcher inside Twin Studio
     function setTwinView(mode) {
@@ -2194,6 +2834,7 @@
       if (activeBtn) activeBtn.className = "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] bg-surface-3 text-ink font-medium transition-colors";
       if (activeStage) activeStage.classList.remove('hidden');
       if (mode === 'topology') requestAnimationFrame(() => centerCanvasTopology(false));
+      if (mode === 'floor') renderFloorPlan(currentFacilityId, currentPlantId);
     }
 
     // Interactive Canvas Pan & Zoom
@@ -2419,6 +3060,122 @@
       if (activeContent) activeContent.classList.remove('hidden');
     }
 
+    // Enterprise Facility Modal Controllers
+    function openAddFacilityModal() {
+      const modal = document.getElementById('modal-add-facility');
+      const errEl = document.getElementById('add-fac-error');
+      if (errEl) errEl.classList.add('hidden');
+      if (modal) modal.classList.remove('hidden');
+      const nameInput = document.getElementById('add-fac-name');
+      if (nameInput) {
+        setTimeout(() => nameInput.focus(), 50);
+      }
+    }
+
+    function closeAddFacilityModal() {
+      const modal = document.getElementById('modal-add-facility');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function submitAddFacility() {
+      const nameInput = document.getElementById('add-fac-name');
+      const cityInput = document.getElementById('add-fac-city');
+      const countryInput = document.getElementById('add-fac-country');
+      const typeInput = document.getElementById('add-fac-type');
+      const areaInput = document.getElementById('add-fac-area');
+      const directorInput = document.getElementById('add-fac-director');
+      const descInput = document.getElementById('add-fac-desc');
+      const errEl = document.getElementById('add-fac-error');
+      const btn = document.getElementById('btn-submit-facility');
+
+      if (!nameInput || !nameInput.value.trim()) {
+        if (errEl) { errEl.innerText = "Facility Name is required."; errEl.classList.remove('hidden'); }
+        return;
+      }
+
+      const payload = {
+        name: nameInput.value.trim(),
+        city: cityInput ? cityInput.value.trim() : "Detroit",
+        country: countryInput ? countryInput.value.trim() : "United States",
+        facility_type: typeInput ? typeInput.value : "Manufacturing & Assembly",
+        total_area_sqm: areaInput ? parseInt(areaInput.value, 10) || 50000 : 50000,
+        director: directorInput ? directorInput.value.trim() || "Facility Director" : "Facility Director",
+        description: descInput ? descInput.value.trim() : ""
+      };
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="inline-block animate-spin">⏳</span> Registering...`;
+      }
+      if (errEl) errEl.classList.add('hidden');
+
+      try {
+        const res = await fetch(API_BASE + '/api/facilities', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok || data.status !== 'success') {
+          throw new Error(data.detail || data.message || 'Failed to create facility');
+        }
+
+        const fac = data.facility;
+        const facId = fac.id;
+
+        // Register facility plants in PLANTS_DATA
+        if (fac.plants && fac.plants.length > 0) {
+          fac.plants.forEach(plant => {
+            PLANTS_DATA[plant.id] = {
+              id: plant.id,
+              name: plant.name,
+              badge: (plant.location ? plant.location.split(',')[0] : fac.city).substring(0, 8),
+              badgeColor: 'text-indigo-400 bg-indigo-500/15 border-indigo-500/30',
+              city: plant.location || fac.city,
+              facilityId: facId,
+              line: plant.facility_type || fac.facility_type,
+              machinesCount: 4,
+              healthyCount: 4,
+              warningCount: 0,
+              criticalCount: 0
+            };
+          });
+        }
+
+        // Register facility in FACILITIES_DATA
+        FACILITIES_DATA[facId] = {
+          id: facId,
+          name: fac.name,
+          shortName: fac.name,
+          city: `${fac.city}, ${fac.country}`,
+          badge: fac.city.split(',')[0],
+          badgeColor: 'text-indigo-400 bg-indigo-500/15 border-indigo-500/30',
+          director: fac.director,
+          plants: fac.plants ? fac.plants.map(p => p.id) : [`${facId}_PLANT_1`],
+          defaultPlant: fac.plants && fac.plants[0] ? fac.plants[0].id : `${facId}_PLANT_1`,
+          description: fac.description || fac.facility_type
+        };
+
+        renderFacilityDropdownOptions();
+        closeAddFacilityModal();
+        nameInput.value = '';
+        if (descInput) descInput.value = '';
+
+        // Switch to newly created facility immediately
+        switchFacility(facId);
+      } catch (err) {
+        if (errEl) {
+          errEl.innerText = err.message || 'An error occurred while creating the facility.';
+          errEl.classList.remove('hidden');
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg><span>Create Facility</span>`;
+        }
+      }
+    }
+
     // Camera Modal
     function openCameraModal(camId) {
       const modal = document.getElementById('camera-modal');
@@ -2502,7 +3259,13 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query: query })
         });
-        const data = await resp.json();
+        const rawText = await resp.text();
+        let data;
+        try {
+          data = JSON.parse(rawText);
+        } catch (jsonErr) {
+          throw new Error(`Copilot service returned HTTP ${resp.status} (non-JSON response). Verify backend status.`);
+        }
 
         // Remove loading placeholder
         const loader = document.getElementById(loadingId);
@@ -2967,6 +3730,546 @@
     if (_initNodesEl) defaultExpandedTopologyHtml = _initNodesEl.innerHTML;
     if (_initSvgEl) defaultExpandedSvgHtml = _initSvgEl.innerHTML;
 
+    // Cache the original Apex Automotive Floor Plan SVG
+    let defaultApexFloorPlanHtml = '';
+    const _stageFloorEl = document.getElementById('stage-floor');
+    if (_stageFloorEl) defaultApexFloorPlanHtml = _stageFloorEl.innerHTML;
+
+    function getLondonFloorPlanHtml(plantId) {
+      const alphaOpacity = (plantId === 'PLANT_LONDON_PKG') ? '0.35' : '1.0';
+      const betaOpacity = (plantId === 'PLANT_LONDON_FAB') ? '0.35' : '1.0';
+      const alphaRing = (plantId === 'PLANT_LONDON_FAB') ? 'stroke-width="2.5" stroke="#facc15"' : 'stroke-width="1.5" stroke="#eab308" stroke-opacity="0.6"';
+      const betaRing = (plantId === 'PLANT_LONDON_PKG') ? 'stroke-width="2.5" stroke="#38bdf8"' : 'stroke-width="1.5" stroke="#06b6d4" stroke-opacity="0.6"';
+
+      return `
+        <svg viewBox="0 0 1100 520" class="h-full w-full min-h-[500px]">
+          <defs>
+            <pattern id="clean-grid" width="16" height="16" patternUnits="userSpaceOnUse">
+              <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(6, 182, 212, 0.08)" stroke-width="1"/>
+            </pattern>
+            <pattern id="yellow-grid" width="16" height="16" patternUnits="userSpaceOnUse">
+              <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(234, 179, 8, 0.1)" stroke-width="1"/>
+            </pattern>
+            <linearGradient id="flow-alpha" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#eab308"/>
+              <stop offset="100%" stop-color="#a855f7"/>
+            </linearGradient>
+            <linearGradient id="flow-beta" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#06b6d4"/>
+              <stop offset="100%" stop-color="#a855f7"/>
+            </linearGradient>
+            <marker id="fp-arrow-qc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#a855f7" />
+            </marker>
+          </defs>
+
+          <!-- Outer Cleanroom Envelope (ISO Class 4 / 10 Particles/m3) -->
+          <rect x="10" y="10" width="1080" height="500" rx="18" fill="var(--color-deep)" stroke="rgba(6, 182, 212, 0.4)" stroke-width="2" />
+          
+          <!-- Facility Header Tag inside Floor Plan -->
+          <g transform="translate(24, 22)">
+            <rect width="330" height="22" rx="6" fill="rgba(6, 182, 212, 0.15)" stroke="rgba(6, 182, 212, 0.3)" />
+            <text x="10" y="15" fill="#38bdf8" font-size="10.5" font-weight="700" letter-spacing="0.5">THAMES NANOTECH SEMICONDUCTOR FOUNDRY</text>
+          </g>
+          <text x="1070" y="32" text-anchor="end" fill="var(--color-muted)" font-size="10" font-family="monospace">ISO CLASS 4 &bull; POSITIVE PRESSURE 25 Pa</text>
+
+          <!-- 1. GOWNING AIRLOCK & SILICON INGOT STORES (Left) -->
+          <g transform="translate(24, 52)">
+            <rect x="0" y="0" width="120" height="442" rx="12" fill="var(--color-canvas)" stroke="var(--color-line)" />
+            <rect x="0" y="0" width="6" height="442" rx="3" fill="#06b6d4" />
+            <text x="60" y="24" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="700">PERSONNEL &amp; MAT</text>
+            <text x="60" y="38" text-anchor="middle" fill="var(--color-ink)" font-size="11" font-weight="bold">AIR SHOWER</text>
+            <line x1="12" y1="46" x2="108" y2="46" stroke="var(--color-line)" />
+
+            <!-- Substrates & FOUP Inventory -->
+            <g transform="translate(10, 56)" onclick="selectAsset('LDN_STORES')" class="cursor-pointer">
+              <rect width="100" height="74" rx="8" fill="var(--color-surface)" stroke="rgba(6, 182, 212, 0.4)" stroke-width="1.2" />
+              <text x="8" y="18" fill="#38bdf8" font-size="9" font-weight="bold">CLEAN VAULT</text>
+              <text x="8" y="34" fill="var(--color-ink)" font-size="10" font-family="monospace">LDN_STORES</text>
+              <text x="8" y="50" fill="var(--color-ink-2)" font-size="9.5">300mm Prime Si</text>
+              <text x="8" y="64" fill="#10b981" font-size="9">FOUP Buffer: 98%</text>
+            </g>
+
+            <text x="60" y="152" text-anchor="middle" fill="var(--color-muted)" font-size="9" font-family="monospace">CHEMICAL LOOP</text>
+            <text x="60" y="170" text-anchor="middle" fill="var(--color-ink-2)" font-size="9.5">Ultra-Pure DI H2O</text>
+            <text x="60" y="188" text-anchor="middle" fill="var(--color-ink-2)" font-size="9.5">Electronic NF3 / Ar</text>
+            <text x="60" y="206" text-anchor="middle" fill="var(--color-ink-2)" font-size="9.5">EUV Photoresist</text>
+            <text x="60" y="224" text-anchor="middle" fill="var(--color-ink-2)" font-size="9.5">Silane SiH4 Gas</text>
+
+            <!-- Air Shower Chamber Box -->
+            <rect x="10" y="250" width="100" height="80" rx="8" fill="rgba(6, 182, 212, 0.08)" stroke="rgba(6, 182, 212, 0.3)" stroke-dasharray="3 3" />
+            <text x="60" y="274" text-anchor="middle" fill="#38bdf8" font-size="9.5" font-weight="600">DUAL AIRLOCK</text>
+            <text x="60" y="292" text-anchor="middle" fill="var(--color-muted)" font-size="8.5">HEPA H14 Filtration</text>
+            <text x="60" y="310" text-anchor="middle" fill="#10b981" font-size="9">Air Velocity 25m/s</text>
+
+            <!-- Infeed dispatch line -->
+            <path d="M 120 93 L 160 93" fill="none" stroke="#06b6d4" stroke-width="2" stroke-dasharray="3 3" />
+            <path d="M 120 93 C 140 93, 140 310, 160 310" fill="none" stroke="#06b6d4" stroke-width="1.8" stroke-dasharray="3 3" />
+          </g>
+
+          <!-- 2. LINE ALPHA: FRONT-END WAFER LITHOGRAPHY & PLASMA ETCH (Top Bay) -->
+          <g id="fp-line-alpha" transform="translate(162, 52)" style="opacity: ${alphaOpacity}; transition: opacity 0.3s ease;">
+            <rect x="0" y="0" width="630" height="206" rx="14" fill="var(--color-canvas)" ${alphaRing} />
+            <rect x="0" y="0" width="630" height="206" rx="14" fill="url(#yellow-grid)" opacity="0.7" />
+            <rect x="0" y="0" width="630" height="28" rx="14" fill="rgba(234, 179, 8, 0.15)" />
+            <circle cx="16" cy="14" r="5" fill="#eab308" />
+            <text x="28" y="18" fill="#facc15" font-size="11.5" font-weight="700">PLANT 1: LINE ALPHA &bull; FRONT-END WAFER FAB</text>
+            <text x="440" y="18" fill="#facc15" font-size="10" font-family="monospace">ISO Class 4 &bull; 565nm UV Yellow Bay</text>
+
+            <!-- Flow line along top stations -->
+            <path d="M 125 105 L 155 105" fill="none" stroke="#eab308" stroke-width="2" class="edge-flow" />
+            <path d="M 275 105 L 305 105" fill="none" stroke="#eab308" stroke-width="2" class="edge-flow" />
+            <path d="M 425 105 L 455 105" fill="none" stroke="#eab308" stroke-width="2" class="edge-flow" />
+
+            <!-- Station A1: Wire Slicer -->
+            <g transform="translate(14, 46)" onclick="selectAsset('LDN_SLICER_01')" class="cursor-pointer">
+              <rect width="112" height="120" rx="10" fill="var(--color-surface)" stroke="#10b981" stroke-width="1.5" />
+              <rect x="0" y="0" width="5" height="120" rx="2.5" fill="#10b981" />
+              <text x="12" y="20" fill="var(--color-ink)" font-size="11" font-family="monospace" font-weight="bold">LDN_SLICER_01</text>
+              <text x="12" y="38" fill="var(--color-ink-2)" font-size="10">Diamond Wire Slicer</text>
+              <text x="12" y="54" fill="var(--color-muted)" font-size="9">Meyer Burger DS265</text>
+              <rect x="12" y="66" width="88" height="20" rx="4" fill="rgba(16, 185, 129, 0.12)" />
+              <text x="18" y="80" fill="#10b981" font-size="9.5" font-weight="600">Kerf: 45 &mu;m</text>
+              <text x="12" y="108" fill="#10b981" font-size="9.5">Healthy &bull; 100%</text>
+            </g>
+
+            <!-- Station A2: CMP Planarizer -->
+            <g transform="translate(155, 46)" onclick="selectAsset('LDN_CMP_02')" class="cursor-pointer">
+              <rect width="120" height="120" rx="10" fill="var(--color-surface)" stroke="#10b981" stroke-width="1.5" />
+              <rect x="0" y="0" width="5" height="120" rx="2.5" fill="#10b981" />
+              <text x="12" y="20" fill="var(--color-ink)" font-size="11" font-family="monospace" font-weight="bold">LDN_CMP_02</text>
+              <text x="12" y="38" fill="var(--color-ink-2)" font-size="10">CMP Planarizer</text>
+              <text x="12" y="54" fill="var(--color-muted)" font-size="9">Ebara F-REX300X</text>
+              <rect x="12" y="66" width="96" height="20" rx="4" fill="rgba(16, 185, 129, 0.12)" />
+              <text x="18" y="80" fill="#10b981" font-size="9.5" font-weight="600">Ra: 0.12 nm</text>
+              <text x="12" y="108" fill="#10b981" font-size="9.5">Healthy &bull; 99%</text>
+            </g>
+
+            <!-- Station A3: ASML High-NA EUV Stepper -->
+            <g transform="translate(305, 40)" onclick="selectAsset('LDN_EUV_03')" class="cursor-pointer">
+              <rect width="128" height="132" rx="10" fill="var(--color-surface)" stroke="#eab308" stroke-width="2" />
+              <rect x="0" y="0" width="6" height="132" rx="3" fill="#eab308" />
+              <text x="12" y="20" fill="var(--color-ink)" font-size="11.5" font-family="monospace" font-weight="bold">LDN_EUV_03 ★</text>
+              <text x="12" y="38" fill="#facc15" font-size="10" font-weight="600">High-NA EUV Stepper</text>
+              <text x="12" y="54" fill="var(--color-muted)" font-size="9">ASML EXE:5000 (0.55 NA)</text>
+              <rect x="12" y="66" width="104" height="22" rx="4" fill="rgba(234, 179, 8, 0.15)" stroke="rgba(234, 179, 8, 0.3)" />
+              <text x="18" y="81" fill="#facc15" font-size="9.5" font-weight="bold">13.5nm &bull; 8nm Pitch</text>
+              <text x="12" y="106" fill="var(--color-ink-2)" font-size="9">Dose: 42 mJ/cm&sup2;</text>
+              <text x="12" y="122" fill="#eab308" font-size="9.5" font-weight="600">Running &bull; 98%</text>
+            </g>
+
+            <!-- Station A4: Plasma Etcher -->
+            <g transform="translate(460, 46)" onclick="selectAsset('LDN_ETCH_04')" class="cursor-pointer">
+              <rect width="120" height="120" rx="10" fill="var(--color-surface)" stroke="#10b981" stroke-width="1.5" />
+              <rect x="0" y="0" width="5" height="120" rx="2.5" fill="#10b981" />
+              <text x="12" y="20" fill="var(--color-ink)" font-size="11" font-family="monospace" font-weight="bold">LDN_ETCH_04</text>
+              <text x="12" y="38" fill="var(--color-ink-2)" font-size="10">DRIE Plasma Etcher</text>
+              <text x="12" y="54" fill="var(--color-muted)" font-size="9">Lam Kiyo FX (Bosch)</text>
+              <rect x="12" y="66" width="96" height="20" rx="4" fill="rgba(16, 185, 129, 0.12)" />
+              <text x="18" y="80" fill="#10b981" font-size="9.5" font-weight="600">Aspect 40:1</text>
+              <text x="12" y="108" fill="#10b981" font-size="9.5">Healthy &bull; 97%</text>
+            </g>
+
+            <text x="14" y="194" fill="var(--color-muted)" font-size="9.5" font-family="monospace">&bull; Front-End Process: Si Ingot &rarr; CMP &rarr; High-NA EUV Exposure &rarr; DRIE Deep Trench</text>
+          </g>
+
+          <!-- 3. LINE BETA: BACK-END MICRO-PACKAGING & LASER DICING (Bottom Bay) -->
+          <g id="fp-line-beta" transform="translate(162, 276)" style="opacity: ${betaOpacity}; transition: opacity 0.3s ease;">
+            <rect x="0" y="0" width="630" height="218" rx="14" fill="var(--color-canvas)" ${betaRing} />
+            <rect x="0" y="0" width="630" height="218" rx="14" fill="url(#clean-grid)" opacity="0.6" />
+            <rect x="0" y="0" width="630" height="28" rx="14" fill="rgba(6, 182, 212, 0.15)" />
+            <circle cx="16" cy="14" r="5" fill="#06b6d4" />
+            <text x="28" y="18" fill="#38bdf8" font-size="11.5" font-weight="700">PLANT 2: LINE BETA &bull; BACK-END MICRO-PACKAGING</text>
+            <text x="440" y="18" fill="#38bdf8" font-size="10" font-family="monospace">Heterogeneous 2.5D/3D Chiplet Suite</text>
+
+            <!-- Flow line along bottom stations -->
+            <path d="M 125 105 L 155 105" fill="none" stroke="#06b6d4" stroke-width="2" class="edge-flow" />
+            <path d="M 275 105 L 305 105" fill="none" stroke="#06b6d4" stroke-width="2" class="edge-flow" />
+            <path d="M 425 105 L 455 105" fill="none" stroke="#06b6d4" stroke-width="2" class="edge-flow" />
+
+            <!-- Station B1: Laser Dicer -->
+            <g transform="translate(14, 46)" onclick="selectAsset('LDN_DICE_01')" class="cursor-pointer">
+              <rect width="112" height="120" rx="10" fill="var(--color-surface)" stroke="#10b981" stroke-width="1.5" />
+              <rect x="0" y="0" width="5" height="120" rx="2.5" fill="#10b981" />
+              <text x="12" y="20" fill="var(--color-ink)" font-size="11" font-family="monospace" font-weight="bold">LDN_DICE_01</text>
+              <text x="12" y="38" fill="var(--color-ink-2)" font-size="10">Picosecond Laser Dicer</text>
+              <text x="12" y="54" fill="var(--color-muted)" font-size="9">Disco DFL7362</text>
+              <rect x="12" y="66" width="88" height="20" rx="4" fill="rgba(16, 185, 129, 0.12)" />
+              <text x="18" y="80" fill="#10b981" font-size="9.5" font-weight="600">Kerf: &lt;2 &mu;m</text>
+              <text x="12" y="108" fill="#10b981" font-size="9.5">Healthy &bull; 100%</text>
+            </g>
+
+            <!-- Station B2: Die Attach -->
+            <g transform="translate(155, 46)" onclick="selectAsset('LDN_ATTACH_02')" class="cursor-pointer">
+              <rect width="120" height="120" rx="10" fill="var(--color-surface)" stroke="#10b981" stroke-width="1.5" />
+              <rect x="0" y="0" width="5" height="120" rx="2.5" fill="#10b981" />
+              <text x="12" y="20" fill="var(--color-ink)" font-size="11" font-family="monospace" font-weight="bold">LDN_ATTACH_02</text>
+              <text x="12" y="38" fill="var(--color-ink-2)" font-size="10">Eutectic Die Attach</text>
+              <text x="12" y="54" fill="var(--color-muted)" font-size="9">Besi Datacon 8800</text>
+              <rect x="12" y="66" width="96" height="20" rx="4" fill="rgba(16, 185, 129, 0.12)" />
+              <text x="18" y="80" fill="#10b981" font-size="9.5" font-weight="600">Placement: &plusmn;1 &mu;m</text>
+              <text x="12" y="108" fill="#10b981" font-size="9.5">Healthy &bull; 99%</text>
+            </g>
+
+            <!-- Station B3: Wire Bonder -->
+            <g transform="translate(305, 46)" onclick="selectAsset('LDN_BOND_03')" class="cursor-pointer">
+              <rect width="120" height="120" rx="10" fill="var(--color-surface)" stroke="#10b981" stroke-width="1.5" />
+              <rect x="0" y="0" width="5" height="120" rx="2.5" fill="#10b981" />
+              <text x="12" y="20" fill="var(--color-ink)" font-size="11" font-family="monospace" font-weight="bold">LDN_BOND_03</text>
+              <text x="12" y="38" fill="var(--color-ink-2)" font-size="10">Sub-Micron Wire Bonder</text>
+              <text x="12" y="54" fill="var(--color-muted)" font-size="9">K&amp;S Asterion Wedge</text>
+              <rect x="12" y="66" width="96" height="20" rx="4" fill="rgba(16, 185, 129, 0.12)" />
+              <text x="18" y="80" fill="#10b981" font-size="9.5" font-weight="600">18 &mu;m Au Ball</text>
+              <text x="12" y="108" fill="#10b981" font-size="9.5">Healthy &bull; 99%</text>
+            </g>
+
+            <!-- Station B4: Vacuum Sealer -->
+            <g transform="translate(455, 46)" onclick="selectAsset('LDN_SEAL_04')" class="cursor-pointer">
+              <rect width="125" height="120" rx="10" fill="var(--color-surface)" stroke="#10b981" stroke-width="1.5" />
+              <rect x="0" y="0" width="5" height="120" rx="2.5" fill="#10b981" />
+              <text x="12" y="20" fill="var(--color-ink)" font-size="11" font-family="monospace" font-weight="bold">LDN_SEAL_04</text>
+              <text x="12" y="38" fill="var(--color-ink-2)" font-size="10">Cryo Vacuum Sealer</text>
+              <text x="12" y="54" fill="var(--color-muted)" font-size="9">SST 5100 Hermetic</text>
+              <rect x="12" y="66" width="100" height="20" rx="4" fill="rgba(16, 185, 129, 0.12)" />
+              <text x="18" y="80" fill="#10b981" font-size="9.5" font-weight="600">Leak: &lt;10⁻⁹ mbar</text>
+              <text x="12" y="108" fill="#10b981" font-size="9.5">Healthy &bull; 100%</text>
+            </g>
+
+            <text x="14" y="206" fill="var(--color-muted)" font-size="9.5" font-family="monospace">&bull; Back-End Process: Laser Singulation &rarr; Eutectic Flip-Chip &rarr; Au Ball Wire Bond &rarr; Hermetic Seal</text>
+          </g>
+
+          <!-- 4. VISIBLE CONVERGENCE CHANNELS: BOTH LINES FEED INTO UNIT-QC -->
+          <path d="M 792 155 C 805 155, 805 220, 815 220" fill="none" stroke="url(#flow-alpha)" stroke-width="3" class="edge-flow" marker-end="url(#fp-arrow-qc)" />
+          <path d="M 792 385 C 805 385, 805 320, 815 320" fill="none" stroke="url(#flow-beta)" stroke-width="3" class="edge-flow" marker-end="url(#fp-arrow-qc)" />
+
+          <!-- Convergence Glow Halo Badge -->
+          <g transform="translate(755, 252)">
+            <rect width="56" height="26" rx="6" fill="#a855f7" fill-opacity="0.25" stroke="#a855f7" stroke-width="1.2" />
+            <text x="28" y="17" text-anchor="middle" fill="#c084fc" font-size="9" font-weight="bold">MERGE</text>
+          </g>
+
+          <!-- 5. CENTRAL UNIT QUALITY METROLOGY BAY (LDN-UNIT-QC) -->
+          <g transform="translate(815, 52)">
+            <rect x="0" y="0" width="170" height="442" rx="14" fill="var(--color-canvas)" stroke="#a855f7" stroke-width="2" />
+            <rect x="0" y="0" width="170" height="32" rx="14" fill="rgba(168, 85, 247, 0.2)" />
+            <circle cx="16" cy="16" r="5" fill="#a855f7" />
+            <text x="28" y="20" fill="#c084fc" font-size="11" font-weight="bold">LDN-UNIT-QC</text>
+            <text x="85" y="48" text-anchor="middle" fill="#c084fc" font-size="9.5" font-weight="700">CENTRAL UNIT METROLOGY</text>
+            <text x="85" y="62" text-anchor="middle" fill="var(--color-muted)" font-size="8.5">Both Lines Converge Here</text>
+
+            <!-- Inspection Station 1: Optical Metrology -->
+            <g transform="translate(14, 75)" onclick="selectAsset('LDN-UNIT-QC')" class="cursor-pointer">
+              <rect width="142" height="74" rx="8" fill="var(--color-surface)" stroke="#a855f7" stroke-width="1.5" />
+              <rect x="0" y="0" width="5" height="74" rx="2.5" fill="#a855f7" />
+              <text x="12" y="18" fill="var(--color-ink)" font-size="10.5" font-family="monospace" font-weight="bold">LDN_METRO_01</text>
+              <text x="12" y="34" fill="var(--color-ink-2)" font-size="9.5">KLA Optical Scanner</text>
+              <text x="12" y="48" fill="var(--color-muted)" font-size="8.5">0.05 &mu;m Defect Sensitivity</text>
+              <text x="12" y="64" fill="#a855f7" font-size="9" font-weight="bold">100% Wafer Metrology</text>
+            </g>
+
+            <!-- Inspection Station 2: 3D X-Ray CT -->
+            <g transform="translate(14, 160)" onclick="selectAsset('LDN-UNIT-QC')" class="cursor-pointer">
+              <rect width="142" height="74" rx="8" fill="var(--color-surface)" stroke="#a855f7" stroke-width="1.5" />
+              <rect x="0" y="0" width="5" height="74" rx="2.5" fill="#a855f7" />
+              <text x="12" y="18" fill="var(--color-ink)" font-size="10.5" font-family="monospace" font-weight="bold">LDN_XRAY_02</text>
+              <text x="12" y="34" fill="var(--color-ink-2)" font-size="9.5">Nordson 3D X-Ray CT</text>
+              <text x="12" y="48" fill="var(--color-muted)" font-size="8.5">Void / Interconnect Scan</text>
+              <text x="12" y="64" fill="#10b981" font-size="9">Yield: 99.4%</text>
+            </g>
+
+            <!-- Inspection Station 3: Automated IC Tester -->
+            <g transform="translate(14, 245)" onclick="selectAsset('LDN-UNIT-QC')" class="cursor-pointer">
+              <rect width="142" height="74" rx="8" fill="var(--color-surface)" stroke="#a855f7" stroke-width="1.5" />
+              <rect x="0" y="0" width="5" height="74" rx="2.5" fill="#a855f7" />
+              <text x="12" y="18" fill="var(--color-ink)" font-size="10.5" font-family="monospace" font-weight="bold">LDN_TEST_03</text>
+              <text x="12" y="34" fill="var(--color-ink-2)" font-size="9.5">Advantest IC Tester</text>
+              <text x="12" y="48" fill="var(--color-muted)" font-size="8.5">High-Speed Parametric</text>
+              <text x="12" y="64" fill="#10b981" font-size="9">Throughput: 1200 wph</text>
+            </g>
+
+            <!-- Certified Unit Badge -->
+            <g transform="translate(14, 335)">
+              <rect width="142" height="92" rx="8" fill="rgba(168, 85, 247, 0.1)" stroke="rgba(168, 85, 247, 0.3)" stroke-dasharray="3 3" />
+              <text x="71" y="22" text-anchor="middle" fill="#c084fc" font-size="9.5" font-weight="bold">UNIT INTEGRATION</text>
+              <text x="71" y="38" text-anchor="middle" fill="var(--color-ink-2)" font-size="8.5">Front-End + Back-End</text>
+              <text x="71" y="52" text-anchor="middle" fill="var(--color-ink-2)" font-size="8.5">Single Facility Co-Location</text>
+              <rect x="16" y="62" width="110" height="20" rx="4" fill="#a855f7" />
+              <text x="71" y="76" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold">PASSED QC &bull; CERT</text>
+            </g>
+          </g>
+
+          <!-- 6. OUTBOUND DISPATCH & NITROGEN PURGE AIRLOCK (Right) -->
+          <g transform="translate(995, 52)">
+            <rect x="0" y="0" width="75" height="442" rx="12" fill="var(--color-canvas)" stroke="#10b981" stroke-width="1.5" />
+            <rect x="0" y="0" width="5" height="442" rx="2.5" fill="#10b981" />
+            <text x="38" y="240" text-anchor="middle" fill="#34d399" font-size="10.5" font-weight="bold" transform="rotate(-90 38 240)">NITROGEN DISPATCH LOCK</text>
+            
+            <!-- Dispatch Button -->
+            <g transform="translate(8, 20)" onclick="selectAsset('LDN-UNIT-DISPATCH')" class="cursor-pointer">
+              <rect width="60" height="60" rx="6" fill="var(--color-surface)" stroke="#10b981" stroke-width="1.2" />
+              <text x="30" y="24" text-anchor="middle" fill="#34d399" font-size="9" font-weight="bold">FREIGHT</text>
+              <text x="30" y="38" text-anchor="middle" fill="var(--color-ink)" font-size="8" font-family="monospace">AIRLOCK</text>
+              <text x="30" y="50" text-anchor="middle" fill="#10b981" font-size="8">READY</text>
+            </g>
+
+            <!-- Outbound connector from QC -->
+            <path d="M -10 260 L 0 260" fill="none" stroke="#10b981" stroke-width="2.5" class="edge-flow" />
+          </g>
+        </svg>
+      `;
+    }
+
+    function getGenericFacilityFloorPlanHtml(fac, plant) {
+      const facName = (fac && fac.name) ? fac.name : 'Enterprise Facility';
+      const facType = (fac && (fac.facility_type || fac.description)) ? (fac.facility_type || fac.description) : 'Advanced Manufacturing Unit';
+      const cityName = (fac && fac.city) ? fac.city : 'Global Site';
+      const fId = fac && fac.id ? fac.id : 'FAC';
+
+      return `
+        <svg viewBox="0 0 1100 520" class="h-full w-full min-h-[500px]">
+          <defs>
+            <pattern id="gen-hatch" width="12" height="12" patternUnits="userSpaceOnUse">
+              <path d="M 12 0 L 0 0 0 12" fill="none" stroke="var(--color-line)" stroke-width="1"/>
+            </pattern>
+            <marker id="gen-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#6366f1" />
+            </marker>
+          </defs>
+          <!-- Outer building shell -->
+          <rect x="10" y="10" width="1080" height="500" rx="18" fill="var(--color-deep)" stroke="#6366f1" stroke-width="1.8" stroke-opacity="0.5" />
+          
+          <!-- Facility Header Tag -->
+          <g transform="translate(24, 22)">
+            <rect width="360" height="24" rx="6" fill="rgba(99, 102, 241, 0.15)" stroke="rgba(99, 102, 241, 0.3)" />
+            <text x="10" y="16" fill="#818cf8" font-size="11" font-weight="700" letter-spacing="0.5">${facName.toUpperCase()}</text>
+          </g>
+          <text x="1070" y="32" text-anchor="end" fill="var(--color-muted)" font-size="10.5" font-family="monospace">${cityName.toUpperCase()} &bull; ${facType.toUpperCase()}</text>
+
+          <!-- 1. Raw Materials & Infeed Staging (Left) -->
+          <g transform="translate(24, 56)">
+            <rect x="0" y="0" width="140" height="436" rx="14" fill="var(--color-canvas)" stroke="var(--color-line)" />
+            <rect x="0" y="0" width="6" height="436" rx="3" fill="#06b6d4" />
+            <text x="70" y="28" text-anchor="middle" fill="#06b6d4" font-size="10.5" font-weight="700">MATERIAL INFEED</text>
+            <text x="70" y="44" text-anchor="middle" fill="var(--color-ink)" font-size="11.5" font-weight="bold">BUFFER VAULT</text>
+            
+            <g transform="translate(14, 60)" onclick="selectAsset('${fId}_IN')" class="cursor-pointer">
+              <rect width="112" height="84" rx="10" fill="var(--color-surface)" stroke="#06b6d4" stroke-width="1.5" />
+              <text x="10" y="20" fill="#06b6d4" font-size="9.5" font-weight="bold">STAGE 01</text>
+              <text x="10" y="38" fill="var(--color-ink)" font-size="11" font-family="monospace">RAW INFEED</text>
+              <text x="10" y="56" fill="var(--color-ink-2)" font-size="9.5">Supply Buffer</text>
+              <text x="10" y="72" fill="#10b981" font-size="9.5">Healthy &bull; 100%</text>
+            </g>
+
+            <rect x="14" y="160" width="112" height="250" rx="10" fill="url(#gen-hatch)" stroke="var(--color-line)" />
+            <text x="70" y="280" text-anchor="middle" fill="var(--color-muted)" font-size="10" font-weight="600">STAGING BAYS</text>
+            <text x="70" y="300" text-anchor="middle" fill="var(--color-muted)" font-size="9">Certified Lot Buffer</text>
+          </g>
+
+          <!-- 2. Primary Manufacturing Core (Center-Left) -->
+          <g transform="translate(184, 56)">
+            <rect x="0" y="0" width="460" height="436" rx="14" fill="var(--color-canvas)" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="6 6" />
+            <rect x="0" y="0" width="460" height="32" rx="14" fill="rgba(99, 102, 241, 0.15)" />
+            <circle cx="16" cy="16" r="5" fill="#6366f1" />
+            <text x="28" y="20" fill="#a5b4fc" font-size="11.5" font-weight="700">PRIMARY SYNTHESIS &amp; PROCESSING CELL</text>
+            <text x="320" y="20" fill="#a5b4fc" font-size="10" font-family="monospace">High-Throughput Line</text>
+
+            <!-- Machine Card -->
+            <g transform="translate(30, 60)" onclick="selectAsset('${fId}_M1')" class="cursor-pointer">
+              <rect width="180" height="150" rx="12" fill="var(--color-surface)" stroke="#10b981" stroke-width="2" />
+              <rect x="0" y="0" width="6" height="150" rx="3" fill="#10b981" />
+              <text x="14" y="24" fill="var(--color-ink)" font-size="12" font-family="monospace" font-weight="bold">${fId}_M1</text>
+              <text x="14" y="44" fill="#6366f1" font-size="11" font-weight="600">Synthesis Engine</text>
+              <text x="14" y="62" fill="var(--color-muted)" font-size="9.5">Automated Workcell Unit</text>
+              <rect x="14" y="78" width="152" height="24" rx="6" fill="rgba(16, 185, 129, 0.12)" />
+              <text x="22" y="94" fill="#10b981" font-size="10" font-weight="600">Cycle Time: 4.8s &bull; OEE: 94%</text>
+              <text x="14" y="124" fill="var(--color-ink-2)" font-size="10">Telemetry: Nominal 38.2 &deg;C</text>
+              <text x="14" y="140" fill="#10b981" font-size="10">Status: Healthy &bull; 100%</text>
+            </g>
+
+            <!-- Secondary Robotic Cell -->
+            <g transform="translate(250, 60)" onclick="selectAsset('${fId}_ROB')" class="cursor-pointer">
+              <rect width="180" height="150" rx="12" fill="var(--color-surface)" stroke="#10b981" stroke-width="1.5" />
+              <rect x="0" y="0" width="6" height="150" rx="3" fill="#10b981" />
+              <text x="14" y="24" fill="var(--color-ink)" font-size="12" font-family="monospace" font-weight="bold">ARTICULATED CELL</text>
+              <text x="14" y="44" fill="var(--color-ink-2)" font-size="11">Precision Transfer</text>
+              <text x="14" y="62" fill="var(--color-muted)" font-size="9.5">Multi-Axis Robotic Arm</text>
+              <rect x="14" y="78" width="152" height="24" rx="6" fill="rgba(16, 185, 129, 0.12)" />
+              <text x="22" y="94" fill="#10b981" font-size="10" font-weight="600">Payload: 25kg &bull; &plusmn;0.02mm</text>
+              <text x="14" y="124" fill="var(--color-ink-2)" font-size="10">Servo Load: 42%</text>
+              <text x="14" y="140" fill="#10b981" font-size="10">Status: Healthy &bull; 100%</text>
+            </g>
+
+            <!-- Process description -->
+            <rect x="30" y="240" width="400" height="170" rx="10" fill="var(--color-surface)" stroke="var(--color-line)" />
+            <text x="44" y="266" fill="var(--color-ink)" font-size="11.5" font-weight="bold">PROCESS WORKFLOW ARCHITECTURE</text>
+            <text x="44" y="290" fill="var(--color-ink-2)" font-size="10.5">&bull; Step 1: Automated Barcode Scan &amp; Raw Material Ingest</text>
+            <text x="44" y="312" fill="var(--color-ink-2)" font-size="10.5">&bull; Step 2: High-Precision Thermo-Mechanical Processing</text>
+            <text x="44" y="334" fill="var(--color-ink-2)" font-size="10.5">&bull; Step 3: Real-Time Acoustic &amp; Vision Inspection</text>
+            <text x="44" y="356" fill="var(--color-ink-2)" font-size="10.5">&bull; Step 4: Conveyance Transfer to Unit Quality Metrology Bay</text>
+            <rect x="44" y="372" width="372" height="24" rx="6" fill="rgba(99, 102, 241, 0.1)" stroke="rgba(99, 102, 241, 0.25)" />
+            <text x="56" y="388" fill="#818cf8" font-size="10" font-weight="600">Enterprise Digital Twin Synchronized &bull; Zero Bottleneck Buffer</text>
+          </g>
+
+          <!-- Interconnecting flow lines -->
+          <path d="M 164 130 L 184 130" fill="none" stroke="#06b6d4" stroke-width="2.5" class="edge-flow" />
+          <path d="M 644 190 L 674 190" fill="none" stroke="#a855f7" stroke-width="2.5" class="edge-flow" marker-end="url(#gen-arrow)" />
+
+          <!-- 3. Unit Quality Metrology Bay (Center-Right) -->
+          <g transform="translate(674, 56)">
+            <rect x="0" y="0" width="220" height="436" rx="14" fill="var(--color-canvas)" stroke="#a855f7" stroke-width="2" />
+            <rect x="0" y="0" width="220" height="32" rx="14" fill="rgba(168, 85, 247, 0.2)" />
+            <circle cx="16" cy="16" r="5" fill="#a855f7" />
+            <text x="28" y="20" fill="#c084fc" font-size="11.5" font-weight="bold">UNIT QUALITY METROLOGY</text>
+            <text x="110" y="48" text-anchor="middle" fill="#c084fc" font-size="10" font-weight="700">CENTRAL INSPECTION BAY</text>
+
+            <!-- Metrology Station -->
+            <g transform="translate(18, 64)" onclick="selectAsset('${fId}_QC')" class="cursor-pointer">
+              <rect width="184" height="130" rx="10" fill="var(--color-surface)" stroke="#a855f7" stroke-width="1.8" />
+              <rect x="0" y="0" width="6" height="130" rx="3" fill="#a855f7" />
+              <text x="14" y="22" fill="var(--color-ink)" font-size="11.5" font-family="monospace" font-weight="bold">${fId}_QC</text>
+              <text x="14" y="40" fill="#c084fc" font-size="10.5" font-weight="600">Automated CMM &amp; Vision</text>
+              <text x="14" y="56" fill="var(--color-muted)" font-size="9.5">Integrated Quality Gate</text>
+              <rect x="14" y="70" width="156" height="24" rx="4" fill="rgba(168, 85, 247, 0.15)" />
+              <text x="20" y="86" fill="#c084fc" font-size="10" font-weight="bold">Tolerance: &plusmn;0.005 mm</text>
+              <text x="14" y="112" fill="#10b981" font-size="10">Quality Pass Rate: 99.8%</text>
+            </g>
+
+            <!-- Secondary Batch QA -->
+            <g transform="translate(18, 210)">
+              <rect width="184" height="200" rx="10" fill="var(--color-surface)" stroke="var(--color-line)" />
+              <text x="14" y="26" fill="var(--color-ink)" font-size="11" font-weight="bold">CONTINUOUS QA METRICS</text>
+              <text x="14" y="50" fill="var(--color-ink-2)" font-size="10">&bull; Laser Profilometry: OK</text>
+              <text x="14" y="74" fill="var(--color-ink-2)" font-size="10">&bull; Thermal Imager: Nominal</text>
+              <text x="14" y="98" fill="var(--color-ink-2)" font-size="10">&bull; Stress Verification: 100%</text>
+              <rect x="14" y="120" width="156" height="60" rx="8" fill="rgba(16, 185, 129, 0.1)" stroke="rgba(16, 185, 129, 0.3)" />
+              <text x="92" y="145" text-anchor="middle" fill="#10b981" font-size="11" font-weight="bold">CERTIFIED BATCH</text>
+              <text x="92" y="165" text-anchor="middle" fill="#10b981" font-size="9.5">Ready for Outbound</text>
+            </g>
+          </g>
+
+          <!-- Connector from QC to Outbound -->
+          <path d="M 894 190 L 924 190" fill="none" stroke="#10b981" stroke-width="2.5" class="edge-flow" marker-end="url(#gen-arrow)" />
+
+          <!-- 4. Outbound Dispatch & Automated Logistics (Right) -->
+          <g transform="translate(924, 56)">
+            <rect x="0" y="0" width="146" height="436" rx="14" fill="var(--color-canvas)" stroke="#10b981" stroke-width="1.8" />
+            <rect x="0" y="0" width="6" height="436" rx="3" fill="#10b981" />
+            <text x="76" y="28" text-anchor="middle" fill="#10b981" font-size="10.5" font-weight="700">OUTBOUND LOGISTICS</text>
+            <text x="76" y="44" text-anchor="middle" fill="var(--color-ink)" font-size="11.5" font-weight="bold">DISPATCH DOCKS</text>
+
+            <g transform="translate(14, 64)" onclick="selectAsset('${fId}_OUT')" class="cursor-pointer">
+              <rect width="118" height="120" rx="10" fill="var(--color-surface)" stroke="#10b981" stroke-width="1.5" />
+              <text x="10" y="20" fill="#10b981" font-size="10" font-weight="bold">DOCK BUFFER</text>
+              <text x="10" y="38" fill="var(--color-ink)" font-size="11" font-family="monospace">${fId}_OUT</text>
+              <text x="10" y="56" fill="var(--color-ink-2)" font-size="9.5">Automated Pallet</text>
+              <rect x="10" y="70" width="98" height="20" rx="4" fill="rgba(16, 185, 129, 0.15)" />
+              <text x="16" y="84" fill="#10b981" font-size="9.5" font-weight="bold">Queue: Empty</text>
+              <text x="10" y="106" fill="#10b981" font-size="9.5">Carrier Synced</text>
+            </g>
+
+            <!-- Dock Bays -->
+            <rect x="14" y="200" width="118" height="210" rx="10" fill="var(--color-surface)" stroke="var(--color-line)" stroke-dasharray="4 4" />
+            <text x="73" y="280" text-anchor="middle" fill="var(--color-muted)" font-size="10" font-weight="600">BAY A &bull; ACTIVE</text>
+            <text x="73" y="300" text-anchor="middle" fill="var(--color-muted)" font-size="10" font-weight="600">BAY B &bull; STANDBY</text>
+            <text x="73" y="320" text-anchor="middle" fill="#10b981" font-size="9.5">Automated AGV Sync</text>
+          </g>
+        </svg>
+      `;
+    }
+
+    function renderFloorPlan(facilityId, plantId) {
+      const stageFloor = document.getElementById('stage-floor');
+      if (!stageFloor) return;
+
+      if (facilityId === 'FACILITY_LONDON') {
+        stageFloor.innerHTML = getLondonFloorPlanHtml(plantId);
+      } else if (facilityId === 'FACILITY_APEX') {
+        stageFloor.innerHTML = defaultApexFloorPlanHtml;
+      } else {
+        const fac = FACILITIES_DATA[facilityId] || { name: 'Enterprise Facility', city: 'Global Site', id: facilityId };
+        const p = PLANTS_DATA[plantId] || { name: fac.name, id: plantId };
+        stageFloor.innerHTML = getGenericFacilityFloorPlanHtml(fac, p);
+      }
+    }
+
+    function renderFacilityDropdownOptions() {
+      const container = document.getElementById('facility-options-list');
+      if (!container) return;
+
+      let html = '';
+      Object.values(FACILITIES_DATA).forEach(fac => {
+        const isSelected = fac.id === currentFacilityId;
+        const initialBadge = fac.id === 'FACILITY_APEX' ? 'APX' : (fac.id === 'FACILITY_LONDON' ? 'LDN' : fac.name.substring(0, 3).toUpperCase());
+        const badgeBg = fac.id === 'FACILITY_APEX' ? 'bg-amber-500/20 text-amber-500' : (fac.id === 'FACILITY_LONDON' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-indigo-500/20 text-indigo-400');
+        const plantCount = fac.plants ? fac.plants.length : 1;
+
+        html += `
+          <button onclick="switchFacility('${fac.id}')" class="facility-option-btn w-full flex items-center justify-between gap-3 rounded-xl p-2.5 text-left ${isSelected ? 'bg-surface-2' : ''} hover:bg-surface-2 transition-colors group cursor-pointer" data-facility-id="${fac.id}">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${badgeBg} font-bold text-xs">
+                ${initialBadge}
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-[13px] text-ink truncate">${fac.shortName || fac.name}</span>
+                  <span class="rounded ${fac.badgeColor} px-1.5 py-0.5 text-[9.5px] font-medium">${fac.badge}</span>
+                </div>
+                <p class="text-[11px] text-muted truncate">${fac.city} &bull; ${plantCount} Plant${plantCount > 1 ? 's' : ''} &bull; ${fac.description}</p>
+              </div>
+            </div>
+            <span class="facility-check-icon text-accent font-bold text-sm ${isSelected ? '' : 'hidden'}" data-fac-check="${fac.id}">✓</span>
+          </button>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    async function fetchFacilitiesFromBackend() {
+      try {
+        const res = await fetch(API_BASE + '/api/facilities');
+        const data = await res.json();
+        if (data && data.facilities) {
+          data.facilities.forEach(fac => {
+            if (!FACILITIES_DATA[fac.id]) {
+              const plants = (fac.plants || []).map(p => p.id);
+              (fac.plants || []).forEach(p => {
+                if (!PLANTS_DATA[p.id]) {
+                  PLANTS_DATA[p.id] = {
+                    id: p.id,
+                    name: p.name,
+                    badge: (p.location ? p.location.split(',')[0] : fac.city).substring(0, 8),
+                    badgeColor: 'text-indigo-400 bg-indigo-500/15 border-indigo-500/30',
+                    city: p.location || fac.city,
+                    facilityId: fac.id,
+                    line: p.facility_type || fac.facility_type,
+                    machinesCount: 4,
+                    healthyCount: 4,
+                    warningCount: 0,
+                    criticalCount: 0
+                  };
+                }
+              });
+              FACILITIES_DATA[fac.id] = {
+                id: fac.id,
+                name: fac.name,
+                shortName: fac.name,
+                city: `${fac.city}, ${fac.country}`,
+                badge: fac.city.split(',')[0],
+                badgeColor: 'text-indigo-400 bg-indigo-500/15 border-indigo-500/30',
+                director: fac.director,
+                plants: plants.length > 0 ? plants : [`${fac.id}_PLANT_1`],
+                defaultPlant: plants.length > 0 ? plants[0] : `${fac.id}_PLANT_1`,
+                description: fac.description || fac.facility_type
+              };
+            }
+          });
+          renderFacilityDropdownOptions();
+        }
+      } catch (e) {
+        console.warn('Could not sync facilities from backend', e);
+      }
+    }
+
     let activeBlueprintSeq = 0;
     let currentFacilityId = localStorage.getItem('twinforge_active_facility') || 'FACILITY_APEX';
     let currentPlantId = localStorage.getItem('twinforge_active_plant') || 'ALL';
@@ -3029,6 +4332,7 @@
         targetPlant = fac.defaultPlant || fac.plants[0];
       }
       switchPlant(targetPlant);
+      if (currentTwinMode === 'floor') renderFloorPlan(facilityId, targetPlant);
     }
 
     function renderFacilityPlantsUI(facilityId) {
@@ -3167,6 +4471,11 @@
 
       // 7. Load Filtered KPIs
       loadKpis(plantId);
+
+      // 8. Sync Floor Plan if floor mode active
+      if (currentTwinMode === 'floor') {
+        renderFloorPlan(currentFacilityId, plantId);
+      }
     }
 
     // Dynamic Blueprint Topology Loader (Fetches CAD Layout from SQLite + Live Graph Telemetry)
@@ -3385,6 +4694,505 @@
       }
     });
 
+    // =========================================================================
+    // PREDICTIVE MAINTENANCE CONTROLLER
+    // =========================================================================
+    const PDM_FALLBACK_ASSETS = [
+      {
+        id: "M7",
+        machine_id: "M7",
+        name: "CNC-Unit-M7 (Detroit)",
+        plant: "Apex Advanced Assembly",
+        failure_risk: 0.94,
+        failure_probability: 0.94,
+        vibration_rms: 8.45,
+        vibration_threshold: 4.50,
+        bearing_temp: 89.4,
+        bearing_temp_c: 89.4,
+        normal_temp: 65.0,
+        rul_hours: 48,
+        remaining_useful_life_hours: 48,
+        health_index: 0.18,
+        anomaly_status: "CRITICAL_BEARING_DEGRADATION",
+        diagnostic_summary: "FFT spectrum identifies 240Hz cage fault harmonic; micro-spalling on inner ceramic raceway.",
+        fft_harmonics: [
+          {freq_hz: 60, amplitude: 1.2, label: "1X Running Speed"},
+          {freq_hz: 120, amplitude: 1.8, label: "2X Harmonics"},
+          {freq_hz: 180, amplitude: 2.1, label: "3X Harmonics"},
+          {freq_hz: 240, amplitude: 8.45, label: "🚨 Cage Crack Harmonic (240Hz)"},
+          {freq_hz: 300, amplitude: 2.6, label: "5X Harmonics"},
+          {freq_hz: 360, amplitude: 1.9, label: "6X Harmonics"},
+          {freq_hz: 420, amplitude: 1.4, label: "7X Harmonics"},
+          {freq_hz: 480, amplitude: 1.1, label: "8X Harmonics"}
+        ],
+        prescription: {
+          action_title: "Emergency Ceramic Bearing Replacement (ISO-6008)",
+          scheduled_downtime_hours: 2.5,
+          preventive_cost_usd: 750,
+          catastrophic_breakdown_cost_usd: 142000,
+          cost_avoidance_usd: 141250,
+          urgency: "CRITICAL",
+          required_spare: "Precision Ceramic Bearing SP-CER-6008",
+          spare_stock: 4,
+          transit_hours: 2.0
+        }
+      },
+      {
+        id: "M12",
+        machine_id: "M12",
+        name: "CNC-Unit-M12 (Detroit)",
+        plant: "Apex Advanced Assembly",
+        failure_risk: 0.88,
+        failure_probability: 0.88,
+        vibration_rms: 2.05,
+        vibration_threshold: 4.50,
+        bearing_temp: 67.2,
+        bearing_temp_c: 67.2,
+        normal_temp: 65.0,
+        rul_hours: 96,
+        remaining_useful_life_hours: 96,
+        health_index: 0.45,
+        anomaly_status: "FILTER_OCCLUSION",
+        diagnostic_summary: "Differential pressure delta at 3.8 bar exceeds 2.5 bar filter threshold. Hydraulic bypass engaged.",
+        fft_harmonics: [
+          {freq_hz: 60, amplitude: 0.8, label: "1X Running Speed"},
+          {freq_hz: 120, amplitude: 0.6, label: "2X Harmonics"},
+          {freq_hz: 180, amplitude: 0.5, label: "3X Harmonics"},
+          {freq_hz: 240, amplitude: 0.7, label: "Nominal"},
+          {freq_hz: 300, amplitude: 0.4, label: "Nominal"},
+          {freq_hz: 360, amplitude: 0.3, label: "Nominal"},
+          {freq_hz: 420, amplitude: 0.2, label: "Nominal"},
+          {freq_hz: 480, amplitude: 0.2, label: "Nominal"}
+        ],
+        prescription: {
+          action_title: "Hydraulic Cartridge Flush & Inline Filter Swap",
+          scheduled_downtime_hours: 1.0,
+          preventive_cost_usd: 250,
+          catastrophic_breakdown_cost_usd: 26500,
+          cost_avoidance_usd: 26250,
+          urgency: "WARNING",
+          required_spare: "Hydraulic Filter Cartridge FLT-HYD-50",
+          spare_stock: 12,
+          transit_hours: 1.5
+        }
+      },
+      {
+        id: "M18",
+        machine_id: "M18",
+        name: "CNC-Unit-M18 (Detroit)",
+        plant: "Apex Advanced Assembly",
+        failure_risk: 0.05,
+        failure_probability: 0.05,
+        vibration_rms: 1.12,
+        vibration_threshold: 4.50,
+        bearing_temp: 38.5,
+        bearing_temp_c: 38.5,
+        normal_temp: 65.0,
+        rul_hours: 3600,
+        remaining_useful_life_hours: 3600,
+        health_index: 0.98,
+        anomaly_status: "OPTIMAL_STANDBY",
+        diagnostic_summary: "Warm idle status verified. Spindle runout within 1.2 microns. Ready for immediate cutover.",
+        fft_harmonics: [
+          {freq_hz: 60, amplitude: 0.5, label: "1X Running Speed"},
+          {freq_hz: 120, amplitude: 0.4, label: "2X Harmonics"},
+          {freq_hz: 180, amplitude: 0.3, label: "3X Harmonics"},
+          {freq_hz: 240, amplitude: 0.3, label: "Nominal"},
+          {freq_hz: 300, amplitude: 0.2, label: "Nominal"},
+          {freq_hz: 360, amplitude: 0.2, label: "Nominal"},
+          {freq_hz: 420, amplitude: 0.1, label: "Nominal"},
+          {freq_hz: 480, amplitude: 0.1, label: "Nominal"}
+        ],
+        prescription: {
+          action_title: "Routine Standby Inspection",
+          scheduled_downtime_hours: 0.5,
+          preventive_cost_usd: 100,
+          catastrophic_breakdown_cost_usd: 5000,
+          cost_avoidance_usd: 4900,
+          urgency: "NORMAL",
+          required_spare: "Standard Lubricant Grease LG-1",
+          spare_stock: 20,
+          transit_hours: 0.5
+        }
+      }
+    ];
+
+    let pdmAssetsData = [];
+    let pdmSelectedAssetId = 'M7';
+
+    async function loadPdmAnalytics() {
+      // Instant Fallback Hydration to eliminate any white/empty screen during initial load or refresh
+      if (!pdmAssetsData || pdmAssetsData.length === 0) {
+        pdmAssetsData = [...PDM_FALLBACK_ASSETS];
+        renderPdmAssetList();
+        selectPdmAsset(pdmSelectedAssetId || 'M7');
+      }
+
+      try {
+        const res = await fetch(API_BASE + '/api/pdm/analytics');
+        const data = await res.json();
+        if (data.status !== 'success' || !data.assets || data.assets.length === 0) return;
+
+        pdmAssetsData = data.assets || [];
+        const summary = data.fleet_summary || {};
+
+        const kpiSensors = document.getElementById('pdm-kpi-sensors');
+        if (kpiSensors) kpiSensors.innerText = summary.monitored_assets || 34;
+
+        const kpiHealth = document.getElementById('pdm-kpi-health');
+        if (kpiHealth) kpiHealth.innerText = (summary.average_fleet_health || 85) + '%';
+
+        const kpiSavings = document.getElementById('pdm-kpi-savings');
+        if (kpiSavings) kpiSavings.innerText = '$' + Number(summary.total_cost_avoidance_usd || 167550).toLocaleString();
+
+        renderPdmAssetList();
+
+        const defaultAsset = pdmAssetsData.find(a => (a.id || a.machine_id) === pdmSelectedAssetId) || pdmAssetsData[0];
+        if (defaultAsset) selectPdmAsset(defaultAsset.id || defaultAsset.machine_id);
+      } catch (err) {
+        console.error('loadPdmAnalytics error:', err);
+      }
+    }
+
+    function renderPdmAssetList() {
+      const container = document.getElementById('pdm-asset-list');
+      if (!container) return;
+
+      container.innerHTML = pdmAssetsData.map(a => {
+        const mId = a.id || a.machine_id || 'M7';
+        const isCritical = a.anomaly_status === 'CRITICAL' || (a.anomaly_status && a.anomaly_status.includes('CRITICAL'));
+        const isWarning = a.anomaly_status === 'WARNING' || (a.anomaly_status && a.anomaly_status.includes('WARNING'));
+        const isSelected = mId === pdmSelectedAssetId;
+
+        const statusColor = isCritical ? 'text-critical bg-critical/10 border-critical/30' :
+                           (isWarning ? 'text-warning bg-warning/10 border-warning/30' : 'text-healthy bg-healthy/10 border-healthy/30');
+
+        const health = typeof a.health_index === 'number' ? Math.round(a.health_index * 100) : 85;
+        const vib = typeof a.vibration_rms === 'number' ? a.vibration_rms.toFixed(2) : '1.25';
+        const rul = typeof a.rul_hours === 'number' ? a.rul_hours.toFixed(0) :
+                   (typeof a.remaining_useful_life_hours === 'number' ? a.remaining_useful_life_hours.toFixed(0) : '48');
+
+        return `
+          <div onclick="selectPdmAsset('${mId}')" class="p-3 rounded-lg border ${isSelected ? 'border-accent bg-accent/10 shadow-sm' : 'border-line bg-surface-2/40 hover:bg-surface-2'} cursor-pointer transition-all">
+            <div class="flex items-center justify-between mb-1.5">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-xs font-bold text-ink">${mId}</span>
+                <span class="text-xs text-ink truncate max-w-[140px] font-medium">${a.name || mId}</span>
+              </div>
+              <span class="rounded px-1.5 py-0.5 text-[9.5px] font-mono font-bold border ${statusColor}">${a.anomaly_status || 'NOMINAL'}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-[11px] text-muted">
+              <div>
+                <span class="block text-[10px]">Health</span>
+                <span class="font-mono font-bold ${health < 60 ? 'text-critical' : 'text-ink'}">${health}%</span>
+              </div>
+              <div>
+                <span class="block text-[10px]">Vib RMS</span>
+                <span class="font-mono font-bold ${parseFloat(vib) > 4.5 ? 'text-critical' : 'text-ink'}">${vib} mm/s</span>
+              </div>
+              <div>
+                <span class="block text-[10px]">RUL</span>
+                <span class="font-mono font-bold ${parseFloat(rul) < 72 ? 'text-critical' : 'text-ink'}">${rul}h</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectPdmAsset(machineId) {
+      pdmSelectedAssetId = machineId;
+      const asset = pdmAssetsData.find(a => (a.id || a.machine_id) === machineId) || pdmAssetsData[0];
+      if (!asset) return;
+
+      renderPdmAssetList();
+
+      const mId = asset.id || asset.machine_id || machineId;
+      const selName = document.getElementById('pdm-sel-name');
+      if (selName) selName.innerText = `${mId} • ${asset.name || mId}`;
+
+      const selDiag = document.getElementById('pdm-sel-diag');
+      if (selDiag) selDiag.innerText = asset.diagnostic_summary || 'Sensor telemetry within nominal baseline.';
+
+      const isCritical = asset.anomaly_status === 'CRITICAL' || (asset.anomaly_status && asset.anomaly_status.includes('CRITICAL'));
+      const isWarning = asset.anomaly_status === 'WARNING' || (asset.anomaly_status && asset.anomaly_status.includes('WARNING'));
+
+      const selBadge = document.getElementById('pdm-sel-badge');
+      if (selBadge) {
+        selBadge.innerText = `${asset.anomaly_status || 'NOMINAL'} ANOMALY`;
+        selBadge.className = isCritical ? 'rounded-md px-2 py-0.5 text-xs font-bold bg-critical/20 text-critical border border-critical/30 font-mono' :
+                             (isWarning ? 'rounded-md px-2 py-0.5 text-xs font-bold bg-warning/20 text-warning border border-warning/30 font-mono' :
+                              'rounded-md px-2 py-0.5 text-xs font-bold bg-healthy/20 text-healthy border border-healthy/30 font-mono');
+      }
+
+      const gaugeVib = document.getElementById('pdm-gauge-vib');
+      if (gaugeVib) {
+        const v = typeof asset.vibration_rms === 'number' ? asset.vibration_rms.toFixed(2) : '1.25';
+        gaugeVib.innerText = `${v} mm/s`;
+      }
+
+      const gaugeTemp = document.getElementById('pdm-gauge-temp');
+      if (gaugeTemp) {
+        const t = typeof asset.bearing_temp === 'number' ? asset.bearing_temp.toFixed(1) :
+                 (typeof asset.bearing_temp_c === 'number' ? asset.bearing_temp_c.toFixed(1) : '65.0');
+        gaugeTemp.innerText = `${t} °C`;
+      }
+
+      const gaugePfail = document.getElementById('pdm-gauge-pfail');
+      if (gaugePfail) {
+        const r = typeof asset.failure_risk === 'number' ? asset.failure_risk :
+                 (typeof asset.failure_probability === 'number' ? asset.failure_probability : 0.05);
+        gaugePfail.innerText = `${Math.round(r * 100)}%`;
+      }
+
+      const gaugeRul = document.getElementById('pdm-gauge-rul');
+      if (gaugeRul) {
+        const rl = typeof asset.rul_hours === 'number' ? asset.rul_hours.toFixed(0) :
+                  (typeof asset.remaining_useful_life_hours === 'number' ? asset.remaining_useful_life_hours.toFixed(0) : '48');
+        gaugeRul.innerText = `${rl} h`;
+      }
+
+      // Render FFT Harmonic Bars
+      const fftContainer = document.getElementById('pdm-fft-bars');
+      if (fftContainer && asset.fft_harmonics) {
+        fftContainer.innerHTML = asset.fft_harmonics.map(h => {
+          const amp = typeof h.amplitude === 'number' ? h.amplitude : 1.0;
+          const freq = h.freq_hz || h.frequency_hz || 60;
+          const heightPct = Math.min(100, Math.max(10, Math.round((amp / 7.5) * 100)));
+          const isFault = freq === 240 && amp > 4.0;
+          const barColor = isFault ? 'bg-critical shadow-sm shadow-critical/50' : 'bg-accent/60';
+          return `
+            <div class="flex-1 flex flex-col items-center gap-1 group relative">
+              <span class="opacity-0 group-hover:opacity-100 absolute -top-5 font-mono text-[9px] text-ink transition-opacity">${amp.toFixed(1)}g</span>
+              <div class="w-full ${barColor} rounded-t transition-all duration-300" style="height: ${heightPct}%;"></div>
+              <span class="font-mono text-[9px] text-muted truncate w-full text-center">${freq}Hz</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render RUL SVG Curve
+      const rulPath = document.getElementById('pdm-rul-path');
+      if (rulPath) {
+        if (isCritical) {
+          rulPath.setAttribute('d', 'M 0 15 Q 100 25, 140 70 T 200 95');
+          rulPath.setAttribute('stroke', '#ef4444');
+        } else if (isWarning) {
+          rulPath.setAttribute('d', 'M 0 15 Q 100 20, 160 45 T 200 80');
+          rulPath.setAttribute('stroke', '#f59e0b');
+        } else {
+          rulPath.setAttribute('d', 'M 0 15 Q 100 18, 170 25 T 200 35');
+          rulPath.setAttribute('stroke', '#10b981');
+        }
+      }
+
+      // Prescription Card
+      const rx = asset.prescription || {};
+      const rxAction = document.getElementById('pdm-rx-action');
+      if (rxAction) rxAction.innerText = rx.action_title || "Routine Lubrication";
+
+      const rxSpare = document.getElementById('pdm-rx-spare');
+      if (rxSpare) rxSpare.innerText = `${rx.required_spare || 'Standard Spare'} (${rx.spare_stock || 4} units, ${rx.transit_hours || 2.0}h transit)`;
+
+      const rxRoi = document.getElementById('pdm-rx-roi');
+      if (rxRoi) rxRoi.innerText = `$${Number(rx.cost_avoidance_usd || 141250).toLocaleString()} net saved ($${rx.preventive_cost_usd || 750} fix vs $${Number(rx.catastrophic_breakdown_cost_usd || 142000).toLocaleString()} crash)`;
+    }
+
+    // =========================================================================
+    // DEMAND FORECASTING CONTROLLER
+    // =========================================================================
+    const FORECASTING_FALLBACK_COMMITMENTS = [
+      {
+        customer_name: "HyperDrive Electric Motors Corp",
+        tier: "Tier-1 Strategic",
+        contract: "CONTRACT-HYPERDRIVE-P4-Q2",
+        units: 850,
+        penalty_risk: "HIGH RISK SLA BREACH ($12,500/hr line-stop)",
+        hourly_penalty: "$12,500/hr",
+        period: "2026-Q2",
+        product: "Product P4 (High-Torque Stator Core)"
+      },
+      {
+        customer_name: "Apex Automotive Systems",
+        tier: "Strategic",
+        contract: "CONTRACT-APEX-P4-2026",
+        units: 400,
+        penalty_risk: "MODERATE RISK ($5,000/hr penalty)",
+        hourly_penalty: "$5,000/hr",
+        period: "2026-Q2",
+        product: "Product P4 (High-Torque Stator Core)"
+      },
+      {
+        customer_name: "Nordic Precision Dynamics",
+        tier: "Enterprise",
+        contract: "CONTRACT-NORDIC-P4-2026",
+        units: 250,
+        penalty_risk: "LOW (Buffer available)",
+        hourly_penalty: "$0/hr",
+        period: "2026-Q2",
+        product: "Product P4 (High-Torque Stator Core)"
+      }
+    ];
+
+    function renderForecastBarsFallback() {
+      const chartContainer = document.getElementById('fc-chart-bars');
+      if (!chartContainer) return;
+      const actuals = [340, 380, 415, 450, 510, 580];
+      const fitted = [340, 354, 375, 401, 439, 488];
+      const projMonthly = 483;
+      const maxVal = Math.max(...actuals, ...fitted, projMonthly) * 1.15;
+
+      let barsHtml = '';
+      for (let i = 0; i < actuals.length; i++) {
+        const hActual = Math.round((actuals[i] / maxVal) * 100);
+        const hFit = Math.round((fitted[i] / maxVal) * 100);
+        barsHtml += `
+          <div class="flex-1 flex items-end justify-center gap-1 group relative">
+            <span class="opacity-0 group-hover:opacity-100 absolute -top-5 font-mono text-[9px] text-ink transition-opacity">${actuals[i]}u</span>
+            <div class="w-1/2 bg-muted/60 rounded-t" style="height: ${hActual}%;"></div>
+            <div class="w-1/2 bg-accent rounded-t" style="height: ${hFit}%;"></div>
+          </div>
+        `;
+      }
+      const hProj = Math.round((projMonthly / maxVal) * 100);
+      barsHtml += `
+        <div class="flex-1 flex items-end justify-center gap-1 group relative">
+          <span class="opacity-0 group-hover:opacity-100 absolute -top-5 font-mono text-[9px] text-critical font-bold transition-opacity">${projMonthly}u</span>
+          <div class="w-3/4 bg-critical rounded-t shadow-sm shadow-critical/50" style="height: ${hProj}%;"></div>
+        </div>
+      `;
+      chartContainer.innerHTML = barsHtml;
+    }
+
+    let forecastingData = null;
+
+    async function loadForecastingAnalytics() {
+      // Instant Fallback Hydration for zero-latency refresh
+      renderCustomerCommitments(FORECASTING_FALLBACK_COMMITMENTS);
+      renderForecastBarsFallback();
+      const kpiDemandInit = document.getElementById('fc-kpi-p4-demand');
+      if (kpiDemandInit) kpiDemandInit.innerText = '1,450 units';
+      const kpiShortfallInit = document.getElementById('fc-kpi-shortfall');
+      if (kpiShortfallInit) kpiShortfallInit.innerText = '1,050 units';
+
+      try {
+        const res = await fetch(API_BASE + '/api/forecasting/analytics');
+        const data = await res.json();
+        if (data.status !== 'success') return;
+
+        forecastingData = data;
+        const products = data.products || [];
+        const commitments = (data.customer_commitments && data.customer_commitments.length > 0)
+          ? data.customer_commitments
+          : FORECASTING_FALLBACK_COMMITMENTS;
+
+        const p4 = products.find(p => p.product_id === 'P4') || products[0];
+        if (p4 && p4.forecast_horizons && p4.forecast_horizons.length) {
+          const q2 = p4.forecast_horizons[0];
+          const kpiDemand = document.getElementById('fc-kpi-p4-demand');
+          if (kpiDemand) kpiDemand.innerText = `${Number(q2.forecast_units).toLocaleString()} units`;
+
+          const kpiShortfall = document.getElementById('fc-kpi-shortfall');
+          if (kpiShortfall) kpiShortfall.innerText = `${Number(q2.projected_inventory_shortfall).toLocaleString()} units`;
+        }
+
+        renderCustomerCommitments(commitments);
+        runForecastSimulation();
+      } catch (err) {
+        console.error('loadForecastingAnalytics error:', err);
+      }
+    }
+
+    function renderCustomerCommitments(commitments) {
+      const container = document.getElementById('fc-customer-contracts');
+      if (!container) return;
+
+      container.innerHTML = commitments.map(c => `
+        <div class="rounded-lg border border-line bg-surface-2/40 p-3 hover:bg-surface-2 transition-colors">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-bold text-ink text-xs">${c.customer_name}</span>
+            <span class="rounded px-1.5 py-0.5 text-[9.5px] font-mono font-bold bg-critical/15 text-critical border border-critical/30">${c.penalty_risk}</span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-muted">
+            <span>Contract: <strong class="text-ink font-mono">${c.contract}</strong></span>
+            <span>Committed: <strong class="text-ink font-mono">${c.units} units</strong></span>
+          </div>
+          <div class="mt-1.5 flex items-center justify-between text-[11px] pt-1.5 border-t border-line/60">
+            <span class="text-muted">Downtime Penalty</span>
+            <span class="font-mono font-bold text-critical">${c.hourly_penalty}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function runForecastSimulation() {
+      try {
+        const prodSelect = document.getElementById('fc-sim-product');
+        const productId = prodSelect ? prodSelect.value : 'P4';
+        const alphaInput = document.getElementById('fc-sim-alpha');
+        const alpha = alphaInput ? parseFloat(alphaInput.value) : 0.35;
+        const shockInput = document.getElementById('fc-sim-shock');
+        const shock = shockInput ? parseFloat(shockInput.value) : 15;
+
+        const res = await fetch(API_BASE + '/api/forecasting/simulate', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            product_id: productId,
+            alpha: alpha,
+            demand_shock_pct: shock
+          })
+        });
+
+        const sim = await res.json();
+        if (sim.status !== 'success') return;
+
+        const resColl = document.getElementById('fc-res-collision');
+        if (resColl) resColl.innerText = sim.stockout_collision_date;
+
+        const resShort = document.getElementById('fc-res-shortfall');
+        if (resShort) resShort.innerText = `${Number(sim.projected_shortfall).toLocaleString()} units`;
+
+        const resCi = document.getElementById('fc-res-ci');
+        if (resCi) resCi.innerText = `${Number(sim.ci_lower).toLocaleString()} – ${Number(sim.ci_upper).toLocaleString()} units`;
+
+        // Render Bars
+        const chartContainer = document.getElementById('fc-chart-bars');
+        if (chartContainer) {
+          const actuals = sim.historical_actuals || [340, 380, 415, 450, 510, 580];
+          const fitted = sim.fitted_curve || [340, 354, 375, 401, 439, 488];
+          const maxVal = Math.max(...actuals, ...fitted, sim.projected_q2_units / 3) * 1.15;
+
+          let barsHtml = '';
+          for (let i = 0; i < actuals.length; i++) {
+            const hActual = Math.round((actuals[i] / maxVal) * 100);
+            const hFit = Math.round((fitted[i] / maxVal) * 100);
+            barsHtml += `
+              <div class="flex-1 flex items-end justify-center gap-1 group relative">
+                <span class="opacity-0 group-hover:opacity-100 absolute -top-5 font-mono text-[9px] text-ink transition-opacity">${actuals[i]}u</span>
+                <div class="w-1/2 bg-muted/60 rounded-t" style="height: ${hActual}%;"></div>
+                <div class="w-1/2 bg-accent rounded-t" style="height: ${hFit}%;"></div>
+              </div>
+            `;
+          }
+
+          // Projection bar
+          const projMonthly = Math.round(sim.projected_q2_units / 3);
+          const hProj = Math.round((projMonthly / maxVal) * 100);
+          barsHtml += `
+            <div class="flex-1 flex items-end justify-center gap-1 group relative">
+              <span class="opacity-0 group-hover:opacity-100 absolute -top-5 font-mono text-[9px] text-critical font-bold transition-opacity">${projMonthly}u</span>
+              <div class="w-3/4 bg-critical rounded-t shadow-sm shadow-critical/50" style="height: ${hProj}%;"></div>
+            </div>
+          `;
+
+          chartContainer.innerHTML = barsHtml;
+        }
+      } catch (err) {
+        console.error('runForecastSimulation error:', err);
+      }
+    }
+
     async function loadKpis(plantId) {
       try {
         const targetPlant = plantId !== undefined ? plantId : (window.currentPlantId || 'PLANT_DETROIT');
@@ -3429,14 +5237,25 @@
       updateThemeUI(next);
     }
 
-    // Handle initial route, plant & theme
+    // Handle initial route, plant, sidebar & theme
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     updateThemeUI(currentTheme);
 
+    // Restore sidebar minimize state if previously selected
+    try {
+      if (window.innerWidth >= 1024 && localStorage.getItem('twinforge_sidebar_collapsed') === '1') {
+        document.body.classList.add('sidebar-collapsed');
+        const btn = document.getElementById('btn-sidebar-collapse');
+        if (btn) btn.title = 'Expand sidebar navigation';
+      }
+    } catch (e) {}
+
     const rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '');
-    const path = (!rawPath || rawPath === 'home' || rawPath === 'index.html') ? 'twin' : rawPath;
-    navigatePage(path);
+    const savedView = localStorage.getItem('twinforge_active_view');
+    const path = (!rawPath || rawPath === 'home' || rawPath === 'index.html') ? (savedView || 'twin') : rawPath;
+    navigatePage(path, false);
     checkHealth();
+    fetchFacilitiesFromBackend();
     switchFacility(currentFacilityId, currentPlantId);
   </script>
 </body>

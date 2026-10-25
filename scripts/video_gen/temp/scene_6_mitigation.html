@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Autonomous Mitigation & Asset Redundancy</title>
+    <style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+body { width: 1920px; height: 1080px; background: #0B0F19; color: #F3F4F6; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 60px 80px; position: relative; }
+
+/* Background Tech Grid */
+body::before {
+    content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px; z-index: 0; pointer-events: none;
+}
+
+.header-bar { display: flex; justify-content: space-between; align-items: center; z-index: 10; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 24px; }
+.logo-title { font-size: 28px; font-weight: 800; letter-spacing: 2px; color: #FFF; display: flex; align-items: center; gap: 12px; }
+.logo-pill { background: #00F0FF; color: #000; font-size: 14px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
+.header-meta { font-size: 18px; color: #9CA3AF; }
+
+.content-container { flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 10; padding: 30px 0; }
+.card { background: rgba(17, 24, 39, 0.85); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); backdrop-filter: blur(16px); }
+
+.badge-row { display: flex; gap: 12px; margin-bottom: 18px; }
+.badge { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 14px; border-radius: 6px; }
+.badge.cyan { background: rgba(0, 240, 255, 0.15); color: #00F0FF; border: 1px solid rgba(0, 240, 255, 0.4); }
+.badge.green { background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.4); }
+.badge.red { background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.5); }
+.badge.yellow { background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.4); }
+.badge.blue { background: rgba(59, 130, 246, 0.15); color: #3B82F6; border: 1px solid rgba(59, 130, 246, 0.4); }
+.badge.dark { background: rgba(255, 255, 255, 0.1); color: #D1D5DB; }
+
+.main-title { font-size: 76px; font-weight: 900; letter-spacing: 4px; color: #FFF; margin-bottom: 10px; }
+.highlight { color: #00F0FF; }
+.tagline { font-size: 26px; color: #9CA3AF; margin-bottom: 40px; }
+.section-title { font-size: 38px; font-weight: 800; color: #FFF; margin-bottom: 24px; }
+
+.grid-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 30px; }
+.stat-box { background: rgba(31, 41, 55, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); padding: 24px; border-radius: 14px; text-align: center; }
+.stat-num { font-size: 48px; font-weight: 800; color: #00F0FF; }
+.stat-label { font-size: 16px; color: #9CA3AF; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; }
+
+.facility-preview { display: flex; gap: 16px; }
+.fac-chip { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px 20px; border-radius: 10px; font-size: 16px; color: #D1D5DB; }
+
+.grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.asset-card { background: rgba(31, 41, 55, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 28px; }
+.alert-glow { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 30px rgba(239, 68, 68, 0.15); }
+.asset-id { font-size: 32px; font-weight: 900; color: #EF4444; margin-right: 14px; }
+.asset-type { font-size: 18px; color: #9CA3AF; }
+.telemetry-gauges { margin-top: 24px; display: flex; flex-direction: column; gap: 18px; }
+.gauge-item { display: flex; flex-direction: column; gap: 6px; }
+.gauge-label { font-size: 15px; color: #9CA3AF; }
+.gauge-val { font-size: 24px; font-weight: 800; }
+.red-text { color: #EF4444; }
+.yellow-text { color: #F59E0B; }
+.bar-bg { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+.bar-fill { height: 100%; }
+.red-fill { background: #EF4444; }
+.yellow-fill { background: #F59E0B; }
+
+.diagnostic-box { background: rgba(31, 41, 55, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; }
+.box-title { font-size: 20px; font-weight: 700; color: #FFF; margin-bottom: 16px; }
+.diag-list { list-style: none; display: flex; flex-direction: column; gap: 14px; font-size: 17px; color: #D1D5DB; }
+.graph-tag { font-family: monospace; font-size: 14px; color: #00F0FF; background: rgba(0, 240, 255, 0.08); padding: 12px; border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.2); }
+
+.traversal-chain { display: flex; align-items: center; justify-content: space-between; margin: 30px 0; }
+.chain-node { background: rgba(31, 41, 55, 0.9); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 14px; padding: 20px 24px; min-width: 200px; text-align: center; }
+.chain-node.red-node { border-color: #EF4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+.chain-node.purple-node { border-color: #A855F7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.2); }
+.chain-node.green-node { border-color: #10B981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+.node-type { font-size: 12px; text-transform: uppercase; color: #9CA3AF; letter-spacing: 1px; }
+.node-name { font-size: 19px; font-weight: 800; color: #FFF; margin: 6px 0; }
+.node-meta { font-size: 14px; color: #00F0FF; }
+.chain-arrow { font-size: 14px; font-weight: 800; color: #9CA3AF; letter-spacing: 1px; }
+.cypher-box { background: #000; border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 12px; padding: 20px; font-family: "SF Mono", Monaco, Menlo, monospace; font-size: 17px; color: #A7F3D0; line-height: 1.6; }
+.cypher-header { color: #00F0FF; font-weight: 700; margin-bottom: 6px; }
+
+.order-card { background: rgba(31, 41, 55, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 30px; }
+.order-client { font-size: 24px; font-weight: 800; color: #00F0FF; }
+.order-no { font-size: 16px; color: #9CA3AF; margin-bottom: 20px; font-family: monospace; }
+.order-row { display: flex; justify-content: space-between; font-size: 18px; margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 8px; }
+.deficit-callout { background: rgba(239, 68, 68, 0.15); border: 2px solid #EF4444; border-radius: 12px; padding: 18px; text-align: center; margin-top: 20px; }
+.def-num { font-size: 40px; font-weight: 900; color: #EF4444; display: block; }
+.def-text { font-size: 14px; letter-spacing: 1.5px; font-weight: 700; color: #FCA5A5; }
+
+.penalty-card { background: rgba(31, 41, 55, 0.8); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 16px; padding: 30px; display: flex; flex-direction: column; justify-content: center; }
+.penalty-title { font-size: 20px; color: #9CA3AF; text-transform: uppercase; letter-spacing: 1px; }
+.penalty-rate { font-size: 64px; font-weight: 900; color: #F59E0B; margin: 10px 0; }
+.rate-sub { font-size: 24px; font-weight: 600; color: #9CA3AF; }
+.sla-clock { font-size: 22px; color: #FFF; background: rgba(255, 255, 255, 0.08); padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; width: fit-content; }
+.penalty-desc { font-size: 17px; color: #D1D5DB; line-height: 1.6; }
+
+.chat-container { display: flex; flex-direction: column; gap: 20px; }
+.chat-msg { display: flex; flex-direction: column; gap: 6px; }
+.user-msg { align-self: flex-start; max-width: 80%; }
+.ai-msg { align-self: flex-start; max-width: 90%; }
+.sender { font-size: 15px; font-weight: 700; color: #9CA3AF; }
+.user-msg .msg-bubble { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); padding: 18px 24px; border-radius: 14px; font-size: 20px; color: #FFF; font-weight: 500; }
+.ai-msg .msg-bubble { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); padding: 22px 28px; border-radius: 14px; font-size: 18px; color: #FFF; line-height: 1.6; }
+.res-badge { color: #F59E0B; font-weight: 800; font-size: 19px; margin-bottom: 10px; }
+.chat-bullets { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 10px; font-size: 18px; }
+
+.solution-card { background: rgba(31, 41, 55, 0.85); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 30px; }
+.sol-badge { font-size: 13px; font-weight: 800; color: #10B981; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+.sol-title { font-size: 28px; font-weight: 800; color: #FFF; margin-bottom: 6px; }
+.sol-detail { font-size: 15px; color: #9CA3AF; margin-bottom: 20px; font-family: monospace; }
+.sol-stats { list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 18px; }
+
+.summary-card { text-align: center; padding: 60px 40px; }
+.summary-title { font-size: 56px; font-weight: 900; color: #FFF; margin-bottom: 30px; }
+.decision-receipt { background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 16px; padding: 30px; max-width: 900px; margin: 0 auto 30px auto; text-align: left; }
+.receipt-header { font-size: 20px; font-weight: 800; color: #10B981; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 12px; margin-bottom: 16px; }
+.receipt-body { display: flex; flex-direction: column; gap: 12px; font-size: 18px; color: #E5E7EB; line-height: 1.5; }
+.tech-stack-row { font-size: 17px; color: #9CA3AF; letter-spacing: 1px; }
+
+.footer-bar { display: flex; justify-content: space-between; align-items: center; z-index: 10; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px; font-size: 16px; color: #9CA3AF; }
+.scene-indicator { font-weight: 700; color: #00F0FF; }
+</style>
+</head>
+<body>
+    <div class="header-bar">
+        <div class="logo-title">
+            <span>TWINFORGE</span>
+            <span class="logo-pill">FALKORDB GRAPH DEMO</span>
+        </div>
+        <div class="header-meta">Cross-Plant Standby Machine M18 • Munich Hub Air Dispatch Spindle</div>
+    </div>
+    <div class="content-container">
+        
+        <div class="card">
+            <div class="badge-row">
+                <span class="badge green">AUTONOMOUS CONTINGENCY</span>
+                <span class="badge blue">Dual Recovery Plan</span>
+            </div>
+            <h2 class="section-title">FalkorDB Discovered Solutions</h2>
+            <div class="grid-2col">
+                <div class="solution-card">
+                    <div class="sol-badge">SOLUTION 1: Cross-Plant Redundancy</div>
+                    <div class="sol-title">CNC-Unit-M18 (Standby Asset)</div>
+                    <div class="sol-detail">Connected via <code>[:CAPABLE_OF_PRODUCING]</code> for M7 parts</div>
+                    <ul class="sol-stats">
+                        <li>🔄 Retooling Setup SLA: <b>3.5 Hours</b></li>
+                        <li>⚡ Daily Production Output: <b>80 Units / Day</b></li>
+                        <li>✅ Shortfall Recovery: Clears 150-unit deficit in &lt; 48h</li>
+                    </ul>
+                </div>
+                <div class="solution-card">
+                    <div class="sol-badge">SOLUTION 2: Emergency Component Dispatch</div>
+                    <div class="sol-title">KUKA 24,000 RPM Spindle Unit</div>
+                    <div class="sol-detail">Connected via <code>[:HAS_SPARE_COMPONENT]</code></div>
+                    <ul class="sol-stats">
+                        <li>📍 Location: <b>Munich Central Hub (2 units in stock)</b></li>
+                        <li>✈️ Chartered Air Transit: <b>8.5 Hours</b> direct to Detroit</li>
+                        <li>💰 Replacement Cost: <b>$48,500 USD</b> (Eliminates $25k/hr penalty)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="footer-bar">
+        <div>TwinForge Multi-Agent Supply Chain • FalkorDB Graph Demo</div>
+        <div class="scene-indicator">SCENE 6 OF 7</div>
+    </div>
+</body>
+</html>

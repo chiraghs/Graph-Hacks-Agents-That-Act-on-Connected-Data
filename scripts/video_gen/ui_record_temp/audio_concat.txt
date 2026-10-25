@@ -1,0 +1,5 @@
+file '/Volumes/DiskD/HACKATHONS/Agent-SupplyChain/scripts/video_gen/ui_record_temp/part1_intro_twin.wav'
+file '/Volumes/DiskD/HACKATHONS/Agent-SupplyChain/scripts/video_gen/ui_record_temp/part2_copilot_hi.wav'
+file '/Volumes/DiskD/HACKATHONS/Agent-SupplyChain/scripts/video_gen/ui_record_temp/part3_copilot_hyperdrive.wav'
+file '/Volumes/DiskD/HACKATHONS/Agent-SupplyChain/scripts/video_gen/ui_record_temp/part4_copilot_spares.wav'
+file '/Volumes/DiskD/HACKATHONS/Agent-SupplyChain/scripts/video_gen/ui_record_temp/part5_navigation_audit.wav'
