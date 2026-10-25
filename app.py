@@ -32,7 +32,10 @@ app.add_middleware(
 )
 
 STATIC_DIR = Path(__file__).parent / "static"
+ASSETS_DIR = Path(__file__).parent / "assets"
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+if ASSETS_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
 
 # Mount modular API routers
 app.include_router(telemetry_router)
@@ -76,7 +79,7 @@ async def serve_index():
 async def serve_spa_catchall(full_path: str):
     """Catch-all router allowing full browser refresh on any client-side route with zero-cache headers."""
     clean_path = full_path.strip("/")
-    if clean_path.startswith("api") or clean_path.startswith("static") or clean_path == "health":
+    if clean_path.startswith("api") or clean_path.startswith("static") or clean_path.startswith("assets") or clean_path == "health":
         raise HTTPException(status_code=404, detail="Not Found")
     index_path = STATIC_DIR / "index.html"
     return HTMLResponse(content=index_path.read_text(encoding="utf-8"), headers=NO_CACHE_HEADERS)

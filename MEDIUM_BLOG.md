@@ -2,7 +2,7 @@
 
 ### How we combined IoT Predictive Maintenance and Exponential-Smoothing Demand Forecasting with Graph-Native AI Agents to solve manufacturing’s multi-billion-dollar blind spot.
 
-![TwinForge Hero Banner](assets/blog/00_cover_hero.jpg)
+![TwinForge Hero Banner](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/00_cover_hero.jpg)
 *Figure 1: TwinForge Connected Graph — Autonomous AI Control Tower combining physical IoT telemetry, digital twin topology, and enterprise supply chain graphs.*
 
 ---
@@ -42,7 +42,7 @@ In SQL, this query requires 8 to 9 nested table joins across millions of rows. I
 
 We built **TwinForge Connected Graph** to eliminate this friction entirely. Instead of normalizing data into brittle tabular schemas, we modeled the entire multi-echelon network natively in **FalkorDB** as a single property graph.
 
-![Live 3D Digital Twin Canvas](assets/blog/01_digital_twin_topology.png)
+![Live 3D Digital Twin Canvas](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/01_digital_twin_topology.png)
 *Figure 2: The TwinForge Digital Twin Canvas — visualizing multi-plant topologies across Detroit, Munich, Austin, and London facilities.*
 
 In FalkorDB, physical machines, parts, products, warehouses, and customer delivery contracts are first-class graph nodes:
@@ -72,7 +72,7 @@ $$z_{\text{composite}} = 0.6 \cdot z_{\text{vibration}} + 0.4 \cdot z_{\text{tem
 
 It continuously performs Fast Fourier Transform (FFT) harmonic spectrum decomposition to detect mechanical wear long before heat spikes occur. In our live environment, Unit `M7` exhibits a sharp resonance spike at the **240 Hz cage spalling harmonic** ($8.45\text{ mm/s}$ RMS vs $4.50\text{ mm/s}$ ISO threshold), driving a Weibull failure probability of **88%** and an imminent Remaining Useful Life ($RUL$) limit of **48.0 hours**.
 
-![Predictive Maintenance Studio](assets/blog/09_predictive_maintenance_studio.png)
+![Predictive Maintenance Studio](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/09_predictive_maintenance_studio.png)
 *Figure 3: Predictive Maintenance Studio — live ISO 10816 vibration severity, 240 Hz FFT harmonic spectrum, and non-linear RUL degradation trajectory.*
 
 #### 2. Exponential-Smoothing Demand Forecasting Engine
@@ -86,10 +86,10 @@ $$\text{Safety Stock} = 1.65 \cdot \sigma_{\text{daily}} \cdot \sqrt{\text{Lead 
 
 In our FalkorDB instance, product `P4` is linked to a forward `DemandForecast` node projecting **1,450 units** (+28.5% growth from EV powertrain adoption), against a current warehouse buffer stock of **only 400 units**. This creates an automated **11-day stockout collision warning**.
 
-![Demand Forecasting Studio](assets/blog/10_demand_forecasting_studio.png)
+![Demand Forecasting Studio](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/10_demand_forecasting_studio.png)
 *Figure 4: Demand Forecasting Studio — Single Exponential Smoothing simulator with dynamic α tuning, stockout horizon alert, and customer SLA exposure.*
 
-![Multi-Hop Blast Radius Drawer](assets/blog/02_m7_blast_radius_drawer.png)
+![Multi-Hop Blast Radius Drawer](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/02_m7_blast_radius_drawer.png)
 *Figure 5: Selecting Machine M7 executes an instant sub-40ms multi-hop traversal, uncovering downstream parts, warehouse stock, and SLA penalties.*
 
 ---
@@ -142,7 +142,7 @@ At the same time, machine `M12` shows a **88% failure risk** (breakdown in 4 day
 * **TwinForge’s agent checks the graph topology**: it reveals sister machine `M13` has active redundant capacity, and warehouses hold **2,400 units of buffer stock** (shortfall = 0).
 * **The agent explicitly clears the alert with zero production downtime.**
 
-![Autonomous Agent Live Investigation Console](assets/blog/05_autonomous_agent_investigation.png)
+![Autonomous Agent Live Investigation Console](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/05_autonomous_agent_investigation.png)
 *Figure 6: Real-time Server-Sent Events (SSE) stream showing the agent calling MCP tools and rendering the Vis.js Evidence Subgraph.*
 
 ---
@@ -170,7 +170,7 @@ CREATE (d)-[:BASED_ON]->(target)
 
 Now, plant managers can click any historical decision and visually inspect the exact `Machine`, `Part`, `Product`, `Warehouse`, and `Customer` nodes that justified that action.
 
-![Prescriptive Approvals and Audit Lineage](assets/blog/07_prescriptive_approvals.png)
+![Prescriptive Approvals and Audit Lineage](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/07_prescriptive_approvals.png)
 *Figure 7: Prescriptive mitigation approvals showing financial cost-avoidance ($140,200) and graph evidence lineage.*
 
 ---
@@ -184,7 +184,7 @@ It dynamically operates across three distinct modes:
 2. **Operational Cypher Mode:** Translates natural language into single-hop or multi-hop Cypher queries.
 3. **Compound Decomposition Mode:** Decomposes complex multi-part questions into parallel Cypher operations.
 
-![TwinForge Graph Copilot](assets/blog/03_graph_copilot_cypher.png)
+![TwinForge Graph Copilot](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/03_graph_copilot_cypher.png)
 *Figure 8: The Graph Copilot executing a multi-hop operational query in 37.5ms to reveal HyperDrive's 150-unit shortfall and \$25k/hr penalty.*
 
 When asked:
@@ -214,15 +214,15 @@ RETURN c.name AS customer_name,
 
 Beyond automated agent interventions, the platform provides plant operators with real-time aggregated metrics and what-if simulation capabilities:
 
-![Command Center KPI Dashboards](assets/blog/04_command_center_kpis.png)
+![Command Center KPI Dashboards](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/04_command_center_kpis.png)
 *Figure 9: Command Center featuring live Cypher aggregations for OEE, fleet failure probabilities, and hourly production scheduling.*
 
 In the **Multi-Echelon Simulator**, operators can inject simulated transit delays or supplier lead-time multipliers across Detroit, Munich, and Leipzig to preview supply bottlenecks before they manifest in reality.
 
-![Multi-Echelon Supply Chain Simulator](assets/blog/06_supply_chain_simulator.png)
+![Multi-Echelon Supply Chain Simulator](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/06_supply_chain_simulator.png)
 *Figure 10: Simulating multi-tier lead-time multipliers and transit shocks across global supplier nodes.*
 
-![Cryptographic Audit Trail & Lineage](assets/blog/08_audit_trail_integrations.png)
+![Cryptographic Audit Trail & Lineage](https://raw.githubusercontent.com/chiraghs/Graph-Hacks-Agents-That-Act-on-Connected-Data/main/assets/blog/08_audit_trail_integrations.png)
 *Figure 11: Cryptographic Audit Trail displaying SHA-256 evidence hashes and active FalkorDB Cloud cluster telemetry.*
 
 ---
