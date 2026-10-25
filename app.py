@@ -43,10 +43,7 @@ app.include_router(copilot_router)
 app.include_router(factories_router)
 
 
-# Single Page Application Routes (Catch-all for clean SPA client-side routing)
-@app.get("/", response_class=HTMLResponse)
-@app.get("/home", response_class=HTMLResponse)
-@app.get("/index.html", response_class=HTMLResponse)
+# Zero-cache headers for Single Page Application
 NO_CACHE_HEADERS = {
     "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
     "Pragma": "no-cache",
@@ -54,7 +51,10 @@ NO_CACHE_HEADERS = {
 }
 
 
+# Single Page Application Routes (Catch-all for clean SPA client-side routing)
 @app.get("/", response_class=HTMLResponse)
+@app.get("/home", response_class=HTMLResponse)
+@app.get("/index.html", response_class=HTMLResponse)
 @app.get("/twin", response_class=HTMLResponse)
 @app.get("/connected-graph", response_class=HTMLResponse)
 @app.get("/dashboard", response_class=HTMLResponse)
